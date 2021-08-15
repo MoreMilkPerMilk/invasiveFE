@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:invasive_fe/http-comms.dart';
 
 void main() {
   runApp(MyApp());
@@ -100,6 +101,13 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => HttpTestPage())
+                  );
+                },
+                child: Text("HTTP Test Page"))
           ],
         ),
       ),
