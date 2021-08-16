@@ -11,6 +11,25 @@ const String MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoianNsdm4iLCJhIjoiY2tzZTFoYmltMHc5a
 class MapsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+    // initialise markers
+    var markers = [
+      Marker(
+        width: 20,
+        height: 20,
+        point: LatLng(-27.4975, 153.0137),
+        builder: (ctx) =>
+            Container(
+              child: IconButton(
+                icon: Icon(
+                  Icons.location_pin
+                ),
+                onPressed: pressMarker, // eventually we want to call this with some kind of markerInfo parameter, retrieved from the json file
+              )
+            )
+      )
+    ];
+
     return Scaffold(
       appBar: AppBar(
           title: Text("Maps Page")),
@@ -25,11 +44,15 @@ class MapsPage extends StatelessWidget {
               subdomains: ['a', 'b']
           ),
           MarkerLayerOptions(
-            markers: [],
+            markers: markers,
           ),
         ],
       )
     );
+  }
+
+  void pressMarker() {
+    print('Marker pressed!');
   }
 }
 
