@@ -79,21 +79,41 @@ class User {
     required this.previous_tags,
   });
 
-  @override
-  String toString() {
-    return "${this.person_id}, ${this.first_name}, ${this.count_identified}";
-  }
-
   factory User.fromJson(Map<String, dynamic> json) {
+    List<WeedInstance> previous_tags = [];
+    json['previous_tags'].forEach((element) {
+      previous_tags.add(WeedInstance.fromJson(element));
+    });
+
     return User(
       person_id: json['person_id'],
       first_name: json['first_name'],
       last_name: json['last_name'],
       date_joined: json['date_joined'],
       count_identified: json['count_identified'],
-      previous_tags: WeedInstance.parseWeedInstanceList(json['previous_tags']),
+      previous_tags: previous_tags,
       // previous_tags: json['previous_tags'],
     );
+  }
+
+  @override
+  String toString() {
+    var output = "";
+    output += "id: ${this.person_id}\n";
+    output += "first: ${this.first_name}\n";
+    output += "name: ${this.last_name}\n";
+    output += "date_joined: ${this.date_joined}\n";
+    output += "count_identified: ${this.count_identified}\n";
+
+    output += "previous_tags:\n";
+    int i = 0;
+    this.previous_tags.forEach((element) {
+      output += "$i:";
+      output += "\t $element";
+      i++;
+    });
+
+    return output;
   }
 
   /// Parse a list of Users in JSON format

@@ -11,12 +11,24 @@ class HttpTestPage extends StatelessWidget {
         title: Text("HTTP Test Page"),
       ),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            log("/Locations");
-            getAllLocations();
-          },
-          child: Text('/Locations'),
+        child: Column(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                log("/Locations");
+                getAllLocations();
+              },
+              child: Text('/Locations'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                log("/Users");
+                getAllUsers();
+                // getUserById(1);
+              },
+              child: Text('/Users'),
+            ),
+          ],
         ),
       ),
     );
