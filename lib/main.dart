@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:invasive_fe/http-comms.dart';
+import 'package:invasive_fe/maps.dart';
 
 void main() {
   runApp(MyApp());
@@ -107,7 +108,14 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(builder: (context) => HttpTestPage())
                   );
                 },
-                child: Text("HTTP Test Page"))
+                child: Text("HTTP Test Page")),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => MapsPage())
+                  );
+                },
+                child: Text("Maps Page"))
           ],
         ),
       ),
