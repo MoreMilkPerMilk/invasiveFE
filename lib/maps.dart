@@ -11,48 +11,70 @@ const String MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoianNsdm4iLCJhIjoiY2tzZTFoYmltMHc5a
 class MapsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
-    // initialise markers
-    var markers = [
-      Marker(
-        width: 20,
-        height: 20,
-        point: LatLng(-27.4975, 153.0137),
-        builder: (ctx) =>
-            Container(
-              child: IconButton(
-                icon: Icon(
-                  Icons.location_pin
-                ),
-                onPressed: pressMarker, // eventually we want to call this with some kind of markerInfo parameter, retrieved from the json file
-              )
-            )
-      )
-    ];
-
     return Scaffold(
-      appBar: AppBar(
-          title: Text("Maps Page")),
-      body: FlutterMap(
-        options: MapOptions(
-          center: LatLng(-27.4975, 153.0137),
-          zoom: 13.0,
-        ),
-        layers: [
-          TileLayerOptions(
-              urlTemplate: "http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
-              subdomains: ['a', 'b']
+        appBar: AppBar(
+            title: Text("Maps Page")),
+        body: FlutterMap(
+          options: MapOptions(
+            center: LatLng(-27.4975, 153.0137),
+            zoom: 13.0,
           ),
-          MarkerLayerOptions(
-            markers: markers,
-          ),
-        ],
-      )
+          layers: [
+            TileLayerOptions(
+                urlTemplate: "http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+                subdomains: ['a', 'b']
+            ),
+            MarkerLayerOptions(
+              markers: [
+                Marker(
+                    width: 40,
+                    height: 40,
+                    point: LatLng(-27.4975, 153.0137),
+                    builder: (context) =>
+                        Container(
+                            child: IconButton(
+                              icon: Icon(
+                                  Icons.location_pin,
+                                  size: 40
+                              ),
+                              onPressed: () {
+                                print('Marker pressed!');
+                                var overlayState = Overlay.of(context);
+                                var overlayEntry;
+                                overlayEntry = OverlayEntry(
+                                    builder: (context) =>
+                                        Center(
+                                            child: Material(
+                                                child: Container(
+                                                    width: 100,
+                                                    height: 100,
+                                                    child: Column(
+                                                        mainAxisAlignment: MainAxisAlignment
+                                                            .center,
+                                                        children: <Widget>[
+                                                          Text('weedy weed'),
+                                                          IconButton(
+                                                              onPressed: () {
+                                                                overlayEntry
+                                                                    .remove();
+                                                              },
+                                                              icon: Icon(
+                                                                  Icons.close
+                                                              ))
+                                                        ]
+                                                    )
+                                                )
+                                            )));
+                                overlayState!.insert(overlayEntry);
+                              },
+                            )
+                        )
+                )
+              ],
+            ),
+          ],
+        )
     );
-  }
-
-  void pressMarker() {
-    print('Marker pressed!');
   }
 }
 
