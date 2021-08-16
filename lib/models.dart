@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 
 class WeedInstance {
   String uuid;
-  ByteData image_bytes;
+  String image_url;
+  // ByteData image_bytes;
   int species_id;
   String discovery_date;
   bool removed;
@@ -14,7 +15,7 @@ class WeedInstance {
 
   WeedInstance({
     required this.uuid,
-    required this.image_bytes,
+    required this.image_url,
     required this.species_id,
     required this.discovery_date,
     required this.removed,
@@ -26,7 +27,7 @@ class WeedInstance {
   factory WeedInstance.fromJson(Map<String, dynamic> json) {
     return WeedInstance(
       uuid: json['uuid'],
-      image_bytes: json['image_bytes'],
+      image_url: json['image_bytes'],
       species_id: json['species_id'],
       discovery_date: json['discovery_date'],
       removed: json['removed'],
@@ -34,6 +35,23 @@ class WeedInstance {
       replaced: json['replaced'],
       replaced_species: json['replaced_species']
     );
+  }
+
+  @override
+  String toString() {
+    var output = "";
+    output += "\t uuid: ${this.uuid}\n";
+    output += "\t image_url: ${this.image_url}\n";
+    output += "\t species_id: ${this.species_id}\n";
+    output += "\t discovery_date: ${this.discovery_date}\n";
+    output += "\t removed: ${this.removed}\n";
+    if (this.removed) {
+      output += "\t removal_date: ${this.removal_date}\n";
+    }
+    if (this.replaced) {
+      output += "\t replaced_species: ${this.replaced_species}\n";
+    }
+    return output;
   }
 
   /// Parse a list of WeedInstances in JSON format
@@ -50,7 +68,7 @@ class User {
   String last_name;
   String date_joined;
   int count_identified;
-  List<dynamic> previous_tags;
+  List<WeedInstance> previous_tags;
 
   User({
     required this.person_id,
@@ -73,15 +91,68 @@ class User {
       last_name: json['last_name'],
       date_joined: json['date_joined'],
       count_identified: json['count_identified'],
-      // previous_tags: WeedInstance.parseWeedInstanceList(json['previous_tags']),
-      previous_tags: json['previous_tags'],
+      previous_tags: WeedInstance.parseWeedInstanceList(json['previous_tags']),
+      // previous_tags: json['previous_tags'],
     );
   }
 
-  /// Parse a list of WeedInstances in JSON format
+  /// Parse a list of Users in JSON format
   static List<User> parseUserList(String responseBody) {
     final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
     return parsed.map<User>((json) => User.fromJson(json)).toList();
+  }
+}
+
+class Location {
+  String name;
+  double lat;
+  double long;
+  List<WeedInstance> weeds_present;
+
+  Location({
+    required this.name,
+    required this.lat,
+    required this.long,
+    required this.weeds_present,
+  });
+
+  factory Location.fromJson(Map<String, dynamic> json) {
+    List<WeedInstance> weeds_present = [];
+    json['weeds_present'].forEach((element) {
+      weeds_present.add(WeedInstance.fromJson(element));
+    });
+
+    return Location(
+      name: json['name'],
+      lat: json['lat'],
+      long: json['long'],
+      weeds_present: weeds_present,
+    );
+  }
+
+  @override
+  String toString() {
+    var output = "";
+    output += "name: ${this.name}\n";
+    output += "lat: ${this.lat}\n";
+    output += "long: ${this.long}\n";
+
+    output += "weeds_present:\n";
+    int i = 0;
+    weeds_present.forEach((element) {
+      output += "$i:";
+      output += "\t $element";
+      i++;
+    });
+
+    return output;
+  }
+
+
+  /// Parse a list of Locations in JSON format
+  static List<Location> parseLocationList(String responseBody) {
+    final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
+    return parsed.map<Location>((json) => Location.fromJson(json)).toList();
   }
 }
 
