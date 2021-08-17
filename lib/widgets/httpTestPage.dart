@@ -28,6 +28,14 @@ class HttpTestPage extends StatelessWidget {
               },
               child: Text('/Users'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                log("/Species");
+                getAllSpecies();
+                getSpeciesById(48);
+              },
+              child: Text('/Species'),
+            ),
           ],
         ),
       ),

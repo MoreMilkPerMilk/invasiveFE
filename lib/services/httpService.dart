@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:http/http.dart' as http;
+import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/Location.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
@@ -71,16 +72,30 @@ Future<User> getUserById(int personId) async {
 // --------------------------------
 //  SPECIES
 // --------------------------------
-Future<List<User>> getAllSpecies() async {
+Future<List<Species>> getAllSpecies() async {
   final response = await http.get(Uri.parse(API_URL + "/species"));
 
   if (response.statusCode == 200) {
     // log(response.body);
     // var result = await compute(User.parseUserList, response.body);
-    var result = User.parseUserList(response.body);
+    var result = Species.parseSpeciesList(response.body);
     result.forEach((element) {
       log(element.toString());
     });
+    return result;
+    // return compute(WeedInstance.parseWeedInstanceList, response.body);
+  }
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+Future<Species> getSpeciesById(int speciesID) async {
+  final response = await http.get(Uri.parse(API_URL + "/species/?species_id=$speciesID"));
+
+  if (response.statusCode == 200) {
+    // log(response.body);
+    // var result = await compute(User.parseUserList, response.body);
+    var result = Species.fromJson(jsonDecode(response.body));
+    log(result.toString());
     return result;
     // return compute(WeedInstance.parseWeedInstanceList, response.body);
   }
