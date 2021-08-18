@@ -67,5 +67,14 @@ class TfliteService {
     }
   }
 
+  Future<void> stopRecognitions() async {
+    if (!this._recognitionController.isClosed) {
+      this._recognitionController.add(null);
+      this._recognitionController.close();
+    }
+  }
 
+  void dispose() async {
+    this._recognitionController.close();
+  }
 }

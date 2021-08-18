@@ -52,4 +52,12 @@ class CameraService {
       }
     });
   }
+
+  Future stopImageStream() async {
+    await this._cameraController.stopImageStream();
+  }
+
+  dispose() {
+    _cameraController.dispose();
+  }
 }
