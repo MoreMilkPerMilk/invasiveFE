@@ -1,63 +1,158 @@
+import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'tflite.dart';
+import 'package:tflite/tflite.dart';
+import 'dart:math' as math;
 
-class CameraService {
+import 'models.dart';
 
-  // _cameraService is a private member of class
-  static final CameraService _cameraService = CameraService._internal();
+typedef void Callback(List<dynamic>? list, int h, int w);
 
-  // factory constructor doesn't always create a new instance of its class
-  factory CameraService() {
-    return _cameraService;
-  }
+class Camera extends StatefulWidget {
+  final List<CameraDescription>? cameras;
+  final Callback setRecognitions;
+  final String model;
 
-  // privately referenced constructor
-  CameraService._internal();
+  Camera(this.cameras, this.model, this.setRecognitions);
 
-  // instantiate tflite service in camera
-  TfliteService _tfliteService = new TfliteService();
+  @override
+  _CameraState createState() => new _CameraState();
+}
 
-  //
-  CameraController _cameraController;
-  CameraController get cameraController => _cameraController;
+class _CameraState extends State<Camera> {
+  CameraController? controller;
+  bool isDetecting = false;
 
-  bool available = true;
+  @override
+  void initState() {
+    super.initState();
 
-  Future startService(CameraDescription cameraDescription) async {
-    _cameraController = CameraController(
-      // Get a specific camera from the list of available cameras.
-      cameraDescription,
-      // Define the resolution to use.
-      ResolutionPreset.veryHigh,
-    );
-
-    // Next, initialize the controller. This returns a Future.
-    return _cameraController.initialize();
-  }
-
-  Future<void> startStreaming() async {
-
-    _cameraController.startImageStream((img) async {
-      try {
-        if (available) {
-          // Loads the model and recognizes frames
-          available = false;
-          await _tfliteService.runModel(img);
-          await Future.delayed(Duration(seconds: 1));
-          available = true;
+    if (widget.cameras == null || widget.cameras!.length < 1) {
+      print('No camera is found');
+    } else {
+      controller = new CameraController(
+        widget.cameras![0],
+        ResolutionPreset.high,
+      );
+      controller!.initialize().then((_) {
+        if (!mounted) {
+          return;
         }
-      } catch (e) {
-        print('error running model with current frame');
-        print(e);
-      }
-    });
+        setState(() {});
+
+        controller!.startImageStream((CameraImage img) {
+          if (!isDetecting) {
+            isDetecting = true;
+
+            int startTime = new DateTime.now().millisecondsSinceEpoch;
+
+            if (widget.model == mobilenet) {
+              Tflite.runModelOnFrame(
+                bytesList: img.planes.map((plane) {
+                  return plane.bytes;
+                }).toList(),
+                imageHeight: img.height,
+                imageWidth: img.width,
+                numResults: 2,
+              ).then((recognitions) {
+                int endTime = new DateTime.now().millisecondsSinceEpoch;
+                print("Detection took ${endTime - startTime}");
+
+                widget.setRecognitions(recognitions, img.height, img.width);
+
+                isDetecting = false;
+              });
+            } else if (widget.model == posenet) {
+              Tflite.runPoseNetOnFrame(
+                bytesList: img.planes.map((plane) {
+                  return plane.bytes;
+                }).toList(),
+                imageHeight: img.height,
+                imageWidth: img.width,
+                numResults: 2,
+              ).then((recognitions) {
+                int endTime = new DateTime.now().millisecondsSinceEpoch;
+                print("Detection took ${endTime - startTime}");
+
+                widget.setRecognitions(recognitions, img.height, img.width);
+
+                isDetecting = false;
+              });
+            } else if (widget.model == resnet) {
+              Tflite.runModelOnFrame(
+                bytesList: img.planes.map((plane) {
+                  return plane.bytes;
+                }).toList(),
+                imageHeight: img.height,
+                imageWidth: img.width,
+                numResults: 2,
+              ).then((recognitions) {
+                int endTime = new DateTime.now().millisecondsSinceEpoch;
+                print("Detection took ${endTime - startTime}");
+                if (recognitions == null) {
+                  print("FUCKKKKKKKKK!!!");
+                }
+                recognitions?.forEach((element) {
+                  print(element);
+                });
+                widget.setRecognitions(recognitions, img.height, img.width);
+
+                isDetecting = false;
+              });
+            }
+              else {
+              Tflite.detectObjectOnFrame(
+                bytesList: img.planes.map((plane) {
+                  return plane.bytes;
+                }).toList(),
+                model: widget.model == yolo ? "YOLO" : "SSDMobileNet",
+                imageHeight: img.height,
+                imageWidth: img.width,
+                imageMean: widget.model == yolo ? 0 : 127.5,
+                imageStd: widget.model == yolo ? 255.0 : 127.5,
+                numResultsPerClass: 1,
+                threshold: widget.model == yolo ? 0.2 : 0.4,
+              ).then((recognitions) {
+                int endTime = new DateTime.now().millisecondsSinceEpoch;
+                print("Detection took ${endTime - startTime}");
+
+                widget.setRecognitions(recognitions, img.height, img.width);
+
+                isDetecting = false;
+              });
+            }
+          }
+        });
+      });
+    }
   }
 
-  Future stopImageStream() async {
-    await this._cameraController.stopImageStream();
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
   }
 
-  dispose() {
-    _cameraController.dispose();
+  @override
+  Widget build(BuildContext context) {
+    if (controller == null || !controller!.value.isInitialized) {
+      return Container();
+    }
+
+    var tmp = MediaQuery.of(context).size;
+    var screenH = math.max(tmp.height, tmp.width);
+    var screenW = math.min(tmp.height, tmp.width);
+    tmp = controller!.value.previewSize!;
+    var previewH = math.max(tmp.height, tmp.width);
+    var previewW = math.min(tmp.height, tmp.width);
+    var screenRatio = screenH / screenW;
+    var previewRatio = previewH / previewW;
+
+    return OverflowBox(
+      maxHeight:
+          screenRatio > previewRatio ? screenH : screenW / previewW * previewH,
+      maxWidth:
+          screenRatio > previewRatio ? screenH / previewH * previewW : screenW,
+      child: CameraPreview(controller!),
+    );
   }
 }

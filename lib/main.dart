@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'widgets/camera_screen.dart';
+import 'widgets/home.dart';
 
 Future<void> main() async {
 
@@ -20,9 +20,9 @@ Future<void> main() async {
   runApp(
     MaterialApp(
       theme: ThemeData.dark(),
-      home: TakePictureScreen(
+      home: HomePage(
         // Pass the appropriate camera to the TakePictureScreen widget.
-        camera: firstCamera,
+        cameras,
       ),
     ),
   );
