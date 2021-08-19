@@ -20,7 +20,7 @@ Future<void> main() async {
   runApp(
     MaterialApp(
       theme: ThemeData.dark(),
-      home: HomePage(
+      home: MyApp(
         // Pass the appropriate camera to the TakePictureScreen widget.
         cameras,
       ),
@@ -29,6 +29,9 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
+  final List<CameraDescription>? cameras;
+
+  MyApp(this.cameras);
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -46,13 +49,15 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Flutter Demo Home Page', cameras: this.cameras),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
+  final List<CameraDescription>? cameras;
+
+  MyHomePage({Key? key, required this.title, this.cameras}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -124,6 +129,12 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
+            ElevatedButton(onPressed: () {
+              print("moving to camera page");
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => HomePage(widget.cameras))
+              );
+            }, child: Text("Camera Page")),
           ],
         ),
       ),
