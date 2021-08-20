@@ -84,6 +84,7 @@ class _CameraHomePageState extends State<CameraHomePage> {
       appBar: AppBar(
         title: Text("Camera Home Page"),
       ),
+      // HAMISH: this works with a ternary statement to decide whether to show the buttons or not
       body: _model == ""
           ? Center(
               child: Column(
@@ -112,6 +113,7 @@ class _CameraHomePageState extends State<CameraHomePage> {
                 ],
               ),
             )
+          // HAMISH: this is where the actual camera is displayed
           : Stack(
               children: [
                 Camera(
