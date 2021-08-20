@@ -7,16 +7,16 @@ import '../services/camera.dart';
 import 'bndbox.dart';
 import '../services/models.dart';
 
-class HomePage extends StatefulWidget {
+class CameraHomePage extends StatefulWidget {
   final List<CameraDescription>? cameras;
 
-  HomePage(this.cameras);
+  CameraHomePage(this.cameras);
 
   @override
-  _HomePageState createState() => new _HomePageState();
+  _CameraHomePageState createState() => new _CameraHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _CameraHomePageState extends State<CameraHomePage> {
   List<dynamic>? _recognitions;
   int _imageHeight = 0;
   int _imageWidth = 0;
@@ -81,6 +81,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     Size screen = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Camera Home Page"),
+      ),
       body: _model == ""
           ? Center(
               child: Column(
