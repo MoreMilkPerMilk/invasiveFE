@@ -15,6 +15,20 @@ class Location {
     required this.weeds_present,
   });
 
+  String toJson() {
+    List<String> weedsPresentJson = [];
+    weeds_present.forEach((element) {
+      weedsPresentJson.add(element.toJson());
+    });
+
+    return jsonEncode(<String, dynamic>{
+      'name': name,
+      'lat': lat,
+      'long': long,
+      'weeds_present': weedsPresentJson,
+    });
+  }
+
   factory Location.fromJson(Map<String, dynamic> json) {
     List<WeedInstance> weeds_present = [];
     json['weeds_present'].forEach((element) {

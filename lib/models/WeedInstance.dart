@@ -22,6 +22,19 @@ class WeedInstance {
     this.replaced_species,
   });
 
+  String toJson() {
+    return jsonEncode(<String, dynamic>{
+      'uuid': uuid,
+      'image_url': image_url,
+      'species_id': species_id,
+      'discovery_date': discovery_date,
+      'removed': removed,
+      'removal_date': removal_date,
+      'replaced': replaced,
+      'replaced_species': replaced_species,
+    });
+  }
+
   factory WeedInstance.fromJson(Map<String, dynamic> json) {
     return WeedInstance(
         uuid: json['uuid'],

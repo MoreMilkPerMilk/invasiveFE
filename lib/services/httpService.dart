@@ -32,6 +32,27 @@ Future<List<Location>> getAllLocations() async {
   }
 }
 
+/// add location
+Future<bool> addLocation(Location location) async {
+
+  final response = await http.post(
+    Uri.parse(API_URL + "/locations/add"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: location.toJson(),
+  );
+
+  print(response.body);
+  print(location.toJson());
+
+  if (response.statusCode == 200) {
+    return true;
+  } else{
+    return false;
+  }
+}
+
 // --------------------------------
 //  USERS
 // --------------------------------
