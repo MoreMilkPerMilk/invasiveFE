@@ -19,6 +19,22 @@ class User {
     required this.previous_tags,
   });
 
+  String toJson() {
+    List<String> previousTagsJson = [];
+    this.previous_tags.forEach((element) {
+      previousTagsJson.add(element.toJson());
+    });
+
+    return jsonEncode(<String, dynamic>{
+      'person_id': person_id,
+      'first_name': first_name,
+      'last_name': last_name,
+      'date_joined': date_joined,
+      'count_identified': count_identified,
+      'previous_tags': previousTagsJson,
+    });
+  }
+
   factory User.fromJson(Map<String, dynamic> json) {
     List<WeedInstance> previous_tags = [];
     json['previous_tags'].forEach((element) {

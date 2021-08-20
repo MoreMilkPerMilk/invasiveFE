@@ -26,6 +26,8 @@ dependencies:
   http: 0.13.3  # allows for REST api queries
   json_annotation: ^4.0.0  # easy conversion between JSON <--> Class
   uuid:
+  sliding_up_panel: ^2.0.0+1
+
 
 
   # The following adds the Cupertino Icons font to your application.

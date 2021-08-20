@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:invasive_fe/models/Location.dart';
+import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:uuid/uuid.dart';
 
@@ -41,6 +42,14 @@ class HttpTestPage extends StatelessWidget {
               },
               child: Text('/Add Location w/ Weeds'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                log("/Delete Location");
+                var loc = Location(name: "152 Gailey Road Brisbane", lat:0.0, long:0.0, weeds_present: []);
+                deleteLocation(loc);
+              },
+              child: Text('/Delete Location'),
+            ),
             Spacer(),
             ElevatedButton(
               onPressed: () {
@@ -49,6 +58,21 @@ class HttpTestPage extends StatelessWidget {
                 // getUserById(1);
               },
               child: Text('/Users'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                log("/Add User");
+                var user = User(person_id: 999, first_name: "test user", last_name: "last", date_joined: "1999-01-01", count_identified: 0, previous_tags: []);
+                addUser(user);
+              },
+              child: Text('/Add User'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                log("/Delete User");
+                deleteUser(999);
+              },
+              child: Text('/Delete User'),
             ),
             Spacer(),
             ElevatedButton(
