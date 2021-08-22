@@ -8,9 +8,9 @@ import 'bndbox.dart';
 import '../services/models.dart';
 
 class CameraHomePage extends StatefulWidget {
-  final List<CameraDescription>? cameras;
+  // final List<CameraDescription>? cameras;
 
-  CameraHomePage(this.cameras);
+  CameraHomePage();
 
   @override
   _CameraHomePageState createState() => new _CameraHomePageState();
@@ -22,9 +22,17 @@ class _CameraHomePageState extends State<CameraHomePage> {
   int _imageWidth = 0;
   String _model = "";
 
+  List<CameraDescription>? cameras;
+
   @override
   void initState() {
     super.initState();
+    loadCameras();
+  }
+
+  /// load cameras once the widget has loaded
+  void loadCameras() async {
+    cameras = await availableCameras();
   }
 
   loadModel() async {
@@ -81,9 +89,6 @@ class _CameraHomePageState extends State<CameraHomePage> {
   Widget build(BuildContext context) {
     Size screen = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Camera Home Page"),
-      ),
       // HAMISH: this works with a ternary statement to decide whether to show the buttons or not
       body: _model == ""
           ? Center(
@@ -117,7 +122,7 @@ class _CameraHomePageState extends State<CameraHomePage> {
           : Stack(
               children: [
                 Camera(
-                  widget.cameras,
+                  cameras,
                   _model,
                   setRecognitions,
                 ),

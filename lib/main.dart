@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:invasive_fe/widgets/cameraHome.dart';
+import 'package:invasive_fe/widgets/maps.dart';
 import 'package:line_icons/line_icons.dart';
 
 void main() => runApp(MaterialApp(
@@ -11,18 +13,18 @@ void main() => runApp(MaterialApp(
     theme: ThemeData(
       primaryColor: Colors.grey[800],
     ),
-    home: Example()));
+    home: Main()));
 
-class Example extends StatefulWidget {
+class Main extends StatefulWidget {
   @override
-  _ExampleState createState() => _ExampleState();
+  _MainState createState() => _MainState();
 }
 
-class _ExampleState extends State<Example> {
+class _MainState extends State<Main> {
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.w600);
-  static const List<Widget> _widgetOptions = <Widget>[
+  static List<Widget> _widgetOptions = <Widget>[
     Text(
       'Home',
       style: optionStyle,
@@ -31,24 +33,18 @@ class _ExampleState extends State<Example> {
       'Likes',
       style: optionStyle,
     ),
-    Text(
-      'Map',
-      style: optionStyle,
-    ),
-    Text(
-      'Camera',
-      style: optionStyle,
-    ),
+    MapsPage(),
+    CameraHomePage(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        elevation: 20,
-        title: const Text('InvasiveFE'),
-      ),
+      // appBar: AppBar(
+      //   elevation: 20,
+      //   title: const Text('InvasiveFE'),
+      // ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
