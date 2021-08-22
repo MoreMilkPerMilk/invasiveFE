@@ -1,80 +1,106 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
-import 'widgets/cameraHome.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:line_icons/line_icons.dart';
 
-Future<void> main() async {
-
-  // Ensure that plugin services are initialized so that `availableCameras()`
-  // can be called before `runApp()`
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Obtain a list of the available cameras on the device.
-  final cameras = await availableCameras();
-
-  // Get a specific camera from the list of available cameras.
-  final firstCamera = cameras.first;
-
-  runApp(
-    MaterialApp(
-      theme: ThemeData.dark(),
-      home: MyApp(
-        // Pass the appropriate camera to the TakePictureScreen widget.
-        cameras,
-      ),
+void main() => runApp(MaterialApp(
+    builder: (context, child) {
+      return Directionality(textDirection: TextDirection.ltr, child: child!);
+    },
+    title: 'GNav',
+    theme: ThemeData(
+      primaryColor: Colors.grey[800],
     ),
-  );
-}
+    home: Example()));
 
-class MyApp extends StatelessWidget {
-  final List<CameraDescription>? cameras;
-
-  MyApp(this.cameras);
-  // This widget is the root of your application.
+class Example extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'InvasiveFE',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(
-          title: 'Invasive FE Home Page',
-          cameras: this.cameras // pass in the cameras object for tflite use
-      ),
-    );
-  }
+  _ExampleState createState() => _ExampleState();
 }
 
-class MyHomePage extends StatefulWidget {
-  final List<CameraDescription>? cameras;
+class _ExampleState extends State<Example> {
+  int _selectedIndex = 0;
+  static const TextStyle optionStyle =
+      TextStyle(fontSize: 30, fontWeight: FontWeight.w600);
+  static const List<Widget> _widgetOptions = <Widget>[
+    Text(
+      'Home',
+      style: optionStyle,
+    ),
+    Text(
+      'Likes',
+      style: optionStyle,
+    ),
+    Text(
+      'Map',
+      style: optionStyle,
+    ),
+    Text(
+      'Camera',
+      style: optionStyle,
+    ),
+  ];
 
-  MyHomePage({Key? key, required this.title, this.cameras}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(widget.title),
+        elevation: 20,
+        title: const Text('InvasiveFE'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(onPressed: () {
-              print("moving to camera page");
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => CameraHomePage(widget.cameras))
-              );
-            }, child: Text("Camera Page")),
+        child: _widgetOptions.elementAt(_selectedIndex),
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 20,
+              color: Colors.black.withOpacity(.1),
+            )
           ],
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
+            child: GNav(
+              rippleColor: Colors.grey[300]!,
+              hoverColor: Colors.grey[100]!,
+              gap: 8,
+              activeColor: Colors.black,
+              iconSize: 24,
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              duration: Duration(milliseconds: 400),
+              tabBackgroundColor: Colors.grey[100]!,
+              color: Colors.black,
+              tabs: [
+                GButton(
+                  icon: LineIcons.home,
+                  text: 'Home',
+                ),
+                GButton(
+                  icon: LineIcons.heart,
+                  text: 'Likes',
+                ),
+                GButton(
+                  icon: LineIcons.map,
+                  text: 'Map',
+                ),
+                GButton(
+                  icon: LineIcons.retroCamera,
+                  text: 'Camera',
+                ),
+              ],
+              selectedIndex: _selectedIndex,
+              onTabChange: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+            ),
+          ),
         ),
       ),
     );
