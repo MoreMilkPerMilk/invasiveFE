@@ -27,6 +27,12 @@ dependencies:
 #  path_provider: ^2.0.2
 #  path: ^1.8.0
   tflite: ^1.1.2
+  http: 0.13.3  # allows for REST api queries
+  json_annotation: ^4.0.0  # easy conversion between JSON <--> Class
+
+  # leaflet things
+  flutter_map: ^0.13.1  # leaflet for flutter
+  latlong2: ^0.8.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -40,7 +46,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  build_runner:
+  build_it: ^0.2.5  # easy conversion between JSON <--> Class
+  json_serializable: ^4.0.2  # easy conversion between JSON <--> Class
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
