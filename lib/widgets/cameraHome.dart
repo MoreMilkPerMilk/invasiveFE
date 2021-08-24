@@ -40,20 +40,9 @@ class _CameraHomePageState extends State<CameraHomePage> {
     switch (_model) {
       case yolo:
         res = await Tflite.loadModel(
-          model: "assets/yolov2_tiny.tflite",
-          labels: "assets/yolov2_tiny.txt",
+          model: "assets/yolo.tflite",
+          labels: "assets/labels.txt",
         );
-        break;
-
-      case mobilenet:
-        res = await Tflite.loadModel(
-            model: "assets/mobilenet_v1_1.0_224.tflite",
-            labels: "assets/mobilenet_v1_1.0_224.txt");
-        break;
-
-      case posenet:
-        res = await Tflite.loadModel(
-            model: "assets/posenet_mv1_075_float_from_checkpoints.tflite");
         break;
 
       case resnet:
@@ -64,8 +53,8 @@ class _CameraHomePageState extends State<CameraHomePage> {
 
       default:
         res = await Tflite.loadModel(
-            model: "assets/ssd_mobilenet.tflite",
-            labels: "assets/ssd_mobilenet.txt");
+            model: "assets/resnet.tflite",
+            labels: "assets/labels.txt");
     }
     print(res);
   }
@@ -96,20 +85,8 @@ class _CameraHomePageState extends State<CameraHomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   ElevatedButton(
-                    child: const Text(ssd),
-                    onPressed: () => onSelect(ssd),
-                  ),
-                  ElevatedButton(
                     child: const Text(yolo),
                     onPressed: () => onSelect(yolo),
-                  ),
-                  ElevatedButton(
-                    child: const Text(mobilenet),
-                    onPressed: () => onSelect(mobilenet),
-                  ),
-                  ElevatedButton(
-                    child: const Text(posenet),
-                    onPressed: () => onSelect(posenet),
                   ),
                   ElevatedButton(
                     child: const Text(resnet),
