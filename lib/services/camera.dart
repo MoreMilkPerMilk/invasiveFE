@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:tflite/tflite.dart';
+import 'package:image/image.dart';
 import 'dart:math' as math;
 
 import 'models.dart';
@@ -46,21 +49,24 @@ class _CameraState extends State<Camera> {
             int startTime = new DateTime.now().millisecondsSinceEpoch;
 
             if (widget.model == resnet) {
+
+              // Resize image to 224 x 224
+              var imgAsBytes = img.planes.map((plane) {
+                return plane.bytes;
+              }).toList();
+              //var decodedImg = decodeImage(new List.from(imgAsBytes));
+              //var resizedImg = copyResize(decodedImg, width: 224, height: 224);
+              // WE NEED TO SAVE THE IMAGE TEMPORARILY TO DO THIS... STUPID FLUTTER!!!
+
               Tflite.runModelOnFrame(
-                bytesList: img.planes.map((plane) {
-                  return plane.bytes;
-                }).toList(),
+                bytesList: imgAsBytes,
                 imageHeight: img.height,
                 imageWidth: img.width,
                 numResults: 2,
               ).then((recognitions) {
                 int endTime = new DateTime.now().millisecondsSinceEpoch;
                 print("Detection took ${endTime - startTime}");
-                recognitions?.forEach((element) {
-                  print(element);
-                });
                 widget.setRecognitions(recognitions, img.height, img.width);
-
                 isDetecting = false;
               });
             }
