@@ -14,16 +14,11 @@ import 'package:latlong2/latlong.dart';
  *
  * The widgets these markers contain are WeedMarkers. WeedMarkers are stateful
  * widgets which can be active (i.e. clicked on and displaying information) or
- * inactive. Each WeedMarker contains marker-specific information such as the
+ * inactive. Each WeedMarker contains marker-specific WeedInformation such as the
  * weed name, and other data. They are built as IconButtons, though this can
  * easily be modified to any clickable widget (i.e. using GestureDetector).
  *
- * Each WeedMarker also contains a reference to a shared OverlayEntry. This
- * OverlayEntry is a container for a widget (the visual overlay) that is
- * displayed to the screen when inserted by the OverlayState. All of this is
- * nicely packaged into the WeedOverlay class, which handles
- *
- * Each WeedMarker also contains a reference a shared WeedOverlay class, which
+ * Each WeedMarker also contains a reference to a shared WeedOverlay class, which
  * represents the pop-up for selecting a marker. This class bundles together
  * information about whether an overlay is showing, a reference to the
  * OverlayState object and OverlayEntry object which are both necessary for
@@ -47,6 +42,15 @@ import 'package:latlong2/latlong.dart';
  * used. If you want this functionality, you'll need to create a new overlay
  * entry for each WeedMarker, then pass this entry into the WeedOverlay to be
  * inserted by its OverlayState.
+ *
+ * or maybe we just create overlay entries on the fly, who knows:
+ * https://medium.com/saugo360/https-medium-com-saugo360-flutter-using-overlay-to-display-floating-widgets-2e6d0e8decb9
+ *
+ * idea: modify the builder of the overlay entry upon refresh. cant because its final
+ *
+ * maybe make a
+ *
+ * idk
  */
 
 
@@ -100,46 +104,45 @@ class MapsPage extends StatelessWidget {
             height: 40,
             point: point,
             builder: (context) =>
-                WeedMarker()
-            /*
-                Container(
-                  child: IconButton(
-                    icon: Icon(
-                        Icons.location_pin,
-                        size: 40
-                    ),
-                    onPressed: () {
-                      print('Marker pressed!');
-                      var overlayState = Overlay.of(context);
-                      var overlayEntry;
-
-
-                      overlayEntry = OverlayEntry(
-                          builder: (context) =>
-                              Center(
-                                  child: Material(
-                                      child: Container(
-                                          width: 100,
-                                          height: 100,
-                                          child: Column(
-                                              mainAxisAlignment: MainAxisAlignment
-                                                  .center,
-                                              children: <Widget>[
-                                                Text(weedName),
-                                                IconButton(
-                                                    onPressed: () {
-                                                      overlayEntry.remove();
-                                                    },
-                                                    icon: Icon(Icons.close)
-                                                )
-                                              ]
-                                          )
-                                      )
-                                  )));
-                      overlayState!.insert(overlayEntry);
-                    },
-                  )
-              ) */
+                WeedMarker(weedName)
+              //   Container(
+              //     child: IconButton(
+              //       icon: Icon(
+              //           Icons.location_pin,
+              //           size: 40
+              //       ),
+              //       onPressed: () {
+              //         print('Marker pressed!');
+              //         var overlayState = Overlay.of(context);
+              //         var overlayEntry;
+              //
+              //
+              //         overlayEntry = OverlayEntry(
+              //             builder: (context) =>
+              //                 Center(
+              //                     child: Material(
+              //                         child: Container(
+              //                             width: 100,
+              //                             height: 100,
+              //                             child: Column(
+              //                                 mainAxisAlignment: MainAxisAlignment
+              //                                     .center,
+              //                                 children: <Widget>[
+              //                                   Text(weedName),
+              //                                   IconButton(
+              //                                       onPressed: () {
+              //                                         overlayEntry.remove();
+              //                                       },
+              //                                       icon: Icon(Icons.close)
+              //                                   )
+              //                                 ]
+              //                             )
+              //                         )
+              //                     )));
+              //         overlayState!.insert(overlayEntry);
+              //       },
+              //     )
+              // )
     );
   }
 }
@@ -147,7 +150,6 @@ class MapsPage extends StatelessWidget {
 
 class WeedMarker extends StatefulWidget {
   final String weedName;
-  // final
 
   const WeedMarker(this.weedName);
 
@@ -161,28 +163,27 @@ class _WeedMarkerState extends State<WeedMarker> {
   void _handleTap() {
     setState(() {
       _active = !_active;
-      print("toggled active");
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    print("rebuilding...");
     return Container(
-        child: IconButton(
-          icon: Icon(
-              _active ? Icons.location_pin : Icons.airplane_ticket,
-              size: 40
-          ),
-          onPressed: () {
-            _handleTap();
-          },
+        alignment: Alignment.center,
+        child: Align(
+          alignment: Alignment.center,
+          child: IconButton(
+            alignment: Alignment.center,
+            icon: Icon(
+              Icons.location_on,
+              size: 40,
+              color: _active ? Colors.red : Colors.blue,
+            ),
+            onPressed: () {
+              _handleTap();
+            },
+          )
         )
     );
   }
-}
-
-
-class WeedOverlay extends StatefulWidget {
-
 }
