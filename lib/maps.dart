@@ -24,8 +24,16 @@ class MapsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            title: Text("Maps Page")),
+      appBar: AppBar(
+        leading: BackButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            _popupLayerController.hidePopup();
+          },
+        ),
+        title: Text("Maps Page"),
+        centerTitle: true,
+      ),
       body: FlutterMap(
         options: MapOptions(
           center: LatLng(-27.4975, 153.0137),
@@ -50,6 +58,7 @@ class MapsPage extends StatelessWidget {
             popupOptions: PopupOptions(
                 popupSnap: PopupSnap.markerTop,
                 popupController: _popupLayerController,
+                popupAnimation: PopupAnimation.fade(duration: Duration(milliseconds: 100)),
                 popupBuilder: (_, Marker marker) {
                   // this conditional is necessary since popupBuilder must take a Marker
                   if (marker is WeedMarker) {
