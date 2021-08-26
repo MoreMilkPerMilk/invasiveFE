@@ -8,7 +8,6 @@ import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 // openstreetmap tile servers: https://wiki.openstreetmap.org/wiki/Tile_servers
 
 /// fixme; James's big bug bash board:
-/// Clicking a marker multiple times generates multiple overlays.
 /// Rotating the map rotates the icon.
 
 /// todo; Features to develop:
@@ -33,28 +32,40 @@ class MapsPage extends StatelessWidget {
           zoom: 13.0,
           interactiveFlags: InteractiveFlag.all,
           onTap: (_) => _popupLayerController.hidePopup(),
+          plugins: [MarkerClusterPlugin(),],
         ),
-        children: <Widget>[
-          TileLayerWidget(
-            options: TileLayerOptions(
-              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: <String>['a', 'b', 'c'],
-            ),
+        layers: [
+          TileLayerOptions(
+            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            subdomains: <String>['a', 'b', 'c'],
           ),
-          PopupMarkerLayerWidget(
-            options: PopupMarkerLayerOptions(
-              markers: generateMarkers(),
-              popupController: _popupLayerController,
-              popupBuilder: (_, Marker marker) {
-                // this conditional is necessary since popupBuilder must take a Marker
-                if (marker is WeedMarker) {
-                  return WeedMarkerPopup(weed: marker.weed);
+          MarkerClusterLayerOptions(
+            maxClusterRadius: 100,
+            size: Size(40, 40),
+            anchor: AnchorPos.align(AnchorAlign.center),
+            fitBoundsOptions: FitBoundsOptions(
+              padding: EdgeInsets.all(50),
+            ),
+            markers: generateMarkers(),
+            popupOptions: PopupOptions(
+                popupSnap: PopupSnap.markerTop,
+                popupController: _popupLayerController,
+                popupBuilder: (_, Marker marker) {
+                  // this conditional is necessary since popupBuilder must take a Marker
+                  if (marker is WeedMarker) {
+                    return WeedMarkerPopup(weed: marker.weed);
+                  }
+                  return Card(child: Text('Error: Not a weed.'));
                 }
-                return Card(child: Text('Error: Not a weed.'));
-              },
             ),
+            builder: (context, markers) {
+              return FloatingActionButton(
+                onPressed: null,
+                child: Text(markers.length.toString()),
+              );
+            },
           ),
-        ],
+        ]
       ),
     );
   }
@@ -68,6 +79,15 @@ class MapsPage extends StatelessWidget {
           'https://www.gardeningknowhow.com/wp-content/uploads/2020/11/pink-and-yellow-lantana-flowers-1024x768.jpg',
           lat: -27.4975,
           long: 153.0137,
+        ),
+      ),
+      WeedMarker(
+        weed: Weed(
+          name: 'Winter Grass',
+          imagePath:
+          'https://www.myhometurf.com.au/wp-content/uploads/2019/11/Wintergrass-weed-600x600.jpg',
+          lat: -27.4975,
+          long: 153.0125,
         ),
       ),
     ];
@@ -91,6 +111,7 @@ class Weed {
   final double long;
 }
 
+
 class WeedMarker extends Marker {
   WeedMarker({required this.weed})
       : super(
@@ -105,6 +126,7 @@ class WeedMarker extends Marker {
 
   final Weed weed;
 }
+
 
 class WeedMarkerPopup extends StatelessWidget {
   const WeedMarkerPopup({Key? key, required this.weed})
