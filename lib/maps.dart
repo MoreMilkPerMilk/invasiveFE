@@ -1,58 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 
 // openstreetmap tile servers: https://wiki.openstreetmap.org/wiki/Tile_servers
-
-/**
- * Architecture
- *
- * The main page consists of a scaffold, which fills with a flutter_map.
- * This map contains a series of markers. Markers are containers for widgets,
- * with some extra meta-data like geo-location which enables their placement on
- * the map, in the form of the widgets they contain.
- *
- * The widgets these markers contain are WeedMarkers. WeedMarkers are stateful
- * widgets which can be active (i.e. clicked on and displaying information) or
- * inactive. Each WeedMarker contains marker-specific WeedInformation such as the
- * weed name, and other data. They are built as IconButtons, though this can
- * easily be modified to any clickable widget (i.e. using GestureDetector).
- *
- * Each WeedMarker also contains a reference to a shared WeedOverlay class, which
- * represents the pop-up for selecting a marker. This class bundles together
- * information about whether an overlay is showing, a reference to the
- * OverlayState object and OverlayEntry object which are both necessary for
- * displaying and modifying the overlay, as well as the widget that the
- * OverlayEntry builds upon its display.
- *
- * The process of clicking a weed marker is as such:
- * The IconButton representing the WeedMarker is clicked.
- * The marker becomes active, is rebuilt, and may change appearance.
- * It alerts the WeedOverlay that is has been clicked, and provides its
- * weed information.
- * The WeedOverlay updates the widget contained in the OverlayEntry to contain
- * the marker's information. It then rebuilds the OverlayEntry so that these
- * changes are shown visually.
- * If the overlay was not already displaying, the WeedOverlay calls upon its
- * OverlayState to insert the OverlayEntry into the context, thus displaying it.
- * The overlay is now displayed with the marker's information on it.
- *
- * This architecture is extremely flexible, with one trade-off: you
- * can't have multiple overlays at once, since only one shared overlay entry is
- * used. If you want this functionality, you'll need to create a new overlay
- * entry for each WeedMarker, then pass this entry into the WeedOverlay to be
- * inserted by its OverlayState.
- *
- * or maybe we just create overlay entries on the fly, who knows:
- * https://medium.com/saugo360/https-medium-com-saugo360-flutter-using-overlay-to-display-floating-widgets-2e6d0e8decb9
- *
- * idea: modify the builder of the overlay entry upon refresh. cant because its final
- *
- * maybe make a
- *
- * idk
- */
-
 
 /// fixme; James's big bug bash board:
 /// Clicking a marker multiple times generates multiple overlays.
@@ -66,7 +19,7 @@ import 'package:latlong2/latlong.dart';
 /// Nicer UI (overlays and markers).
 
 const String MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoianNsdm4iLCJhIjoiY2tzZTFoYmltMHc5ajJucXRiczY3eno3bSJ9.We8R6YRT_fcmuC6bOzzqbw';
-
+final PopupController _popupLayerController = PopupController();
 
 class MapsPage extends StatelessWidget {
   @override
@@ -74,116 +27,107 @@ class MapsPage extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
             title: Text("Maps Page")),
-        body: FlutterMap(
-          options: MapOptions(
-            center: LatLng(-27.4975, 153.0137),
-            zoom: 13.0,
-            // enable pinchZoom and drag (move) only
-            interactiveFlags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
+      body: FlutterMap(
+        options: MapOptions(
+          center: LatLng(-27.4975, 153.0137),
+          zoom: 13.0,
+          interactiveFlags: InteractiveFlag.all,
+          onTap: (_) => _popupLayerController.hidePopup(),
+        ),
+        children: <Widget>[
+          TileLayerWidget(
+            options: TileLayerOptions(
+              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+              subdomains: <String>['a', 'b', 'c'],
+            ),
           ),
-          layers: [
-            TileLayerOptions(
-                urlTemplate: "http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
-                subdomains: ['a', 'b']
+          PopupMarkerLayerWidget(
+            options: PopupMarkerLayerOptions(
+              markers: generateMarkers(),
+              popupController: _popupLayerController,
+              popupBuilder: (_, Marker marker) {
+                // this conditional is necessary since popupBuilder must take a Marker
+                if (marker is WeedMarker) {
+                  return WeedMarkerPopup(weed: marker.weed);
+                }
+                return Card(child: Text('Error: Not a weed.'));
+              },
             ),
-            MarkerLayerOptions(
-              markers: [
-                generateMarker('weedy weed', LatLng(-27.4975, 153.0137)), // sample marker
-                generateMarker('weedy wode', LatLng(-27.4916, 153.0136)) // sample marker
-              ],
-            ),
-          ],
-        )
+          ),
+        ],
+      ),
     );
   }
 
-  Marker generateMarker(String weedName, LatLng point) {
-
-    return Marker(
-            width: 40,
-            height: 40,
-            point: point,
-            builder: (context) =>
-                WeedMarker(weedName)
-              //   Container(
-              //     child: IconButton(
-              //       icon: Icon(
-              //           Icons.location_pin,
-              //           size: 40
-              //       ),
-              //       onPressed: () {
-              //         print('Marker pressed!');
-              //         var overlayState = Overlay.of(context);
-              //         var overlayEntry;
-              //
-              //
-              //         overlayEntry = OverlayEntry(
-              //             builder: (context) =>
-              //                 Center(
-              //                     child: Material(
-              //                         child: Container(
-              //                             width: 100,
-              //                             height: 100,
-              //                             child: Column(
-              //                                 mainAxisAlignment: MainAxisAlignment
-              //                                     .center,
-              //                                 children: <Widget>[
-              //                                   Text(weedName),
-              //                                   IconButton(
-              //                                       onPressed: () {
-              //                                         overlayEntry.remove();
-              //                                       },
-              //                                       icon: Icon(Icons.close)
-              //                                   )
-              //                                 ]
-              //                             )
-              //                         )
-              //                     )));
-              //         overlayState!.insert(overlayEntry);
-              //       },
-              //     )
-              // )
-    );
+  List<WeedMarker> generateMarkers() {
+    return [
+      WeedMarker(
+        weed: Weed(
+          name: 'Lantana',
+          imagePath:
+          'https://www.gardeningknowhow.com/wp-content/uploads/2020/11/pink-and-yellow-lantana-flowers-1024x768.jpg',
+          lat: -27.4975,
+          long: 153.0137,
+        ),
+      ),
+    ];
   }
 }
 
 
-class WeedMarker extends StatefulWidget {
-  final String weedName;
+class Weed {
+  static const double size = 40;
 
-  const WeedMarker(this.weedName);
+  Weed({
+    required this.name,
+    required this.imagePath,
+    required this.lat,
+    required this.long,
+  });
 
-  @override
-  _WeedMarkerState createState() => _WeedMarkerState();
+  final String name;
+  final String imagePath;
+  final double lat;
+  final double long;
 }
 
-class _WeedMarkerState extends State<WeedMarker> {
-  bool _active = false;
+class WeedMarker extends Marker {
+  WeedMarker({required this.weed})
+      : super(
+    anchorPos: AnchorPos.align(AnchorAlign.top),
+    height: Weed.size,
+    width: Weed.size,
+    point: LatLng(weed.lat, weed.long),
+    builder: (BuildContext ctx) => Icon(
+        Icons.location_pin,
+        size: Weed.size),
+  );
 
-  void _handleTap() {
-    setState(() {
-      _active = !_active;
-    });
-  }
+  final Weed weed;
+}
+
+class WeedMarkerPopup extends StatelessWidget {
+  const WeedMarkerPopup({Key? key, required this.weed})
+      : super(key: key);
+  final Weed weed;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        alignment: Alignment.center,
-        child: Align(
-          alignment: Alignment.center,
-          child: IconButton(
-            alignment: Alignment.center,
-            icon: Icon(
-              Icons.location_on,
-              size: 40,
-              color: _active ? Colors.red : Colors.blue,
-            ),
-            onPressed: () {
-              _handleTap();
-            },
-          )
-        )
+      width: 200,
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Image.network(weed.imagePath, width: 200),
+            Text(weed.name),
+            Text('${weed.lat}-${weed.long}'),
+          ],
+        ),
+      ),
     );
   }
 }
