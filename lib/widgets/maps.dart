@@ -28,7 +28,7 @@ class MapsPage extends StatelessWidget {
           options: MapOptions(
             center: LatLng(-27.4975, 153.0137),
             zoom: 13.0,
-            interactiveFlags: InteractiveFlag.all,
+            interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
             onTap: (_) => _popupLayerController.hidePopup(),
             plugins: [MarkerClusterPlugin(),],
           ),
