@@ -1,18 +1,20 @@
 import 'dart:collection';
-import 'dart:convert';
-
-import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
-import 'package:tflite/tflite.dart';
-import 'package:image/image.dart';
-import 'package:tuple/tuple.dart';
-import 'package:flutter/services.dart';
-
 import 'dart:math' as math;
+
+import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:tflite/tflite.dart';
+import 'package:tuple/tuple.dart';
+
 import 'models.dart';
 
 const int MAX_LOOK_BACK_SIZE = 5;
 const double MIN_CONFIDENCE_VAL = 0.90;
+
+// HAMISH: current idea -- take a photo of the last frame, display it as
+// the background widget, and then have an overlay.
 
 typedef void Callback(List<dynamic>? list, int h, int w);
 
@@ -20,6 +22,7 @@ class Camera extends StatefulWidget {
   final List<CameraDescription>? cameras;
   final Callback setRecognitions;
   final String model;
+
 
   Camera(this.cameras, this.model, this.setRecognitions);
 
@@ -31,13 +34,17 @@ class _CameraState extends State<Camera> {
   CameraController? controller;
   bool isDetecting = false;
   bool _cameraOn = true;
+  PanelController _pc = new PanelController();
+  String foundSpecies = "None";
 
   @override
   void initState() {
     super.initState();
+    startCamera();
+  }
 
+  void startCamera() {
     ListQueue<Tuple2<String, double>> seenBuffer = new ListQueue();
-
     if (widget.cameras == null || widget.cameras!.length < 1) {
       print('No camera is found');
     } else {
@@ -50,7 +57,7 @@ class _CameraState extends State<Camera> {
           return;
         }
         setState(() {});
-
+        // _pc.close();
         controller!.startImageStream((CameraImage img) {
           if (!isDetecting) {
             isDetecting = true;
@@ -66,7 +73,6 @@ class _CameraState extends State<Camera> {
               //var decodedImg = decodeImage(new List.from(imgAsBytes));
               //var resizedImg = copyResize(decodedImg, width: 224, height: 224);
               // WE NEED TO SAVE THE IMAGE TEMPORARILY TO DO THIS... STUPID FLUTTER!!!
-
               Tflite.runModelOnFrame(
                 bytesList: imgAsBytes,
                 imageHeight: img.height,
@@ -81,6 +87,7 @@ class _CameraState extends State<Camera> {
                   // HAMISH: todo -- now load slide over widget for detection
                   HapticFeedback.heavyImpact();
                   Tflite.close();
+                  _pc.open();
                   //
                   setState(() {
                     _cameraOn = false;
@@ -132,12 +139,15 @@ class _CameraState extends State<Camera> {
     Set<String> setBuffer = seenBuffer.map((element) => element.item1).toSet(); // get all recognitions
     bool sameElement = setBuffer.length == 1;
     bool notNegative = setBuffer.every((element) => element != "Negatives");
+    bool minFrames = seenBuffer.length == MAX_LOOK_BACK_SIZE;
     print(seenBuffer);
     print(setBuffer);
     print("thresh: $aboveThreshold, same: $sameElement");
-    if (aboveThreshold && sameElement && notNegative) {
+    if (aboveThreshold && sameElement && notNegative && minFrames) {
+      foundSpecies = setBuffer.first;
       return true;
     } else {
+      foundSpecies = "None";
       return false;
     }
   }
@@ -163,12 +173,54 @@ class _CameraState extends State<Camera> {
     var screenRatio = screenH / screenW;
     var previewRatio = previewH / previewW;
 
-    return OverflowBox(
-      maxHeight:
-          screenRatio > previewRatio ? screenH : screenW / previewW * previewH,
-      maxWidth:
-          screenRatio > previewRatio ? screenH / previewH * previewW : screenW,
-      child: _cameraOn ? CameraPreview(controller!) : Text("Hello"),
+    BorderRadiusGeometry radius = BorderRadius.only(
+      topLeft: Radius.circular(24.0),
+      topRight: Radius.circular(24.0),
+    );
+
+    // FIXME: HAMISH: removed max height and width of OVERFLOW BOX -- fixes issues with sliding panel
+    // seems to work on mine, please test
+    return Container(
+      // maxHeight:
+      //     screenRatio > previewRatio ? screenH : screenW / previewW * previewH,
+      // maxWidth:
+      //     screenRatio > previewRatio ? screenH / previewH * previewW : screenW,
+      child: SlidingUpPanel(
+        backdropEnabled: true,
+        controller: _pc,
+        minHeight: 0,
+        // isDraggable: true,
+        panel: OverlayPanel(foundSpecies, _pc),
+        body: _cameraOn ? CameraPreview(controller!) : Center(child: Text("CAMERA IMAGE HERE")),
+        borderRadius: radius,
+        onPanelClosed: () {
+          setState(() {
+            _cameraOn = true;
+          });
+        },
+      ),
+    );
+  }
+}
+
+class OverlayPanel extends StatelessWidget {
+  OverlayPanel(this.foundSpecies, this._pc);
+
+  final String foundSpecies;
+  final PanelController _pc;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+          child: Column(
+            children: [
+              Text("$foundSpecies"),
+              // ElevatedButton(onPressed: () {
+              //   print("Hello!");
+                // _pc.close();
+              // }, child: Text("close window"))
+            ],
+          ),
     );
   }
 }

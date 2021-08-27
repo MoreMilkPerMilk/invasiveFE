@@ -45,6 +45,7 @@ dependencies:
   line_icons: ^2.0.1
   badges: ^2.0.1
   tuple: ^2.0.0
+  sliding_up_panel: ^2.0.0+1
 
 
 
