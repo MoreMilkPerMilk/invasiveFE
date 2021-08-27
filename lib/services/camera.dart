@@ -6,6 +6,8 @@ import 'package:camera/camera.dart';
 import 'package:tflite/tflite.dart';
 import 'package:image/image.dart';
 import 'package:tuple/tuple.dart';
+import 'package:flutter/services.dart';
+
 import 'dart:math' as math;
 import 'models.dart';
 
@@ -28,6 +30,7 @@ class Camera extends StatefulWidget {
 class _CameraState extends State<Camera> {
   CameraController? controller;
   bool isDetecting = false;
+  bool _cameraOn = true;
 
   @override
   void initState() {
@@ -76,6 +79,13 @@ class _CameraState extends State<Camera> {
                 if (recognitions!.isNotEmpty && thresholdDetection(recognitions, seenBuffer)) {
                   print(">>>>>>>>>>>>>>>>>>>>>>> THRESHOLD REACHED");
                   // HAMISH: todo -- now load slide over widget for detection
+                  HapticFeedback.heavyImpact();
+                  Tflite.close();
+                  //
+                  setState(() {
+                    _cameraOn = false;
+                  });
+                  return; // stop Tflite recognition!
                 }
 
                 widget.setRecognitions(recognitions, img.height, img.width);
@@ -158,7 +168,7 @@ class _CameraState extends State<Camera> {
           screenRatio > previewRatio ? screenH : screenW / previewW * previewH,
       maxWidth:
           screenRatio > previewRatio ? screenH / previewH * previewW : screenW,
-      child: CameraPreview(controller!),
+      child: _cameraOn ? CameraPreview(controller!) : Text("Hello"),
     );
   }
 }
