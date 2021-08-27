@@ -1,12 +1,16 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:tflite/tflite.dart';
 import 'package:image/image.dart';
+import 'package:tuple/tuple.dart';
 import 'dart:math' as math;
-
 import 'models.dart';
+
+const int MAX_LOOK_BACK_SIZE = 5;
+const double MIN_CONFIDENCE_VAL = 0.90;
 
 typedef void Callback(List<dynamic>? list, int h, int w);
 
@@ -28,6 +32,8 @@ class _CameraState extends State<Camera> {
   @override
   void initState() {
     super.initState();
+
+    ListQueue<Tuple2<String, double>> seenBuffer = new ListQueue();
 
     if (widget.cameras == null || widget.cameras!.length < 1) {
       print('No camera is found');
@@ -66,6 +72,12 @@ class _CameraState extends State<Camera> {
               ).then((recognitions) {
                 int endTime = new DateTime.now().millisecondsSinceEpoch;
                 print("Detection took ${endTime - startTime}");
+                print(recognitions);
+                if (recognitions!.isNotEmpty && thresholdDetection(recognitions, seenBuffer)) {
+                  print(">>>>>>>>>>>>>>>>>>>>>>> THRESHOLD REACHED");
+                  // HAMISH: todo -- now load slide over widget for detection
+                }
+
                 widget.setRecognitions(recognitions, img.height, img.width);
                 isDetecting = false;
               });
@@ -94,6 +106,29 @@ class _CameraState extends State<Camera> {
           }
         });
       });
+    }
+  }
+
+  bool thresholdDetection(List<dynamic> recognitions, ListQueue<Tuple2<String, double>> seenBuffer) {
+    String label = recognitions[0]["label"];  // assume greatest confidence is first presented
+    double conf = recognitions[0]["confidence"];
+    seenBuffer.add(Tuple2<String, double>(label, conf));
+    if (seenBuffer.length > MAX_LOOK_BACK_SIZE) {
+      // remove the oldest element of the queue
+      seenBuffer.removeFirst();
+    }
+
+    bool aboveThreshold = seenBuffer.every((element) => element.item2 >= MIN_CONFIDENCE_VAL);
+    Set<String> setBuffer = seenBuffer.map((element) => element.item1).toSet(); // get all recognitions
+    bool sameElement = setBuffer.length == 1;
+    bool notNegative = setBuffer.every((element) => element != "Negatives");
+    print(seenBuffer);
+    print(setBuffer);
+    print("thresh: $aboveThreshold, same: $sameElement");
+    if (aboveThreshold && sameElement && notNegative) {
+      return true;
+    } else {
+      return false;
     }
   }
 
