@@ -66,13 +66,10 @@ class _CameraState extends State<Camera> {
 
             if (widget.model == resnet) {
 
-              // Resize image to 224 x 224
               var imgAsBytes = img.planes.map((plane) {
                 return plane.bytes;
               }).toList();
-              //var decodedImg = decodeImage(new List.from(imgAsBytes));
-              //var resizedImg = copyResize(decodedImg, width: 224, height: 224);
-              // WE NEED TO SAVE THE IMAGE TEMPORARILY TO DO THIS... STUPID FLUTTER!!!
+
               Tflite.runModelOnFrame(
                 bytesList: imgAsBytes,
                 imageHeight: img.height,
@@ -82,17 +79,20 @@ class _CameraState extends State<Camera> {
                 int endTime = new DateTime.now().millisecondsSinceEpoch;
                 print("Detection took ${endTime - startTime}");
                 print(recognitions);
-                if (recognitions!.isNotEmpty && thresholdDetection(recognitions, seenBuffer)) {
+                if (!_cameraOn) {
+                  seenBuffer.clear();
+                }
+                if (recognitions!.isNotEmpty && _cameraOn && thresholdDetection(recognitions, seenBuffer)) {
                   print(">>>>>>>>>>>>>>>>>>>>>>> THRESHOLD REACHED");
                   // HAMISH: todo -- now load slide over widget for detection
                   HapticFeedback.heavyImpact();
-                  Tflite.close();
+                  // Tflite.close();
                   _pc.open();
                   //
                   setState(() {
                     _cameraOn = false;
                   });
-                  return; // stop Tflite recognition!
+                  // return; // stop Tflite recognition!
                 }
 
                 widget.setRecognitions(recognitions, img.height, img.width);
@@ -191,7 +191,8 @@ class _CameraState extends State<Camera> {
         minHeight: 0,
         // isDraggable: true,
         panel: OverlayPanel(foundSpecies, _pc),
-        body: _cameraOn ? CameraPreview(controller!) : Center(child: Text("CAMERA IMAGE HERE")),
+        // body: _cameraOn ? CameraPreview(controller!) : Center(child: Text("CAMERA IMAGE HERE")),
+        body: CameraPreview(controller!),
         borderRadius: radius,
         onPanelClosed: () {
           setState(() {
@@ -214,7 +215,7 @@ class OverlayPanel extends StatelessWidget {
     return Center(
           child: Column(
             children: [
-              Text("$foundSpecies"),
+              Text("You found: $foundSpecies"),
               // ElevatedButton(onPressed: () {
               //   print("Hello!");
                 // _pc.close();
