@@ -31,6 +31,7 @@ class _CameraState extends State<Camera> {
   CameraController? controller;
   bool isDetecting = false;
   bool _cameraOn = true;
+  int _numResults = 2;
   PanelController _pc = new PanelController();
   String foundSpecies = "None";
 
@@ -42,6 +43,7 @@ class _CameraState extends State<Camera> {
 
   void startCamera() {
     ListQueue<Tuple2<String, double>> seenBuffer = new ListQueue();
+    print(widget.cameras);
     if (widget.cameras == null || widget.cameras!.length < 1) {
       print('No camera is found');
     } else {
@@ -70,34 +72,34 @@ class _CameraState extends State<Camera> {
     }
   }
 
-  void runResnetOnFrame(CameraImage img, int startTime, ListQueue<Tuple2<String, double>> seenBuffer) {
-    Tflite.runModelOnFrame(
+  void runResnetOnFrame(CameraImage img, int startTime,
+      ListQueue<Tuple2<String, double>> seenBuffer) async {
+    var recognitions = await Tflite.runModelOnFrame(
       bytesList: img.planes.map((plane) {
         return plane.bytes;
       }).toList(),
       imageHeight: img.height,
       imageWidth: img.width,
-      numResults: 2,
-    ).then((recognitions) {
-      int endTime = new DateTime.now().millisecondsSinceEpoch;
-      print("Detection took ${endTime - startTime}");
-      print(recognitions);
-      if (!_cameraOn) {
-        seenBuffer.clear();
-      }
-      if (recognitions!.isNotEmpty &&
-          _cameraOn &&
-          thresholdDetection(recognitions, seenBuffer)) {
-        HapticFeedback.heavyImpact();
-        _pc.open(); // show the slide over widget
-        setState(() {
-          _cameraOn = false;
-        });
-      }
+      numResults: _numResults,
+    );
 
-      widget.setRecognitions(recognitions, img.height, img.width);
-      isDetecting = false;
-    });
+    int endTime = new DateTime.now().millisecondsSinceEpoch;
+    print("Detection took ${endTime - startTime}");
+    print(recognitions);
+    if (!_cameraOn) {
+      seenBuffer.clear();
+    }
+    if (recognitions!.isNotEmpty && _cameraOn && thresholdDetection(recognitions, seenBuffer)) {
+      HapticFeedback.heavyImpact();
+      _pc.open(); // show the slide over widget
+      setState(() {
+        _cameraOn = false;
+        _numResults = 0;
+      });
+    }
+
+    widget.setRecognitions(recognitions, img.height, img.width);
+    isDetecting = false;
   }
 
   void runYoloOnFrame(CameraImage img, int startTime) {
@@ -122,8 +124,7 @@ class _CameraState extends State<Camera> {
     });
   }
 
-  bool thresholdDetection(List<dynamic> recognitions,
-      ListQueue<Tuple2<String, double>> seenBuffer) {
+  bool thresholdDetection(List<dynamic> recognitions, ListQueue<Tuple2<String, double>> seenBuffer) {
     String label = recognitions[0]
         ["label"]; // assume greatest confidence is first presented
     double conf = recognitions[0]["confidence"];
@@ -133,8 +134,8 @@ class _CameraState extends State<Camera> {
       seenBuffer.removeFirst();
     }
 
-    bool aboveThreshold =
-        seenBuffer.every((element) => element.item2 >= MIN_CONFIDENCE_VAL);
+    bool aboveThreshold = seenBuffer
+        .every((element) => element.item2 >= MIN_CONFIDENCE_VAL);
     Set<String> setBuffer = seenBuffer
         .map((element) => element.item1)
         .toSet(); // get all recognitions
@@ -198,6 +199,7 @@ class _CameraState extends State<Camera> {
         onPanelClosed: () {
           setState(() {
             _cameraOn = true;
+            _numResults = 2;
           });
         },
       ),
