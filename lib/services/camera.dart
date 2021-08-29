@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:invasive_fe/widgets/panel.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:tflite/tflite.dart';
 import 'package:tuple/tuple.dart';
@@ -12,9 +13,6 @@ import 'models.dart';
 
 const int MAX_LOOK_BACK_SIZE = 5;
 const double MIN_CONFIDENCE_VAL = 0.90;
-
-// HAMISH: current idea -- take a photo of the last frame, display it as
-// the background widget, and then have an overlay.
 
 typedef void Callback(List<dynamic>? list, int h, int w);
 
@@ -57,7 +55,7 @@ class _CameraState extends State<Camera> {
           return;
         }
         setState(() {});
-        // _pc.close();
+
         controller!.startImageStream((CameraImage img) {
           if (!isDetecting) {
             isDetecting = true;
@@ -83,16 +81,11 @@ class _CameraState extends State<Camera> {
                   seenBuffer.clear();
                 }
                 if (recognitions!.isNotEmpty && _cameraOn && thresholdDetection(recognitions, seenBuffer)) {
-                  print(">>>>>>>>>>>>>>>>>>>>>>> THRESHOLD REACHED");
-                  // HAMISH: todo -- now load slide over widget for detection
                   HapticFeedback.heavyImpact();
-                  // Tflite.close();
-                  _pc.open();
-                  //
+                  _pc.open(); // show the slide over widget
                   setState(() {
                     _cameraOn = false;
                   });
-                  // return; // stop Tflite recognition!
                 }
 
                 widget.setRecognitions(recognitions, img.height, img.width);
@@ -190,7 +183,7 @@ class _CameraState extends State<Camera> {
         controller: _pc,
         minHeight: 0,
         // isDraggable: true,
-        panel: OverlayPanel(foundSpecies, _pc),
+        panel: Panel(foundSpecies, _pc),
         // body: _cameraOn ? CameraPreview(controller!) : Center(child: Text("CAMERA IMAGE HERE")),
         body: CameraPreview(controller!),
         borderRadius: radius,
@@ -200,28 +193,6 @@ class _CameraState extends State<Camera> {
           });
         },
       ),
-    );
-  }
-}
-
-class OverlayPanel extends StatelessWidget {
-  OverlayPanel(this.foundSpecies, this._pc);
-
-  final String foundSpecies;
-  final PanelController _pc;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-          child: Column(
-            children: [
-              Text("You found: $foundSpecies"),
-              // ElevatedButton(onPressed: () {
-              //   print("Hello!");
-                // _pc.close();
-              // }, child: Text("close window"))
-            ],
-          ),
     );
   }
 }
