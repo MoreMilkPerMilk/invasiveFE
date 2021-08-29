@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:invasive_fe/widgets/cameraHome.dart';
 import 'package:invasive_fe/widgets/maps.dart';
+import 'package:invasive_fe/widgets/panel.dart';
 import 'package:line_icons/line_icons.dart';
 
 void main() => runApp(MaterialApp(
@@ -22,8 +23,7 @@ class Main extends StatefulWidget {
 
 class _MainState extends State<Main> {
   int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.w600);
+  static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.w600);
   static List<Widget> _widgetOptions = <Widget>[
     Text(
       'Home',
