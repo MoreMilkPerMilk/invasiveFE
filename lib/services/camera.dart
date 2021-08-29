@@ -21,7 +21,6 @@ class Camera extends StatefulWidget {
   final Callback setRecognitions;
   final String model;
 
-
   Camera(this.cameras, this.model, this.setRecognitions);
 
   @override
@@ -59,59 +58,11 @@ class _CameraState extends State<Camera> {
         controller!.startImageStream((CameraImage img) {
           if (!isDetecting) {
             isDetecting = true;
-
             int startTime = new DateTime.now().millisecondsSinceEpoch;
-
             if (widget.model == resnet) {
-
-              var imgAsBytes = img.planes.map((plane) {
-                return plane.bytes;
-              }).toList();
-
-              Tflite.runModelOnFrame(
-                bytesList: imgAsBytes,
-                imageHeight: img.height,
-                imageWidth: img.width,
-                numResults: 2,
-              ).then((recognitions) {
-                int endTime = new DateTime.now().millisecondsSinceEpoch;
-                print("Detection took ${endTime - startTime}");
-                print(recognitions);
-                if (!_cameraOn) {
-                  seenBuffer.clear();
-                }
-                if (recognitions!.isNotEmpty && _cameraOn && thresholdDetection(recognitions, seenBuffer)) {
-                  HapticFeedback.heavyImpact();
-                  _pc.open(); // show the slide over widget
-                  setState(() {
-                    _cameraOn = false;
-                  });
-                }
-
-                widget.setRecognitions(recognitions, img.height, img.width);
-                isDetecting = false;
-              });
-            }
-              else { // yolo
-              Tflite.detectObjectOnFrame(
-                bytesList: img.planes.map((plane) {
-                  return plane.bytes;
-                }).toList(),
-                model: widget.model == yolo ? "YOLO" : "SSDMobileNet",
-                imageHeight: img.height,
-                imageWidth: img.width,
-                imageMean: widget.model == yolo ? 0 : 127.5,
-                imageStd: widget.model == yolo ? 255.0 : 127.5,
-                numResultsPerClass: 1,
-                threshold: widget.model == yolo ? 0.2 : 0.4,
-              ).then((recognitions) {
-                int endTime = new DateTime.now().millisecondsSinceEpoch;
-                print("Detection took ${endTime - startTime}");
-
-                widget.setRecognitions(recognitions, img.height, img.width);
-
-                isDetecting = false;
-              });
+              runResnetOnFrame(img, startTime, seenBuffer);
+            } else {
+              runYoloOnFrame(img, startTime);
             }
           }
         });
@@ -119,8 +70,62 @@ class _CameraState extends State<Camera> {
     }
   }
 
-  bool thresholdDetection(List<dynamic> recognitions, ListQueue<Tuple2<String, double>> seenBuffer) {
-    String label = recognitions[0]["label"];  // assume greatest confidence is first presented
+  void runResnetOnFrame(CameraImage img, int startTime, ListQueue<Tuple2<String, double>> seenBuffer) {
+    Tflite.runModelOnFrame(
+      bytesList: img.planes.map((plane) {
+        return plane.bytes;
+      }).toList(),
+      imageHeight: img.height,
+      imageWidth: img.width,
+      numResults: 2,
+    ).then((recognitions) {
+      int endTime = new DateTime.now().millisecondsSinceEpoch;
+      print("Detection took ${endTime - startTime}");
+      print(recognitions);
+      if (!_cameraOn) {
+        seenBuffer.clear();
+      }
+      if (recognitions!.isNotEmpty &&
+          _cameraOn &&
+          thresholdDetection(recognitions, seenBuffer)) {
+        HapticFeedback.heavyImpact();
+        _pc.open(); // show the slide over widget
+        setState(() {
+          _cameraOn = false;
+        });
+      }
+
+      widget.setRecognitions(recognitions, img.height, img.width);
+      isDetecting = false;
+    });
+  }
+
+  void runYoloOnFrame(CameraImage img, int startTime) {
+    Tflite.detectObjectOnFrame(
+      bytesList: img.planes.map((plane) {
+        return plane.bytes;
+      }).toList(),
+      model: widget.model == yolo ? "YOLO" : "SSDMobileNet",
+      imageHeight: img.height,
+      imageWidth: img.width,
+      imageMean: widget.model == yolo ? 0 : 127.5,
+      imageStd: widget.model == yolo ? 255.0 : 127.5,
+      numResultsPerClass: 1,
+      threshold: widget.model == yolo ? 0.2 : 0.4,
+    ).then((recognitions) {
+      int endTime = new DateTime.now().millisecondsSinceEpoch;
+      print("Detection took ${endTime - startTime}");
+
+      widget.setRecognitions(recognitions, img.height, img.width);
+
+      isDetecting = false;
+    });
+  }
+
+  bool thresholdDetection(List<dynamic> recognitions,
+      ListQueue<Tuple2<String, double>> seenBuffer) {
+    String label = recognitions[0]
+        ["label"]; // assume greatest confidence is first presented
     double conf = recognitions[0]["confidence"];
     seenBuffer.add(Tuple2<String, double>(label, conf));
     if (seenBuffer.length > MAX_LOOK_BACK_SIZE) {
@@ -128,8 +133,11 @@ class _CameraState extends State<Camera> {
       seenBuffer.removeFirst();
     }
 
-    bool aboveThreshold = seenBuffer.every((element) => element.item2 >= MIN_CONFIDENCE_VAL);
-    Set<String> setBuffer = seenBuffer.map((element) => element.item1).toSet(); // get all recognitions
+    bool aboveThreshold =
+        seenBuffer.every((element) => element.item2 >= MIN_CONFIDENCE_VAL);
+    Set<String> setBuffer = seenBuffer
+        .map((element) => element.item1)
+        .toSet(); // get all recognitions
     bool sameElement = setBuffer.length == 1;
     bool notNegative = setBuffer.every((element) => element != "Negatives");
     bool minFrames = seenBuffer.length == MAX_LOOK_BACK_SIZE;
