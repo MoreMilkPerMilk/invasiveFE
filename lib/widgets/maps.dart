@@ -182,7 +182,7 @@ class WeedMarker extends Marker {
             gradient: RadialGradient(
               colors: [
                 Color.fromRGBO(255, 0, 0, 0.5),
-                Color.fromRGBO(0, 0, 0, 0)
+                Color.fromRGBO(255, 0, 0, 0)
               ]
             ),
             shape: BoxShape.circle,
