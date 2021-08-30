@@ -6,12 +6,11 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 
 // openstreetmap tile servers: https://wiki.openstreetmap.org/wiki/Tile_servers
+// LOL good luck wading through this
 
 /// fixme; James's big bug bash board:
 
 /// todo; Features to develop:
-/// Heat map with clickable regions (we'll have two views: cluster marker view
-///   and heat map view).
 /// Generating markers from a given file/object.
 /// Nicer UI (overlays and markers).
 
@@ -90,9 +89,23 @@ class _MapsPageState extends State<MapsPage> {
                   child: Align(
                       alignment: Alignment.topCenter,
                       child: ToggleButtons(
+                        borderWidth: 2,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                         children: <Widget>[
-                          Icon(Icons.ac_unit),
-                          Icon(Icons.call),
+                          Container(
+                            color: Colors.white,
+                            child: Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Text("Marker View")
+                            )
+                          ),
+                          Container(
+                              color: Colors.white,
+                              child: Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Text("Heatmap View")
+                              )
+                          )
                         ],
                         onPressed: (int index) {
                           setState(() {
