@@ -8,70 +8,115 @@ import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 // openstreetmap tile servers: https://wiki.openstreetmap.org/wiki/Tile_servers
 
 /// fixme; James's big bug bash board:
-/// Rotating the map rotates the icon.
 
 /// todo; Features to develop:
-/// Clustering markers.
 /// Heat map with clickable regions (we'll have two views: cluster marker view
 ///   and heat map view).
 /// Generating markers from a given file/object.
 /// Nicer UI (overlays and markers).
 
 const String MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoianNsdm4iLCJhIjoiY2tzZTFoYmltMHc5ajJucXRiczY3eno3bSJ9.We8R6YRT_fcmuC6bOzzqbw';
-final PopupController _popupLayerController = PopupController();
+bool heatmapMode = false;
 
-class MapsPage extends StatelessWidget {
+class MapsPage extends StatefulWidget {
+
+  final PopupController _popupLayerController = PopupController();
+
+  @override
+  createState() => _MapsPageState();
+}
+
+class _MapsPageState extends State<MapsPage> {
+  bool heatmapMode = false;
+  List<bool> isSelected = [true, false];
+
   @override
   Widget build(BuildContext context) {
+    print(heatmapMode);
     return Scaffold(
-      body: FlutterMap(
-          options: MapOptions(
-            center: LatLng(-27.4975, 153.0137),
-            zoom: 13.0,
-            interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-            onTap: (_) => _popupLayerController.hidePopup(),
-            plugins: [MarkerClusterPlugin(),],
-          ),
-          layers: [
-            TileLayerOptions(
-              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: <String>['a', 'b', 'c'],
-            ),
-            MarkerClusterLayerOptions(
-              maxClusterRadius: 100,
-              size: Size(40, 40),
-              anchor: AnchorPos.align(AnchorAlign.center),
-              fitBoundsOptions: FitBoundsOptions(
-                padding: EdgeInsets.all(50),
+        body: Stack(
+            children: [
+              FlutterMap(
+                  options: MapOptions(
+                    center: LatLng(-27.4975, 153.0137),
+                    zoom: 13.0,
+                    interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                    onTap: (_) => widget._popupLayerController.hidePopup(),
+                    plugins: [MarkerClusterPlugin(),],
+                  ),
+                  layers: heatmapMode ? [
+                    TileLayerOptions(
+                      urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      subdomains: <String>['a', 'b', 'c'],
+                    ),
+                    MarkerLayerOptions(
+                      markers: generateMarkers()
+                    )
+                  ] : [
+                    TileLayerOptions(
+                      urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      subdomains: <String>['a', 'b', 'c'],
+                    ),
+                    MarkerClusterLayerOptions(
+                      maxClusterRadius: 100,
+                      size: Size(40, 40),
+                      anchor: AnchorPos.align(AnchorAlign.center),
+                      fitBoundsOptions: FitBoundsOptions(
+                        padding: EdgeInsets.all(50),
+                      ),
+                      markers: generateMarkers(),
+                      popupOptions: PopupOptions(
+                          popupSnap: PopupSnap.markerTop,
+                          popupController: widget._popupLayerController,
+                          popupAnimation: PopupAnimation.fade(duration: Duration(milliseconds: 100)),
+                          popupBuilder: (_, Marker marker) {
+                            // this conditional is necessary since popupBuilder must take a Marker
+                            if (marker is WeedMarker) {
+                              return WeedMarkerPopup(weed: marker.weed);
+                            }
+                            return Card(child: Text('Error: Not a weed.'));
+                          }
+                      ),
+                      builder: (context, markers) {
+                        return FloatingActionButton(
+                          onPressed: null,
+                          child: Text(markers.length.toString()),
+                        );
+                      },
+                    ),
+                  ]
               ),
-              markers: generateMarkers(),
-              popupOptions: PopupOptions(
-                  popupSnap: PopupSnap.markerTop,
-                  popupController: _popupLayerController,
-                  popupAnimation: PopupAnimation.fade(duration: Duration(milliseconds: 100)),
-                  popupBuilder: (_, Marker marker) {
-                    // this conditional is necessary since popupBuilder must take a Marker
-                    if (marker is WeedMarker) {
-                      return WeedMarkerPopup(weed: marker.weed);
-                    }
-                    return Card(child: Text('Error: Not a weed.'));
-                  }
-              ),
-              builder: (context, markers) {
-                return FloatingActionButton(
-                  onPressed: null,
-                  child: Text(markers.length.toString()),
-                );
-              },
-            ),
-          ]
-      ),
+              Padding(
+                  padding: EdgeInsets.only(top: 50),
+                  child: Align(
+                      alignment: Alignment.topCenter,
+                      child: ToggleButtons(
+                        children: <Widget>[
+                          Icon(Icons.ac_unit),
+                          Icon(Icons.call),
+                        ],
+                        onPressed: (int index) {
+                          setState(() {
+                            heatmapMode = index == 1;
+                            for (int i = 0; i < isSelected.length; i++) {
+                              isSelected[i] = false;
+                            }
+                            isSelected[index] = true;
+                          });
+                        },
+                        isSelected: isSelected,
+                      ),
+                  )
+              )
+            ]
+        )
     );
   }
 
   List<WeedMarker> generateMarkers() {
     return [
       WeedMarker(
+        heatmap: heatmapMode,
         weed: Weed(
           name: 'Lantana',
           imagePath:
@@ -81,6 +126,7 @@ class MapsPage extends StatelessWidget {
         ),
       ),
       WeedMarker(
+        heatmap: heatmapMode,
         weed: Weed(
           name: 'Winter Grass',
           imagePath:
@@ -112,13 +158,23 @@ class Weed {
 
 
 class WeedMarker extends Marker {
-  WeedMarker({required this.weed})
+  WeedMarker({required this.weed, required bool heatmap})
       : super(
     anchorPos: AnchorPos.align(AnchorAlign.top),
     height: Weed.size,
     width: Weed.size,
     point: LatLng(weed.lat, weed.long),
-    builder: (BuildContext ctx) => Icon(
+    builder: heatmap ?
+        (BuildContext ctx) => Container(
+          width: Weed.size * 1.5,
+          height: Weed.size * 1.5,
+          decoration: BoxDecoration(
+            color: Colors.orange,
+            shape: BoxShape.circle,
+          ),
+        )
+        :
+        (BuildContext ctx) => Icon(
         Icons.location_pin,
         size: Weed.size),
   );
@@ -152,3 +208,4 @@ class WeedMarkerPopup extends StatelessWidget {
     );
   }
 }
+
