@@ -32,7 +32,6 @@ class _MapsPageState extends State<MapsPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(heatmapMode);
     return Scaffold(
         body: Stack(
             children: [
@@ -160,16 +159,19 @@ class Weed {
 class WeedMarker extends Marker {
   WeedMarker({required this.weed, required bool heatmap})
       : super(
-    anchorPos: AnchorPos.align(AnchorAlign.top),
-    height: Weed.size,
-    width: Weed.size,
+    anchorPos: AnchorPos.align(AnchorAlign.center),
+    height: heatmap ? Weed.size * 2 : Weed.size,
+    width: heatmap ? Weed.size * 2 : Weed.size,
     point: LatLng(weed.lat, weed.long),
     builder: heatmap ?
         (BuildContext ctx) => Container(
-          width: Weed.size * 1.5,
-          height: Weed.size * 1.5,
           decoration: BoxDecoration(
-            color: Colors.orange,
+            gradient: RadialGradient(
+              colors: [
+                Color.fromRGBO(255, 0, 0, 0.5),
+                Color.fromRGBO(0, 0, 0, 0)
+              ]
+            ),
             shape: BoxShape.circle,
           ),
         )
