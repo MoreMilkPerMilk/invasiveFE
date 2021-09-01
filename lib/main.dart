@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:invasive_fe/widgets/cameraHome.dart';
-import 'package:invasive_fe/maps.dart';
+import 'package:invasive_fe/widgets/maps.dart';
 import 'package:line_icons/line_icons.dart';
 
 void main() => runApp(MaterialApp(

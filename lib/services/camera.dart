@@ -72,8 +72,7 @@ class _CameraState extends State<Camera> {
     }
   }
 
-  void runResnetOnFrame(CameraImage img, int startTime,
-      ListQueue<Tuple2<String, double>> seenBuffer) async {
+  void runResnetOnFrame(CameraImage img, int startTime, ListQueue<Tuple2<String, double>> seenBuffer) async {
     var recognitions = await Tflite.runModelOnFrame(
       bytesList: img.planes.map((plane) {
         return plane.bytes;
@@ -125,8 +124,7 @@ class _CameraState extends State<Camera> {
   }
 
   bool thresholdDetection(List<dynamic> recognitions, ListQueue<Tuple2<String, double>> seenBuffer) {
-    String label = recognitions[0]
-        ["label"]; // assume greatest confidence is first presented
+    String label = recognitions[0]["label"]; // assume greatest confidence is first presented
     double conf = recognitions[0]["confidence"];
     seenBuffer.add(Tuple2<String, double>(label, conf));
     if (seenBuffer.length > MAX_LOOK_BACK_SIZE) {
@@ -134,11 +132,8 @@ class _CameraState extends State<Camera> {
       seenBuffer.removeFirst();
     }
 
-    bool aboveThreshold = seenBuffer
-        .every((element) => element.item2 >= MIN_CONFIDENCE_VAL);
-    Set<String> setBuffer = seenBuffer
-        .map((element) => element.item1)
-        .toSet(); // get all recognitions
+    bool aboveThreshold = seenBuffer.every((element) => element.item2 >= MIN_CONFIDENCE_VAL);
+    Set<String> setBuffer = seenBuffer.map((element) => element.item1).toSet(); // get all recognitions
     bool sameElement = setBuffer.length == 1;
     bool notNegative = setBuffer.every((element) => element != "Negatives");
     bool minFrames = seenBuffer.length == MAX_LOOK_BACK_SIZE;
@@ -180,21 +175,24 @@ class _CameraState extends State<Camera> {
       topRight: Radius.circular(24.0),
     );
 
-    // FIXME: HAMISH: removed max height and width of OVERFLOW BOX -- fixes issues with sliding panel
-    // seems to work on mine, please test
+    final size = MediaQuery.of(context).size;
+    final deviceRatio = size.width / size.height;
+    var camera = controller!.value;
+    var scale = size.aspectRatio * camera.aspectRatio;
+    if (scale < 1) scale = 1 / scale;
+
     return Container(
-      // maxHeight:
-      //     screenRatio > previewRatio ? screenH : screenW / previewW * previewH,
-      // maxWidth:
-      //     screenRatio > previewRatio ? screenH / previewH * previewW : screenW,
       child: SlidingUpPanel(
         backdropEnabled: true,
         controller: _pc,
         minHeight: 0,
-        // isDraggable: true,
         panel: Panel(foundSpecies, _pc),
-        // body: _cameraOn ? CameraPreview(controller!) : Center(child: Text("CAMERA IMAGE HERE")),
-        body: CameraPreview(controller!),
+        body: Transform.scale( // HAMISH: Fixed the weird scaling issues!
+          scale: scale,
+          child: Center(
+            child: CameraPreview(controller!),
+          ),
+        ),
         borderRadius: radius,
         onPanelClosed: () {
           setState(() {

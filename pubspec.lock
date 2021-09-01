@@ -21,22 +21,6 @@ packages:
       name: animated_stack_widget
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "22.0.0"
-  analyzer:
-    dependency: transitive
-    description:
-      name: analyzer
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.7.1"
-  animated_stack_widget:
-    dependency: transitive
-    description:
-      name: animated_stack_widget
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.2+1"
-    version: "2.0.13"
     version: "0.0.2+1"
   archive:
     dependency: transitive
@@ -287,7 +271,7 @@ packages:
       name: flutter_map_marker_popup
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0+2"
+    version: "1.0.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -717,7 +701,7 @@ packages:
       name: win32
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.2.6"
+    version: "2.2.8"
   wkt_parser:
     dependency: transitive
     description:
