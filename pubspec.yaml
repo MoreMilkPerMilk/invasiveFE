@@ -29,6 +29,9 @@ dependencies:
   tflite: ^1.1.2
   http: 0.13.3  # allows for REST api queries
   json_annotation: ^4.0.0  # easy conversion between JSON <--> Class
+  uuid:
+  sliding_up_panel: ^2.0.0+1
+
 
   # leaflet things
   flutter_map: ^0.13.1  # leaflet for flutter
