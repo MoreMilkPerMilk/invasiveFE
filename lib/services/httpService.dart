@@ -8,7 +8,7 @@ import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/Location.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
 
-var API_URL = 'http://invasivesys.uqcloud.net:80';
+const API_URL = 'http://invasivesys.uqcloud.net:80';
 
 // --------------------------------
 //  PROGRESS
