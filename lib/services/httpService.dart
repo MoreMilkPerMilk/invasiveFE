@@ -127,15 +127,12 @@ Future<User> getUserById(int personId) async {
 /// add User
 Future<bool> addUser(User user) async {
   final response = await http.post(
-    Uri.parse(API_URL + "/users/add"),
+    Uri.parse(API_URL + "/users/create"),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
     body: user.toJson(),
   );
-
-  print(response.body);
-  print(user.toJson());
 
   if (response.statusCode == 200) {
     return true;
