@@ -152,6 +152,22 @@ Future<bool> deleteUser(int personId) async {
   throw "HTTP Error Code: ${response.statusCode}";
 }
 
+/// update user
+Future<bool> addWeedToUser(int personId, WeedInstance weed) async {
+  final response = await http.put(
+    Uri.parse(API_URL + "/users/add_identification?person_id=$personId"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: weed.toJson(),
+  );
+
+  if (response.statusCode == 200) {
+    return true;
+  }
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
 // --------------------------------
 //  SPECIES
 // --------------------------------
