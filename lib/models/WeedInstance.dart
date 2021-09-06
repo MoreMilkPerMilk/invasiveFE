@@ -46,17 +46,17 @@ class WeedInstance {
   @override
   String toString() {
     var output = "";
-    output += "\t species_id: ${this.species_id}\n";
-    output += "\t discovery_date: ${this.discovery_date}\n";
-    output += "\t removed: ${this.removed}\n";
+    output += "species_id: ${this.species_id}\n";
+    output += "discovery_date: ${this.discovery_date}\n";
+    output += "removed: ${this.removed}\n";
     if (this.removed) {
-      output += "\t removal_date: ${this.removal_date}\n";
+      output += "removal_date: ${this.removal_date}\n";
     }
-    output += "\t replaced: ${this.replaced}\n";
+    output += "replaced: ${this.replaced}\n";
     if (this.replaced) {
-      output += "\t replaced_species: ${this.replaced_species}\n";
+      output += "replaced_species: ${this.replaced_species}\n";
     }
-    output += "\t image_url: ${this.image_filename != null ? this.image_filename : "None"}\n";
+    output += "image_url: ${this.image_filename != null ? this.image_filename : "None"}\n";
     return output;
   }
 

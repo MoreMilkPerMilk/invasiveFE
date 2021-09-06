@@ -46,6 +46,7 @@ dependencies:
   tuple: ^2.0.0
 
   plugin_platform_interface: ^2.0.0
+  indent: ^2.0.0
 
 dev_dependencies:
   flutter_test:

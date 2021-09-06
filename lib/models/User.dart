@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:indent/indent.dart';
 import 'WeedInstance.dart';
 
 class User {
@@ -56,16 +56,15 @@ class User {
   String toString() {
     var output = "";
     output += "id: ${this.person_id}\n";
-    output += "first: ${this.first_name}\n";
-    output += "name: ${this.last_name}\n";
+    output += "first_name: ${this.first_name}\n";
+    output += "last_name: ${this.last_name}\n";
     output += "date_joined: ${this.date_joined}\n";
     output += "count_identified: ${this.count_identified}\n";
-
     output += "previous_tags:\n";
     int i = 0;
     this.previous_tags.forEach((element) {
-      output += "$i:";
-      output += "\t $element";
+      output += "$i:\n";
+      output += "$element".indent(4);
       i++;
     });
 
