@@ -32,8 +32,7 @@ class _MapsPageState extends State<MapsPage> {
 
   @override
   void initState() {
-    getAllUsers();
-
+    getUserById(0);
     super.initState();
   }
 

@@ -109,14 +109,16 @@ Future<List<User>> getAllUsers() async {
 /// communicate with backend server to HTTP GET a specific user.
 Future<User> getUserById(int personId) async {
   final response = await http.get(
-      Uri.parse(API_URL + "/users/?person_id=$personId"));
+      Uri.parse(API_URL + "/users/$personId"));
 
   if (response.statusCode == 200) {
     // log(response.body);
     // var result = await compute(User.parseUserList, response.body);
+
     var result = User.fromJson(jsonDecode(response.body));
     log(result.toString());
     return result;
+
     // return compute(WeedInstance.parseWeedInstanceList, response.body);
   }
   throw "HTTP Error Code: ${response.statusCode}";
