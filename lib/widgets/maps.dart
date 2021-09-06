@@ -34,6 +34,7 @@ class _MapsPageState extends State<MapsPage> {
 
   @override
   void initState() {
+    addWeed(WeedInstance(species_id: 0, discovery_date: "2000/03/02", removed: false, replaced: false));
     super.initState();
   }
 

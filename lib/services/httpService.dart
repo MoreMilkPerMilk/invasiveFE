@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
-
+import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/Location.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
+import 'package:objectid/objectid.dart';
 
 const API_URL = 'http://invasivesys.uqcloud.net:80';
 
@@ -152,7 +153,7 @@ Future<bool> deleteUser(int personId) async {
   throw "HTTP Error Code: ${response.statusCode}";
 }
 
-/// update user
+/// add identification
 Future<bool> addWeedToUser(int personId, WeedInstance weed) async {
   final response = await http.put(
     Uri.parse(API_URL + "/users/add_identification?person_id=$personId"),
@@ -171,6 +172,7 @@ Future<bool> addWeedToUser(int personId, WeedInstance weed) async {
 // --------------------------------
 //  SPECIES
 // --------------------------------
+
 Future<List<Species>> getAllSpecies() async {
   final response = await http.get(Uri.parse(API_URL + "/species"));
 
@@ -202,3 +204,42 @@ Future<Species> getSpeciesById(int speciesID) async {
   throw "HTTP Error Code: ${response.statusCode}";
 }
 
+// --------------------------------
+//  WEEDS
+// --------------------------------
+
+Future<List<WeedInstance>> getAllWeeds() async {
+  final response = await http.get(Uri.parse(API_URL + "/weeds"));
+  if (response.statusCode == 200) {
+    var result = WeedInstance.parseWeedInstanceList(response.body);
+    result.forEach((element) {
+      log(element.toString());
+    });
+    return result;
+  }
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+Future<bool> addWeed(WeedInstance weed) async {
+  String image = weed.image_filename == null ? "" : weed.image_filename!;
+  ByteData bytes = await rootBundle.load(image); // fixme: incomplete
+  final response = await http.post(
+    Uri.parse(API_URL + "/weeds/add?"
+        "weed_id=${ObjectId()}&"
+        "species_id=${weed.species_id}&"
+        "discovery_date=${weed.discovery_date}&"
+        "removed=${weed.removed}&"
+        "removal_date=${weed.removed ? weed.removal_date : ""}&"
+        "replaced=${weed.replaced}&"
+        "replaced_species=${weed.replaced ? weed.replaced_species : ""}"),
+    headers: <String, String>{
+      'Content-Type': 'multipart/form-data; boundary="&"',
+    },
+    body: "&" + image + "&"
+  );
+
+  if (response.statusCode == 200) {
+    return true;
+  }
+  throw "HTTP Error Code: ${response.statusCode}";
+}
