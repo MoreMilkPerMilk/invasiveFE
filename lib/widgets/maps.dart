@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:invasive_fe/services/httpService.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
@@ -28,6 +29,13 @@ class MapsPage extends StatefulWidget {
 class _MapsPageState extends State<MapsPage> {
   bool heatmapMode = false;
   List<bool> isSelected = [true, false];
+
+  @override
+  void initState() {
+    getAllUsers();
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

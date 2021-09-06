@@ -7,6 +7,8 @@ import 'package:uuid/uuid.dart';
 
 import '../services/httpService.dart';
 
+// broken due to modified WeedInstance json structure
+
 class HttpTestPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -36,7 +38,7 @@ class HttpTestPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 log("/Add Location w/ Weeds");
-                var weed = WeedInstance(uuid: Uuid().v4(), image_url: "image_url", species_id: 1, discovery_date: "2000/03/02", removed: false, replaced: false);
+                var weed = WeedInstance(species_id: 0, discovery_date: "2000/03/02", removed: false, replaced: false, image_filename: "image_url");
                 var loc = Location(name: "152 Gailey Road Brisbane", lat:0.0, long:0.0, weeds_present: [weed]);
                 addLocation(loc);
               },
