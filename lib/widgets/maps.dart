@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:invasive_fe/models/Location.dart';
+import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:invasive_fe/services/httpService.dart';
@@ -9,16 +11,12 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 
 // openstreetmap tile servers: https://wiki.openstreetmap.org/wiki/Tile_servers
-// LOL good luck wading through this
 
-/// fixme; James's big bug bash board:
-
-/// todo; Features to develop:
-/// Generating markers from a given file/object.
-/// Nicer UI (overlays and markers).
 
 const String MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoianNsdm4iLCJhIjoiY2tzZTFoYmltMHc5ajJucXRiczY3eno3bSJ9.We8R6YRT_fcmuC6bOzzqbw';
 bool heatmapMode = false;
+Map<int, dynamic> species = {};
+
 
 class MapsPage extends StatefulWidget {
 
@@ -29,12 +27,22 @@ class MapsPage extends StatefulWidget {
 }
 
 class _MapsPageState extends State<MapsPage> {
+  List<Marker> markers = [];
   bool heatmapMode = false;
   List<bool> isSelected = [true, false];
 
+  /// information that should be refreshed each time maps opens goes here
   @override
   void initState() {
-    addWeed(WeedInstance(species_id: 0, discovery_date: "2000/03/02", removed: false, replaced: false));
+    getAllLocations().then((locations) =>
+      markers = locations.map((loc) => WeedMarker(
+        location: loc,
+        heatmap: heatmapMode)).toList());
+    // fixme: for efficiency, this shouldn't be here
+    getAllSpecies().then((speciesList) =>
+      species = Map.fromIterable(speciesList, // convert species list to map for quick id lookup
+          key: (e) => e.species_id,
+          value: (e) => e));
     super.initState();
   }
 
@@ -51,27 +59,20 @@ class _MapsPageState extends State<MapsPage> {
                     onTap: (_) => widget._popupLayerController.hidePopup(),
                     plugins: [MarkerClusterPlugin(),],
                   ),
-                  layers: heatmapMode ? [
+                  layers: [
                     TileLayerOptions(
                       urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: <String>['a', 'b', 'c'],
                     ),
-                    MarkerLayerOptions(
-                      markers: generateMarkers()
-                    )
-                  ] : [
-                    TileLayerOptions(
-                      urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: <String>['a', 'b', 'c'],
-                    ),
-                    MarkerClusterLayerOptions(
+                    if (heatmapMode) MarkerLayerOptions(markers: markers)
+                    else MarkerClusterLayerOptions(
                       maxClusterRadius: 100,
                       size: Size(40, 40),
                       anchor: AnchorPos.align(AnchorAlign.center),
                       fitBoundsOptions: FitBoundsOptions(
                         padding: EdgeInsets.all(50),
                       ),
-                      markers: generateMarkers(),
+                      markers: markers,
                       popupOptions: PopupOptions(
                           popupSnap: PopupSnap.markerTop,
                           popupController: widget._popupLayerController,
@@ -79,17 +80,15 @@ class _MapsPageState extends State<MapsPage> {
                           popupBuilder: (_, Marker marker) {
                             // this conditional is necessary since popupBuilder must take a Marker
                             if (marker is WeedMarker) {
-                              return WeedMarkerPopup(weed: marker.weed);
+                              return WeedMarkerPopup(location: marker.location);
                             }
                             return Card(child: Text('Error: Not a weed.'));
-                          }
-                      ),
+                          }),
                       builder: (context, markers) {
                         return FloatingActionButton(
                           onPressed: null,
                           child: Text(markers.length.toString()),
-                        );
-                      },
+                        );},
                     ),
                   ]
               ),
@@ -133,58 +132,19 @@ class _MapsPageState extends State<MapsPage> {
         )
     );
   }
-
-  List<WeedMarker> generateMarkers() {
-    return [
-      WeedMarker(
-        heatmap: heatmapMode,
-        weed: Weed(
-          name: 'Lantana',
-          imagePath:
-          'https://www.gardeningknowhow.com/wp-content/uploads/2020/11/pink-and-yellow-lantana-flowers-1024x768.jpg',
-          lat: -27.4975,
-          long: 153.0137,
-        ),
-      ),
-      WeedMarker(
-        heatmap: heatmapMode,
-        weed: Weed(
-          name: 'Winter Grass',
-          imagePath:
-          'https://www.myhometurf.com.au/wp-content/uploads/2019/11/Wintergrass-weed-600x600.jpg',
-          lat: -27.4975,
-          long: 153.0125,
-        ),
-      ),
-    ];
-  }
-}
-
-
-class Weed {
-  static const double size = 40;
-
-  Weed({
-    required this.name,
-    required this.imagePath,
-    required this.lat,
-    required this.long,
-  });
-
-  final String name;
-  final String imagePath;
-  final double lat;
-  final double long;
 }
 
 
 class WeedMarker extends Marker {
-  WeedMarker({required this.weed, required bool heatmap})
+  final Location location;
+  static final double markerSize = 40;
+
+  WeedMarker({required this.location, required bool heatmap})
       : super(
     anchorPos: AnchorPos.align(AnchorAlign.center),
-    height: heatmap ? Weed.size * 2 : Weed.size,
-    width: heatmap ? Weed.size * 2 : Weed.size,
-    point: LatLng(weed.lat, weed.long),
+    height: heatmap ? markerSize * 2 : markerSize,
+    width: heatmap ? markerSize * 2 : markerSize,
+    point: LatLng(location.lat, location.long),
     builder: heatmap ?
         (BuildContext ctx) => Container(
           decoration: BoxDecoration(
@@ -200,17 +160,15 @@ class WeedMarker extends Marker {
         :
         (BuildContext ctx) => Icon(
         Icons.location_pin,
-        size: Weed.size),
+        size: markerSize),
   );
-
-  final Weed weed;
 }
 
 
 class WeedMarkerPopup extends StatelessWidget {
-  const WeedMarkerPopup({Key? key, required this.weed})
+  const WeedMarkerPopup({Key? key, required this.location})
       : super(key: key);
-  final Weed weed;
+  final Location location;
 
   @override
   Widget build(BuildContext context) {
@@ -222,12 +180,15 @@ class WeedMarkerPopup extends StatelessWidget {
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Image.network(weed.imagePath, width: 200),
-            Text(weed.name),
-            Text('${weed.lat}-${weed.long}'),
-          ],
-        ),
+          children: location.weeds_present.map((weed) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              if (weed.image_filename != null) Image.network(weed.image_filename!, width: 200),
+              Text(species[weed.species_id]),
+              Text('${location.lat}-${location.long}'),
+            ],
+          )).toList()
+        )
       ),
     );
   }
