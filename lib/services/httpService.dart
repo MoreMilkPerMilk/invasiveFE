@@ -142,11 +142,9 @@ Future<bool> addUser(User user) async {
 
 /// delete User
 Future<bool> deleteUser(int personId) async {
-  final response = await http.post(
+  final response = await http.delete(
       Uri.parse(API_URL + "/users/delete?person_id=$personId"),
   );
-
-  print(response.body);
 
   if (response.statusCode == 200) {
     return true;

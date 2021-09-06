@@ -33,6 +33,7 @@ class _MapsPageState extends State<MapsPage> {
 
   @override
   void initState() {
+    deleteUser(2);
     getAllUsers();
     super.initState();
   }
