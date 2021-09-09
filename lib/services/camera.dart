@@ -4,6 +4,10 @@ import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:invasive_fe/models/Location.dart';
+import 'package:invasive_fe/services/gpsService.dart';
+import 'package:invasive_fe/services/httpService.dart';
 import 'package:invasive_fe/widgets/panel.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:tflite/tflite.dart';
@@ -89,6 +93,16 @@ class _CameraState extends State<Camera> {
       seenBuffer.clear();
     }
     if (recognitions!.isNotEmpty && _cameraOn && thresholdDetection(recognitions, seenBuffer)) {
+      // todo hack
+      // Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      Position pos = await determinePosition();
+      var location = new Location(name: DateTime.now().toString(),
+          lat: pos.latitude,
+          long: pos.longitude,
+          weeds_present: [],
+      );
+      addLocation(location);
+
       HapticFeedback.heavyImpact();
       _pc.open(); // show the slide over widget
       setState(() {

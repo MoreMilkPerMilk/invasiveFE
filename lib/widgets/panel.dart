@@ -5,6 +5,7 @@ class Panel extends StatelessWidget {
   Panel(this.foundSpecies, this._pc);
 
   String foundSpecies;
+
   PanelController _pc;
 
   @override
