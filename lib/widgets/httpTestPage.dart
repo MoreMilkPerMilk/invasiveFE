@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:invasive_fe/models/Location.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
+import 'package:objectid/objectid.dart';
 import 'package:uuid/uuid.dart';
 
 import '../services/httpService.dart';
@@ -13,9 +14,6 @@ class HttpTestPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("HTTP Test Page"),
-      ),
       body: Center(
         child: Column(
           children: [
@@ -30,7 +28,13 @@ class HttpTestPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 log("/Add Location w/o Weeds");
-                var loc = Location(name: "152 Gailey Road Brisbane", lat:0.0, long:0.0, weeds_present: []);
+                var loc = Location(
+                    id: ObjectId(),
+                    name: "152 Gailey Road Brisbane",
+                    lat:0.0,
+                    long:0.0,
+                    weeds_present: []
+                );
                 addLocation(loc);
               },
               child: Text('/Add Location w/o Weeds'),
@@ -39,7 +43,12 @@ class HttpTestPage extends StatelessWidget {
               onPressed: () {
                 log("/Add Location w/ Weeds");
                 var weed = WeedInstance(species_id: 0, discovery_date: "2000/03/02", removed: false, replaced: false, image_filename: "image_url");
-                var loc = Location(name: "152 Gailey Road Brisbane", lat:0.0, long:0.0, weeds_present: [weed]);
+                var loc = Location(
+                    id: ObjectId(),
+                    name: "152 Gailey Road Brisbane",
+                    lat:0.0, long:0.0,
+                    weeds_present: [weed]
+                );
                 addLocation(loc);
               },
               child: Text('/Add Location w/ Weeds'),
@@ -47,7 +56,12 @@ class HttpTestPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 log("/Delete Location");
-                var loc = Location(name: "152 Gailey Road Brisbane", lat:0.0, long:0.0, weeds_present: []);
+                var loc = Location(
+                    id: ObjectId(),
+                    name: "152 Gailey Road Brisbane",
+                    lat:0.0, long:0.0,
+                    weeds_present: []
+                );
                 deleteLocation(loc);
               },
               child: Text('/Delete Location'),

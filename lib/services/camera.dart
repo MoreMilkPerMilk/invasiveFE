@@ -9,6 +9,7 @@ import 'package:invasive_fe/models/Location.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
 import 'package:invasive_fe/widgets/panel.dart';
+import 'package:objectid/objectid.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:tflite/tflite.dart';
 import 'package:tuple/tuple.dart';
@@ -96,7 +97,9 @@ class _CameraState extends State<Camera> {
       // todo hack
       // Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       Position pos = await determinePosition();
-      var location = new Location(name: DateTime.now().toString(),
+      var location = new Location(
+          id: ObjectId(),
+          name: DateTime.now().toString(),
           lat: pos.latitude,
           long: pos.longitude,
           weeds_present: [],

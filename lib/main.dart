@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:invasive_fe/widgets/cameraHome.dart';
+import 'package:invasive_fe/widgets/httpTestPage.dart';
 import 'package:invasive_fe/widgets/maps.dart';
 import 'package:line_icons/line_icons.dart';
 
@@ -24,10 +25,11 @@ class _MainState extends State<Main> {
   int _selectedIndex = 0;
   static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.w600);
   static List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Home',
-      style: optionStyle,
-    ),
+    // Text(
+    //   'Home',
+    //   style: optionStyle,
+    // ),
+    HttpTestPage(),
     Text(
       'Community',
       style: optionStyle,
