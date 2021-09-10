@@ -9,6 +9,7 @@ import 'package:invasive_fe/models/Location.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
 import 'package:invasive_fe/widgets/panel.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:tflite/tflite.dart';
 import 'package:tuple/tuple.dart';
@@ -39,9 +40,16 @@ class _CameraState extends State<Camera> {
   PanelController _pc = new PanelController();
   String foundSpecies = "None";
 
+  //todo dispose of accelerometer events stream
   @override
   void initState() {
     super.initState();
+    userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+      // print(event.x.abs());
+      if (event.x.abs() > 0.3 || event.y.abs() > 0.3 || event.z.abs() > 0.3) {
+        print("UNSTABLE");
+      }
+    });
     startCamera();
   }
 
@@ -87,8 +95,8 @@ class _CameraState extends State<Camera> {
     );
 
     int endTime = new DateTime.now().millisecondsSinceEpoch;
-    print("Detection took ${endTime - startTime}");
-    print(recognitions);
+    // print("Detection took ${endTime - startTime}");
+    // print(recognitions);
     if (!_cameraOn) {
       seenBuffer.clear();
     }
@@ -151,9 +159,9 @@ class _CameraState extends State<Camera> {
     bool sameElement = setBuffer.length == 1;
     bool notNegative = setBuffer.every((element) => element != "Negatives");
     bool minFrames = seenBuffer.length == MAX_LOOK_BACK_SIZE;
-    print(seenBuffer);
-    print(setBuffer);
-    print("thresh: $aboveThreshold, same: $sameElement");
+    // print(seenBuffer);
+    // print(setBuffer);
+    // print("thresh: $aboveThreshold, same: $sameElement");
     if (aboveThreshold && sameElement && notNegative && minFrames) {
       foundSpecies = setBuffer.first;
       return true;
