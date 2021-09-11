@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:invasive_fe/models/Location.dart';
 import 'package:invasive_fe/models/Species.dart';
-import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
 import 'package:latlong2/latlong.dart';
@@ -18,6 +16,8 @@ const String MAPBOX_ACCESS_TOKEN =
     'pk.eyJ1IjoianNsdm4iLCJhIjoiY2tzZTFoYmltMHc5ajJucXRiczY3eno3bSJ9.We8R6YRT_fcmuC6bOzzqbw';
 // map of species id to Species objects; the entire species database
 Map<int, Species> species = {};
+// whether the map view mode is heat mode
+bool heatmapMode = false;
 
 class MapsPage extends StatefulWidget {
   // controls showing and hiding map marker popups
@@ -28,38 +28,45 @@ class MapsPage extends StatefulWidget {
 }
 
 class _MapsPageState extends State<MapsPage> {
-  // list of markers to display on the map
-  List<Marker> markers = [];
-  // whether the map view mode is heat mode
-  bool heatmapMode = false;
+  // list of locations to display as markers on the map
+  List<Location> locations = [];
   // utility that specifies which view-mode button is selected
   List<bool> isSelected = [true, false];
   // the position of the user. defaults to the location of UQ, St. Lucia
   LatLng userPosition = LatLng(-27.4975, 153.0137);
-  // the state of these futures determine whether to display a loading screen
-  late Future<List<Location>> locationsFuture;
-  late Future<List<Species>> speciesFuture;
-  late Future<Position> positionFuture;
+  // the state of this future determines whether to display a loading screen
+  late Future loaded;
 
   /// information that should be refreshed each time maps opens goes here
   @override
   void initState() {
     super.initState();
-    locationsFuture = getAllLocations();
-    speciesFuture = getAllSpecies();
-    positionFuture = determinePosition();
+    Future locationsFuture = getAllLocations();
+    Future speciesFuture = getAllSpecies();
+    Future positionFuture = determinePosition();
 
-    // create the list of weedMarkers from this locations list
-    // debug:
-    /*
-    locationsFuture.then((locations) => markers = locations
-        .map((loc) => WeedMarker(location: loc, heatmap: heatmapMode))
-        .toList());
-    */
-    // test marker list: marker at uni
-    markers = [
+    // rather than here, we generate the markers in build() so they refresh on setState()
+    locationsFuture.then((locations) => this.locations = locations);
+
+    // create the {species id => species} map
+    speciesFuture.then((speciesList) => species = Map.fromIterable(
+        speciesList, // convert species list to map for quick id lookup
+        key: (e) => e.species_id,
+        value: (e) => e));
+
+    // set the user's position
+    positionFuture.then((position) => setState(() {
+      userPosition = LatLng(position.latitude, position.longitude);
+    }));
+
+    loaded = Future.wait([locationsFuture, speciesFuture, positionFuture]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    /* for debug:
+    List<WeedMarker> markers = [
       WeedMarker(
-          heatmap: heatmapMode,
           location: Location(
               name: "test",
               lat: -27.4975,
@@ -71,22 +78,8 @@ class _MapsPageState extends State<MapsPage> {
                     removed: false,
                     replaced: false)
               ]))
-    ];
-    // create the {species id => species} map
-    speciesFuture.then((speciesList) => species = Map.fromIterable(
-        speciesList, // convert species list to map for quick id lookup
-        key: (e) => e.species_id,
-        value: (e) => e));
-
-    // set the user's position
-    positionFuture.then((position) => setState(() {
-          userPosition = LatLng(position.latitude, position.longitude);
-        }));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    print("rebuilding");
+    ];*/
+    List<WeedMarker> markers = locations.map((loc) => WeedMarker(location: loc)).toList();
     return Scaffold(
         body: Stack(children: [
       // this future builder returns a loading page until its given futures have
@@ -94,8 +87,7 @@ class _MapsPageState extends State<MapsPage> {
       // initState(), so we don't have to (for e.g.) send http requests every
       // time we rebuild the map. efficiency (taps head)
       FutureBuilder(
-          // these three futures must be completed before the map is displayed
-          future: Future.wait([locationsFuture, speciesFuture, positionFuture]),
+          future: loaded, // warning: never put a function call here
           builder: (context, snapshot) {
             // i.e. "if Future.wait([...]) gave us the all clear..."
             if (snapshot.connectionState == ConnectionState.done) {
@@ -219,15 +211,15 @@ class WeedMarker extends Marker {
   // the visual size and hit-box size will be different
   static final double markerSize = 40;
 
-  WeedMarker({required this.location, required bool heatmap})
+  WeedMarker({required this.location})
       : super(
           // to visually align with marker cluster icons, we center the marker over the location
           anchorPos: AnchorPos.align(AnchorAlign.center),
           // the code will be modified soon as heatmap bugs are fixed
-          height: heatmap ? markerSize * 2 : markerSize,
-          width: heatmap ? markerSize * 2 : markerSize,
+          height: heatmapMode ? markerSize * 2 : markerSize,
+          width: heatmapMode ? markerSize * 2 : markerSize,
           point: LatLng(location.lat, location.long),
-          builder: heatmap
+          builder: heatmapMode
               ? (BuildContext ctx) => Container(
                     decoration: BoxDecoration(
                       gradient: RadialGradient(colors: [
