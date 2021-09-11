@@ -1,13 +1,17 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:math' as math;
+import 'dart:math';
 
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:invasive_fe/models/Location.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
+import 'package:invasive_fe/services/sensorService.dart';
 import 'package:invasive_fe/widgets/panel.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -16,6 +20,7 @@ import 'package:tuple/tuple.dart';
 
 import 'models.dart';
 
+// confidence threshold constants
 const int MAX_LOOK_BACK_SIZE = 5;
 const double MIN_CONFIDENCE_VAL = 0.90;
 
@@ -40,21 +45,29 @@ class _CameraState extends State<Camera> {
   PanelController _pc = new PanelController();
   String foundSpecies = "None";
 
+  // accelerometer section
+  late StreamSubscription accelerometerStream; // call .cancel() to prevent more readouts
+  List<double>? _accelerometerValues;
+
   //todo dispose of accelerometer events stream
   @override
   void initState() {
     super.initState();
-    userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+    accelerometerStream = userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+      setState(() {
+        _accelerometerValues = <double>[event.x, event.y, event.z];
+      });
       // print(event.x.abs());
-      if (event.x.abs() > 0.3 || event.y.abs() > 0.3 || event.z.abs() > 0.3) {
-        print("UNSTABLE");
-      }
+      // if (event.x.abs() > 0.3 || event.y.abs() > 0.3 || event.z.abs() > 0.3) {
+      //   print("UNSTABLE");
+      // }
     });
     startCamera();
   }
 
   void startCamera() {
     ListQueue<Tuple2<String, double>> seenBuffer = new ListQueue();
+    ListQueue<Tuple2<int, double>> velocityBuffer = new ListQueue();
     print(widget.cameras);
     if (widget.cameras == null || widget.cameras!.length < 1) {
       print('No camera is found');
@@ -73,6 +86,11 @@ class _CameraState extends State<Camera> {
           if (!isDetecting) {
             isDetecting = true;
             int startTime = new DateTime.now().millisecondsSinceEpoch;
+
+            StabilityVariables params = new StabilityVariables(_accelerometerValues!, velocityBuffer);
+            stabilityDetection(params);
+            // compute(stabilityDetection, params);
+            // compute(poggers, "hello");
             if (widget.model == resnet) {
               runResnetOnFrame(img, startTime, seenBuffer);
             } else {
@@ -174,6 +192,7 @@ class _CameraState extends State<Camera> {
   @override
   void dispose() {
     controller?.dispose();
+    accelerometerStream.cancel();
     super.dispose();
   }
 
@@ -202,6 +221,8 @@ class _CameraState extends State<Camera> {
     var camera = controller!.value;
     var scale = size.aspectRatio * camera.aspectRatio;
     if (scale < 1) scale = 1 / scale;
+
+    // print(_accelerometerValues);
 
     return Container(
       child: SlidingUpPanel(
