@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geopoint/geopoint.dart';
 import 'package:image/image.dart';
@@ -132,7 +133,15 @@ class _CameraState extends State<Camera> {
           break;
         case Status.negativeThreshold:
           // show toast!
-          print("negative threshold!!!!!!!");
+          Fluttertoast.showToast(
+              msg: "Hold the camera 30 cm away from the plant",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 2,
+              backgroundColor: Colors.black12,
+              textColor: Colors.white,
+              fontSize: 20.0
+          );
           break;
         case Status.detected:
 			// if android we directly convert yuv420 to png (workaround for takePicture())
@@ -233,6 +242,7 @@ class _CameraState extends State<Camera> {
 
   @override
   void dispose() {
+    Fluttertoast.cancel(); // hide all toasts
     controller?.dispose();
     super.dispose();
   }

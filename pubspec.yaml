@@ -33,6 +33,8 @@ dependencies:
   geopoint: ^1.0.0
   uuid:
   sliding_up_panel: ^2.0.0+1
+  fluttertoast: ^8.0.8
+
 
 
   # leaflet things
