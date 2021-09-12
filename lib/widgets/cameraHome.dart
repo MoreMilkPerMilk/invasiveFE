@@ -23,11 +23,16 @@ class _CameraHomePageState extends State<CameraHomePage> {
   String _model = "";
 
   List<CameraDescription>? cameras;
+  late Future loaded;
 
   @override
   void initState() {
     super.initState();
-    loadCameras();
+    // loadCameras();
+    Future cameraFuture = availableCameras();
+    cameraFuture.then((value) => cameras = value);
+    onSelect(resnet);
+    loaded = Future.wait([cameraFuture]);
   }
 
   /// load cameras once the widget has loaded
@@ -79,24 +84,11 @@ class _CameraHomePageState extends State<CameraHomePage> {
     Size screen = MediaQuery.of(context).size;
     return Scaffold(
       // HAMISH: this works with a ternary statement to decide whether to show the buttons or not
-      body: _model == ""
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  ElevatedButton(
-                    child: const Text(yolo),
-                    onPressed: () => onSelect(yolo),
-                  ),
-                  ElevatedButton(
-                    child: const Text(resnet),
-                    onPressed: () => onSelect(resnet),
-                  ),
-                ],
-              ),
-            )
-          // HAMISH: this is where the actual camera is displayed
-          : Stack(
+      body: FutureBuilder(
+        future: loaded,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Stack(
               children: [
                 Camera(
                   cameras,
@@ -111,7 +103,12 @@ class _CameraHomePageState extends State<CameraHomePage> {
                     screen.width,
                     _model),
               ],
-            ),
+            );
+          } else {
+            return Align(child: Text("Loading ..."), alignment: Alignment.center);
+          }
+        },
+      ),
     );
   }
 }
