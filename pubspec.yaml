@@ -29,7 +29,7 @@ dependencies:
   tflite: ^1.1.2
   http: 0.13.3  # allows for REST api queries
   json_annotation: ^4.0.0  # easy conversion between JSON <--> Class
-  uuid:
+  uuid: ^3.0.4
   sliding_up_panel: ^2.0.0+1
 
 
@@ -38,7 +38,7 @@ dependencies:
   latlong2: ^0.8.0
   flutter_map_marker_popup: ^1.0.0+2
   flutter_map_marker_cluster: ^0.4.0
-  image: ^2.1.4
+  image: ^3.0.4
   cupertino_icons: ^1.0.2
   google_nav_bar: ^5.0.5
   line_icons: ^2.0.1
