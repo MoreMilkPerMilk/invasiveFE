@@ -25,6 +25,19 @@ const int MAX_LOOK_BACK_SIZE = 5;
 const double MIN_CONFIDENCE_VAL = 0.90;
 XFile photo = new XFile.fromData(new Uint8List(1));
 
+const int MAX_LOOK_BACK_TIME = 3000;
+
+enum Status {
+  negativeNormal, // negative recognition
+  negativeThreshold, // negative recognition X seconds in a row
+  detected, // detected a invasive species
+}
+
+enum Detection {
+  negative, // negative recognition
+  positive, // negative recognition X seconds in a row
+}
+
 typedef void Callback(List<dynamic>? list, int h, int w);
 
 class Camera extends StatefulWidget {
@@ -54,6 +67,7 @@ class _CameraState extends State<Camera> {
 
   void startCamera() {
     ListQueue<Tuple2<String, double>> seenBuffer = new ListQueue();
+    ListQueue<int> timeBuffer = new ListQueue();
     print(widget.cameras);
     if (widget.cameras == null || widget.cameras!.length < 1) {
       print('No camera is found');
@@ -80,7 +94,7 @@ class _CameraState extends State<Camera> {
             isDetecting = true;
             int startTime = new DateTime.now().millisecondsSinceEpoch;
             if (widget.model == resnet) {
-              runResnetOnFrame(img, startTime, seenBuffer);
+              runResnetOnFrame(img, startTime, seenBuffer, timeBuffer);
             } else {
               runYoloOnFrame(img, startTime);
             }
@@ -110,31 +124,50 @@ class _CameraState extends State<Camera> {
     if (!_cameraOn) {
       seenBuffer.clear();
     }
-    if (recognitions!.isNotEmpty && _cameraOn && thresholdDetection(recognitions, seenBuffer)) {
 
-      // if android we directly convert yuv420 to png (workaround for takePicture())
-      if (Platform.isAndroid) {
+    if (recognitions!.isNotEmpty && _cameraOn) {
+      switch (thresholdDetection(recognitions, seenBuffer, timeBuffer)) {
+        case Status.negativeNormal:
+          // do nothing :)
+          break;
+        case Status.negativeThreshold:
+          // show toast!
+          print("negative threshold!!!!!!!");
+          break;
+        case Status.detected:
+			// if android we directly convert yuv420 to png (workaround for takePicture())
+		      if (Platform.isAndroid) {
+		
+		        // convert yuv420 to png
+		        convertYUV420toImageColor(img).then((png_img) {
+		          XFile photo = XFile.fromData(png_img!.getBytes());
+		          // show the slide over widget
+		          _pc.open();
+		          HapticFeedback.heavyImpact();
+		        });
+		      } else {
 
-        // convert yuv420 to png
-        convertYUV420toImageColor(img).then((png_img) {
-          XFile photo = XFile.fromData(png_img!.getBytes());
           // show the slide over widget
-          _pc.open();
-          HapticFeedback.heavyImpact();
-        });
-      } else {
-        controller!.takePicture().then((value) {
+		  controller!.takePicture().then((value) {
+        // photo = value;
+        setState(() {
           photo = value;
           // show the slide over widget
           _pc.open();
           HapticFeedback.heavyImpact();
         });
-      }
-
-      setState(() {
-        _cameraOn = false;
-        _numResults = 0;
+        print(photo.name);
+        _pc.open();
+        HapticFeedback.heavyImpact();
       });
+
+
+          setState(() {
+            _cameraOn = false;
+            _numResults = 0;
+          });
+          break;
+      }
     }
 
     widget.setRecognitions(recognitions, img.height, img.width);
@@ -163,13 +196,21 @@ class _CameraState extends State<Camera> {
     });
   }
 
-  bool thresholdDetection(List<dynamic> recognitions, ListQueue<Tuple2<String, double>> seenBuffer) {
+  Status thresholdDetection(List<dynamic> recognitions, ListQueue<Tuple2<String, double>> seenBuffer,
+      ListQueue<int> timeBuffer) {
     String label = recognitions[0]["label"]; // assume greatest confidence is first presented
     double conf = recognitions[0]["confidence"];
+
     seenBuffer.add(Tuple2<String, double>(label, conf));
     if (seenBuffer.length > MAX_LOOK_BACK_SIZE) {
       // remove the oldest element of the queue
       seenBuffer.removeFirst();
+    }
+
+    int currentTime = new DateTime.now().millisecondsSinceEpoch;
+    timeBuffer.add(currentTime);
+    if (currentTime - timeBuffer.first >= MAX_LOOK_BACK_TIME) {
+      timeBuffer.removeFirst();
     }
 
     bool aboveThreshold = seenBuffer.every((element) => element.item2 >= MIN_CONFIDENCE_VAL);
@@ -181,11 +222,12 @@ class _CameraState extends State<Camera> {
     // print(setBuffer);
     // print("thresh: $aboveThreshold, same: $sameElement");
     if (aboveThreshold && sameElement && notNegative && minFrames) {
+      timeBuffer.clear();
       foundSpecies = setBuffer.first;
-      return true;
+      return Status.detected;
     } else {
       foundSpecies = "None";
-      return false;
+      return Status.negativeNormal;
     }
   }
 
