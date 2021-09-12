@@ -122,7 +122,7 @@ class _MapsPageState extends State<MapsPage> {
                     else
                       MarkerClusterLayerOptions(
                         // max distance between two markers without clustering
-                        maxClusterRadius: 100,
+                        maxClusterRadius: 50,
                         // cluster icon size
                         size: Size(40, 40),
                         // cluster icons are centred on the location
@@ -152,7 +152,7 @@ class _MapsPageState extends State<MapsPage> {
                             onPressed: null,
                             // handled by the MarkerClusterLayer
                             // display the number of markers clustered in the icon
-                            child: Text(markers.length.toString()),
+                            child: Text(markers.length.toString()), // fixme: this number is the number of markers plus one, not the number of markers
                           );
                         },
                       ),
@@ -217,8 +217,7 @@ class WeedMarker extends Marker {
 
   WeedMarker({required this.location})
       : super(
-          // to visually align with marker cluster icons, we center the marker over the location
-          anchorPos: AnchorPos.align(AnchorAlign.center),
+          anchorPos: AnchorPos.align(AnchorAlign.bottom),
           // the code will be modified soon as heatmap bugs are fixed
           height: heatmapMode ? markerSize * 2 : markerSize,
           width: heatmapMode ? markerSize * 2 : markerSize,
