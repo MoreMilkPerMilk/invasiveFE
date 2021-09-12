@@ -46,11 +46,9 @@ class _MapsPageState extends State<MapsPage> {
     Future positionFuture = determinePosition();
 
     // rather than here, we generate the markers in build() so they refresh on setState()
-    // locationsFuture.then((locations) => this.locations = locations);
     locationsFuture.then((locations) => setState(() {
       this.locations = locations;
     }));
-
 
     // create the {species id => species} map
     speciesFuture.then((speciesList) => species = Map.fromIterable(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:invasive_fe/models/Location.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
+import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:objectid/objectid.dart';
 import 'package:uuid/uuid.dart';
 
@@ -17,6 +18,16 @@ class HttpTestPage extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
+            Spacer(),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ReportPage()),
+                );
+              },
+              child: Text('Report Page'),
+            ),
             Spacer(),
             ElevatedButton(
               onPressed: () {
