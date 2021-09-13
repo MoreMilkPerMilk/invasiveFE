@@ -29,26 +29,31 @@ class ReportPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: speciesFuture, // only build once we have retrieved species data
-        builder: (context, snapshot) =>
-          Scaffold(
-            appBar: AppBar(),
-            body: Column(
-                children: [
-                  CardWithHeader(
-                      header: "PLANT INFO",
-                      body: PlantInfoBox(
-                          species: species!, weed: weed)),
-                  CardWithHeader(
-                      header: "WEEDS REPORTING",
-                      body: Text("body")),
-                  CardWithHeader(
-                      header: "RESOURCES",
-                      body: Text("body"))
-                ]
-            )
-          )
+    return Scaffold(
+        appBar: AppBar(),
+        body: FutureBuilder(
+          future: speciesFuture, // only build once we have retrieved species data
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return Column(
+                  children: [
+                    CardWithHeader(
+                        header: "PLANT INFO",
+                        body: PlantInfoBox(
+                            species: species!, weed: weed)),
+                    CardWithHeader(
+                        header: "WEEDS REPORTING",
+                        body: Text("body")),
+                    CardWithHeader(
+                        header: "RESOURCES",
+                        body: Text("body"))
+                  ]
+              );
+            } else {
+              return Align(child: Text("Loading"), alignment: Alignment.center);
+            }
+          }
+        )
     );
   }
 }
