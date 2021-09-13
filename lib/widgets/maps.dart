@@ -157,7 +157,10 @@ class _MapsPageState extends State<MapsPage> {
                   ]);
             } else {
               // the futures have not yet completed; display a loading page
-              return Align(child: Text("Loading"), alignment: Alignment.center);
+              return Align(
+                  alignment: Alignment.center,
+                  child: CircularProgressIndicator()
+              );
             }
           }),
       Padding(

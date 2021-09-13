@@ -50,7 +50,10 @@ class ReportPage extends StatelessWidget {
                   ]
               );
             } else {
-              return Align(child: Text("Loading"), alignment: Alignment.center);
+              return Align(
+                  alignment: Alignment.center,
+                  child: CircularProgressIndicator()
+              );
             }
           }
         )
