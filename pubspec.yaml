@@ -49,6 +49,7 @@ dependencies:
   indent: ^2.0.0
   objectid: ^2.0.0
   geolocator: ^7.6.0
+  google_fonts: ^2.1.0
 
 
 dev_dependencies:
