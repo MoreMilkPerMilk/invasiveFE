@@ -1,15 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:invasive_fe/services/httpService.dart';
-import 'package:line_icons/line_icons.dart';
 
-final TextStyle textStyle = GoogleFonts.openSans(
+final TextStyle bodyStyle = GoogleFonts.openSans(
   fontSize: 11,
 );
+final TextStyle headingStyle = GoogleFonts.openSans(
+  fontSize: 12,
+  fontWeight: FontWeight.bold
+);
+final double internalPadding = 10;
+final double externalPadding = 10;
 
 // ignore: must_be_immutable
 class ReportPage extends StatelessWidget {
@@ -47,7 +51,7 @@ class ReportPage extends StatelessWidget {
                       body: PlantInfoBox(species: species!, weed: weed)),
                   CardWithHeader(
                       header: "WEEDS REPORTING", body: WeedsReportingBox()),
-                  CardWithHeader(header: "RESOURCES", body: Text("body"))
+                  CardWithHeader(header: "RESOURCES", body: ResourcesBox())
                 ]);
               } else {
                 return Align(
@@ -61,9 +65,6 @@ class ReportPage extends StatelessWidget {
 class CardWithHeader extends StatelessWidget {
   final String header;
   final Widget body;
-  // UI variables
-  final double externalPadding = 10;
-  final double internalPadding = 10;
   final double borderWidth = 2;
 
   CardWithHeader({required this.header, required this.body});
@@ -121,11 +122,11 @@ class PlantInfoBox extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Common Name: " + species.name, style: textStyle),
-                Text("Scientific Name: " + species.species, style: textStyle),
-                Text("Family: " + species.family, style: textStyle),
+                Text("Common Name: " + species.name, style: bodyStyle),
+                Text("Scientific Name: " + species.species, style: bodyStyle),
+                Text("Family: " + species.family, style: bodyStyle),
                 Text("Council Declaration: " + species.council_declaration,
-                    style: textStyle)
+                    style: bodyStyle)
               ],
             )),
         Expanded(
@@ -138,7 +139,6 @@ class PlantInfoBox extends StatelessWidget {
 }
 
 class WeedsReportingBox extends StatelessWidget {
-
   WeedsReportingBox() : super();
 
   @override
@@ -146,7 +146,7 @@ class WeedsReportingBox extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Some text about the report?", style: textStyle),
+        Text("Some text about the report?", style: bodyStyle),
         ReportUpdateForm()
       ],
     );
@@ -167,75 +167,88 @@ class _ReportUpdateFormState extends State {
   Widget build(BuildContext context) {
     return Align(
         alignment: Alignment.topLeft,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // this wrapper removes the default margin of the checkbox
-            Row(
-              children: [
-                SizedBox(
-                  height: 24,
-                  width: 24,
-                  child: Checkbox(
-                      value: wrongAutomatedInformation,
-                      onChanged: (value) {
-                        setState(() {
-                          wrongAutomatedInformation = value!;
-                        });
-                      }
-                  ),
-                ),
-                Text("I think the automated identification is wrong.", style: textStyle)
-              ],
-            ),
-            Row(
-              children: [
-                SizedBox(
-                  height: 24,
-                  width: 24,
-                  child: Checkbox(
-                      value: contactedByWeedsOfficer,
-                      onChanged: (value) {
-                        setState(() {
-                          contactedByWeedsOfficer = value!;
-                        });
-                      }
-                  ),
-                ),
-                Text("I would like to be contacted by the weeds officer.", style: textStyle)
-              ],
-            ),
-            Text("Additional comments:", style: textStyle),
-            Row(
-              children: [
-                Expanded(
-                    child: Container(
-                        decoration: BoxDecoration(
-                            border: Border.all()
-                        ),
-                        child: TextField(
-                          decoration: InputDecoration(
-                            isDense: true,
-                            contentPadding: EdgeInsets.all(6)
-                          ),
-                          maxLines: null, // grow forever
-                          onChanged: (value) {
-                            additionalComments = value;
-                            print(additionalComments);
-                          },
-                        )
-                    )
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 10),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          // this wrapper removes the default margin of the checkbox
+          Row(
+            children: [
+              SizedBox(
+                height: 24,
+                width: 24,
+                child: Checkbox(
+                    value: wrongAutomatedInformation,
+                    onChanged: (value) {
+                      setState(() {
+                        wrongAutomatedInformation = value!;
+                      });
+                    }),
+              ),
+              Text("I think the automated identification is wrong.",
+                  style: bodyStyle)
+            ],
+          ),
+          Row(
+            children: [
+              SizedBox(
+                height: 24,
+                width: 24,
+                child: Checkbox(
+                    value: contactedByWeedsOfficer,
+                    onChanged: (value) {
+                      setState(() {
+                        contactedByWeedsOfficer = value!;
+                      });
+                    }),
+              ),
+              Text("I would like to be contacted by the weeds officer.",
+                  style: bodyStyle)
+            ],
+          ),
+          Text("Additional comments:", style: bodyStyle),
+          Row(
+            children: [
+              Expanded(
+                  child: Container(
+                      decoration: BoxDecoration(border: Border.all()),
+                      child: TextField(
+                        decoration: InputDecoration(
+                            isDense: true, contentPadding: EdgeInsets.all(6)),
+                        maxLines: null, // grow forever
+                        onChanged: (value) {
+                          additionalComments = value;
+                          print(additionalComments);
+                        },
+                      ))),
+              Padding(
+                  padding: EdgeInsets.only(left: internalPadding),
                   child: ElevatedButton(
                     onPressed: () {},
                     child: Text("Submit"),
-                  )
-                )
-              ],
-            )
-          ]
+                  ))
+            ],
+          )
+        ]));
+  }
+}
+
+class ResourcesBox extends StatelessWidget {
+  ResourcesBox() : super();
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+        alignment: Alignment.topLeft,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Information on this species", style: headingStyle),
+            Text("<some info>", style: bodyStyle),
+            Padding(padding: EdgeInsets.only(top: internalPadding)),
+            Text("Information on managing this weed", style: headingStyle),
+            Text("<some info>", style: bodyStyle),
+            Padding(padding: EdgeInsets.only(top: internalPadding)),
+            Text("Contact your local weeds officer or landcare group", style: headingStyle),
+            Text("<some info>", style: bodyStyle),
+          ],
         )
     );
   }
