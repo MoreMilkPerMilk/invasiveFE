@@ -58,7 +58,7 @@ class CardWithHeader extends StatelessWidget {
   final String header;
   final Widget body;
   // UI variables
-  final double externalPadding = 16;
+  final double externalPadding = 10;
   final double internalPadding = 10;
   final double borderWidth = 2;
 
@@ -76,6 +76,7 @@ class CardWithHeader extends StatelessWidget {
             // expand cards to fill screen width
             width: double.infinity,
             child: Card(
+                margin: EdgeInsets.zero,
                 shape: Border.all(width: borderWidth),
                 // card contents
                 child: Column(
@@ -115,8 +116,6 @@ class PlantInfoBox extends StatelessWidget {
   final Species species;
   final WeedInstance weed;
   // UI variables
-  // should ideally be equal to the internal padding of its CardWithHeader
-  final double internalPadding = 10;
   final TextStyle textStyle = GoogleFonts.openSans(
     fontSize: 11,
   );
@@ -141,14 +140,9 @@ class PlantInfoBox extends StatelessWidget {
         ),
         Expanded(
           flex: 3, // this image can use no more than 30% of the parent's width
-          child: Padding(
-            // add some space on the left to separate from the text column
-            padding: EdgeInsets.only(left: internalPadding),
-            child: Image.network(weed.image_filename!),
-          )
+          child: Image.network(weed.image_filename!)
         )
       ],
     );
   }
-
 }
