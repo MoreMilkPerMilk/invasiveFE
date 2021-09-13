@@ -21,10 +21,23 @@ class HttpTestPage extends StatelessWidget {
             Spacer(),
             ElevatedButton(
               onPressed: () {
+                var weed = WeedInstance(
+                    species_id: 41,
+                    discovery_date: "2000/03/02",
+                    removed: false,
+                    replaced: false,
+                    image_filename: "image_url");
+                var location = Location(
+                    id: ObjectId(),
+                    name: "152 Gailey Road Brisbane",
+                    lat:0.0, long:0.0,
+                    weeds_present: [weed]
+                );
+                var reportPage = ReportPage(weed: weed);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ReportPage()),
-                );
+                  MaterialPageRoute(builder: (context) => reportPage
+                ));
               },
               child: Text('Report Page'),
             ),
