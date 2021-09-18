@@ -1,11 +1,14 @@
 import 'dart:developer';
+import 'dart:html';
 import 'package:flutter/material.dart';
-import 'package:invasive_fe/models/Location.dart';
+import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:objectid/objectid.dart';
 import 'package:uuid/uuid.dart';
+import 'package:geojson/geojson.dart';
+import 'package:geopoint/geopoint.dart';
 
 import '../services/httpService.dart';
 
@@ -38,18 +41,18 @@ class HttpTestPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 log("/Locations");
-                getAllLocations();
+                getAllPhotoLocations();
               },
               child: Text('/Locations'),
             ),
             ElevatedButton(
               onPressed: () {
                 log("/Add Location w/o Weeds");
-                var loc = Location(
+                var loc = PhotoLocation(
                     id: ObjectId(),
                     name: "152 Gailey Road Brisbane",
-                    lat:0.0,
-                    long:0.0,
+                    photo: ,
+                    location: GeoPoint(latitude: 4, longitude: 4),
                     weeds_present: []
                 );
                 addLocation(loc);
@@ -60,10 +63,10 @@ class HttpTestPage extends StatelessWidget {
               onPressed: () {
                 log("/Add Location w/ Weeds");
                 var weed = WeedInstance(species_id: 0, discovery_date: "2000/03/02", removed: false, replaced: false, image_filename: "image_url");
-                var loc = Location(
+                var loc = PhotoLocation(
                     id: ObjectId(),
                     name: "152 Gailey Road Brisbane",
-                    lat:0.0, long:0.0,
+                    location:,
                     weeds_present: [weed]
                 );
                 addLocation(loc);
@@ -73,7 +76,7 @@ class HttpTestPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 log("/Delete Location");
-                var loc = Location(
+                var loc = PhotoLocation(
                     id: ObjectId(),
                     name: "152 Gailey Road Brisbane",
                     lat:0.0, long:0.0,

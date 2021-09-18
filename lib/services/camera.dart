@@ -6,7 +6,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:invasive_fe/models/Location.dart';
+import 'package:geopoint/geopoint.dart';
+import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
 import 'package:invasive_fe/widgets/panel.dart';
@@ -80,6 +81,12 @@ class _CameraState extends State<Camera> {
   }
 
   void runResnetOnFrame(CameraImage img, int startTime, ListQueue<Tuple2<String, double>> seenBuffer) async {
+
+    // convert camera img to bytes todo
+    List<Uint8List> imgAsBytes = img.planes.map((plane) {
+      return plane.bytes;
+    }).toList();
+
     var recognitions = await Tflite.runModelOnFrame(
       bytesList: img.planes.map((plane) {
         return plane.bytes;
@@ -98,25 +105,20 @@ class _CameraState extends State<Camera> {
     if (recognitions!.isNotEmpty && _cameraOn && thresholdDetection(recognitions, seenBuffer)) {
       // todo hack
       // Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      // Position pos = await determinePosition();
-      // var location = new Location(
-      //     id: ObjectId(),
-      //     name: DateTime.now().toString(),
-      //     lat: pos.latitude,
-      //     long: pos.longitude,
-      //     weeds_present: [],
-      // );
-      // addLocation(location);
-      controller!.takePicture().then((value) {
-        // photo = value;
-        setState(() {
-          photo = value;
-        });
-        print(photo.name);
-        _pc.open();
-        HapticFeedback.heavyImpact();
-      });
-      // _pc.open(); // show the slide over widget
+      Position pos = await determinePosition();
+      var geoPoint = GeoPoint(latitude: pos.latitude, longitude: pos.longitude);
+
+      var location = new PhotoLocation(
+          id: ObjectId(),
+          name: DateTime.now().toString(),
+          photo: imgAsBytes,
+          location: geoPoint,
+          weeds_present: [],
+      );
+      addLocation(location);
+
+      HapticFeedback.heavyImpact();
+      _pc.open(); // show the slide over widget
       setState(() {
         _cameraOn = false;
         _numResults = 0;
