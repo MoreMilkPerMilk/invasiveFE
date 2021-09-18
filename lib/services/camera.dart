@@ -96,15 +96,15 @@ class _CameraState extends State<Camera> {
     if (recognitions!.isNotEmpty && _cameraOn && thresholdDetection(recognitions, seenBuffer)) {
       // todo hack
       // Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      Position pos = await determinePosition();
-      var location = new Location(
-          id: ObjectId(),
-          name: DateTime.now().toString(),
-          lat: pos.latitude,
-          long: pos.longitude,
-          weeds_present: [],
-      );
-      addLocation(location);
+      // Position pos = await determinePosition();
+      // var location = new Location(
+      //     id: ObjectId(),
+      //     name: DateTime.now().toString(),
+      //     lat: pos.latitude,
+      //     long: pos.longitude,
+      //     weeds_present: [],
+      // );
+      // addLocation(location);
 
       HapticFeedback.heavyImpact();
       _pc.open(); // show the slide over widget
