@@ -4,14 +4,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:invasive_fe/services/httpService.dart';
+import 'package:html_unescape/html_unescape.dart';
 
-final TextStyle bodyStyle = GoogleFonts.openSans(
-  fontSize: 11,
-);
 final TextStyle headingStyle = GoogleFonts.openSans(
   fontSize: 12,
-  fontWeight: FontWeight.bold
+  fontWeight: FontWeight.bold,
+  color: Colors.black
 );
+
 final double internalPadding = 10;
 final double externalPadding = 10;
 
@@ -47,10 +47,10 @@ class ReportPage extends StatelessWidget {
               if (snapshot.connectionState == ConnectionState.done) {
                 return Column(children: [
                   CardWithHeader(
-                      header: "PLANT INFO",
+                      header: "Species Info",
                       body: PlantInfoBox(species: species!, weed: weed)),
                   CardWithHeader(
-                      header: "WEEDS REPORTING", body: WeedsReportingBox()),
+                      header: "Reporting", body: WeedsReportingBox()),
                   CardWithHeader(header: "RESOURCES", body: ResourcesBox())
                 ]);
               } else {
@@ -74,42 +74,53 @@ class CardWithHeader extends StatelessWidget {
     return Padding(
         // space around the card
         padding: EdgeInsets.only(
-            top: externalPadding,
-            left: externalPadding,
-            right: externalPadding),
+            top: 16,
+            left: 16,
+            right: 16),
         child: Container(
           // expand cards to fill screen width
           width: double.infinity,
           child: Card(
-              margin: EdgeInsets.zero,
-              shape: Border.all(width: borderWidth),
-              // card contents
-              child: Column(
-                children: [
-                  Align(
-                      alignment: Alignment.topLeft,
-                      child: Padding(
-                        // space around the header text
-                        padding: EdgeInsets.all(internalPadding),
-                        child: Text(header,
-                            style: GoogleFonts.openSans(
-                                fontWeight: FontWeight.bold, fontSize: 18)),
-                      )),
-                  Divider(
-                    thickness: borderWidth,
-                    height: 0,
-                    color: Colors.black,
-                  ),
-                  Padding(padding: EdgeInsets.all(internalPadding), child: body)
-                ],
-              )),
-        ));
+                elevation: 10.0,
+                shadowColor: Colors.black,
+                color: Color.fromRGBO(220, 220, 220, 1),
+                margin: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15))
+                ),
+                // card contents
+                child: Column(
+                  children: [
+                    Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          // space around the header text
+                          padding: EdgeInsets.all(internalPadding),
+                          child: Text(header,
+                              style: GoogleFonts.openSans(
+                                  fontWeight: FontWeight.bold, fontSize: 18)),
+                        )),
+                    Padding(padding: EdgeInsets.all(internalPadding), child: body)
+                  ],
+                )
+            )
+          ),
+        );
   }
 }
 
 class PlantInfoBox extends StatelessWidget {
   final Species species;
   final WeedInstance weed;
+  final TextStyle headingStyle = GoogleFonts.openSans(
+      fontSize: 11,
+      fontWeight: FontWeight.bold,
+      color: Colors.black
+  );
+  final TextStyle bodyStyle = GoogleFonts.openSans(
+      fontSize: 11,
+      color: Colors.black
+  );
 
   PlantInfoBox({required this.species, required this.weed}) : super();
 
@@ -122,13 +133,15 @@ class PlantInfoBox extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Common Name: " + species.name, style: bodyStyle),
-                Text("Scientific Name: " + species.species, style: bodyStyle),
-                Text("Family: " + species.family, style: bodyStyle),
-                Text("Council Declaration: " + species.council_declaration,
-                    style: bodyStyle)
-              ],
-            )),
+                HeadingColonBody("Common Name: ", species.name),
+                HeadingColonBody("Scientific Name: ", species.species),
+                HeadingColonBody("Family: ", species.family),
+                HeadingColonBody("Council Declaration: ", HtmlUnescape().convert(species.council_declaration)), // fixme: doesn't fix the garble. i tried ~james
+                HeadingColonBody("Environmental Impact: ", ""),
+                SeverityBar(SeverityBar.HIGH)
+              ]
+            )
+        ),
         Expanded(
             flex:
                 3, // this image can use no more than 30% of the parent's width
@@ -138,8 +151,110 @@ class PlantInfoBox extends StatelessWidget {
   }
 }
 
+class SeverityBar extends StatelessWidget {
+
+  static const int LOW = 0;
+  static const int MED = 1;
+  static const int HIGH = 2;
+  final int severity;
+
+  SeverityBar(this.severity);
+
+  @override
+  Widget build(BuildContext context) {
+      return Container(
+        height: 30,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(
+              color: Colors.black
+            )
+        ),
+        child:
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    flex: severity == LOW ? 1 : severity == MED ? 5 : 9,
+                    child: Container(
+                      height: 30,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(15),
+                              bottomLeft: Radius.circular(15)
+                          ),
+                          color: severity == LOW ? Colors.yellow : severity == MED ? Colors.orange : Colors.red
+                      ),
+                    )
+                  ),
+                  Expanded(
+                      flex: severity == LOW ? 9 : severity == MED ? 5 : 1,
+                      child: Container(
+                        height: 30,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(15),
+                                bottomRight: Radius.circular(15)),
+                            color: Colors.white
+                        ),
+                      )
+                  ),
+                ],
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 12, right: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text("low"),
+                    Text("med"),
+                    Text("high")
+                  ],
+                ),
+              )
+            ],
+          )
+    );
+  }
+}
+
+class HeadingColonBody extends RichText {
+
+  final String heading;
+  final String body;
+
+  HeadingColonBody(this.heading, this.body) : super(
+      text: TextSpan(
+          style: GoogleFonts.openSans(
+              fontSize: 11,
+              color: Colors.black
+          ),
+          children: [
+            TextSpan(
+                text: heading,
+                style: GoogleFonts.openSans(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black
+                )
+            ),
+            TextSpan(
+                text: body,
+            )
+          ]
+      )
+  );
+}
+
 class WeedsReportingBox extends StatelessWidget {
   WeedsReportingBox() : super();
+  final TextStyle bodyStyle = GoogleFonts.openSans(
+      fontSize: 11,
+      color: Colors.black
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -162,6 +277,10 @@ class _ReportUpdateFormState extends State {
   bool wrongAutomatedInformation = false;
   bool contactedByWeedsOfficer = false;
   String additionalComments = "";
+  TextStyle bodyStyle = GoogleFonts.openSans(
+      fontSize: 11,
+      color: Colors.black
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -215,7 +334,6 @@ class _ReportUpdateFormState extends State {
                         maxLines: null, // grow forever
                         onChanged: (value) {
                           additionalComments = value;
-                          print(additionalComments);
                         },
                       ))),
               Padding(
@@ -232,6 +350,10 @@ class _ReportUpdateFormState extends State {
 
 class ResourcesBox extends StatelessWidget {
   ResourcesBox() : super();
+  final TextStyle bodyStyle = GoogleFonts.openSans(
+      fontSize: 11,
+      color: Colors.black
+  );
 
   @override
   Widget build(BuildContext context) {
