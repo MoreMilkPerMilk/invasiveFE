@@ -137,6 +137,8 @@ class PlantInfoBox extends StatelessWidget {
                 HeadingColonBody("Scientific Name: ", species.species),
                 HeadingColonBody("Family: ", species.family),
                 HeadingColonBody("Council Declaration: ", HtmlUnescape().convert(species.council_declaration)), // fixme: doesn't fix the garble. i tried ~james
+                //HeadingColonBody("State Declaration: ", species.state_declaration.first),
+                HeadingColonBody("Control Methods: ", species.control_methods[0]),
                 HeadingColonBody("Environmental Impact: ", ""),
                 SeverityBar(SeverityBar.HIGH)
               ]
@@ -221,35 +223,46 @@ class SeverityBar extends StatelessWidget {
   }
 }
 
-class HeadingColonBody extends RichText {
+class HeadingColonBody extends StatelessWidget {
 
   final String heading;
   final String body;
 
-  HeadingColonBody(this.heading, this.body) : super(
-      text: TextSpan(
-          style: GoogleFonts.openSans(
-              fontSize: 11,
-              color: Colors.black
-          ),
-          children: [
-            TextSpan(
-                text: heading,
-                style: GoogleFonts.openSans(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black
+  HeadingColonBody(this.heading, this.body);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 3),
+      child: RichText(
+          text: TextSpan(
+              style: GoogleFonts.openSans(
+                  fontSize: 11,
+                  color: Colors.black
+              ),
+              children: [
+                TextSpan(
+                    text: heading,
+                    style: GoogleFonts.openSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black
+                    )
+                ),
+                TextSpan(
+                  text: body,
                 )
-            ),
-            TextSpan(
-                text: body,
-            )
-          ]
-      )
-  );
+              ]
+          )
+      ),
+    );
+  }
 }
 
 class WeedsReportingBox extends StatelessWidget {
+
+  //final WeedsAroundSlider weedsAroundSlider = WeedsAroundSlider();
+
   WeedsReportingBox() : super();
   final TextStyle bodyStyle = GoogleFonts.openSans(
       fontSize: 11,
@@ -261,9 +274,35 @@ class WeedsReportingBox extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Some text about the report?", style: bodyStyle),
-        ReportUpdateForm()
+        Text("You have reported the location of this invasive species to the authorities, please add any additional information as required.", style: bodyStyle),
+        //weedsAroundSlider
       ],
+    );
+  }
+}
+
+class WeedsAroundSlider extends StatefulWidget {
+
+  @override
+  State<StatefulWidget> createState() => _WeedsAroundSliderState();
+}
+
+class _WeedsAroundSliderState extends State {
+
+  double value = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Slider(
+        min: 0,
+        max: 1,
+        divisions: 4,
+        value: value,
+        onChanged: (double value) {
+          setState(() {
+            this.value = value;
+          });
+        },
     );
   }
 }
