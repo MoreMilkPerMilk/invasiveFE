@@ -26,7 +26,12 @@ const int MAX_LOOK_BACK_SIZE = 5;
 const double MIN_CONFIDENCE_VAL = 0.90;
 XFile photo = new XFile.fromData(new Uint8List(1));
 
-const int MAX_LOOK_BACK_TIME = 3000;
+const int MAX_LOOK_BACK_TIME = 10000;
+
+class StartTime {
+  int val;
+  StartTime(this.val);
+}
 
 enum Status {
   negativeNormal, // negative recognition
@@ -68,7 +73,9 @@ class _CameraState extends State<Camera> {
 
   void startCamera() {
     ListQueue<Tuple2<String, double>> seenBuffer = new ListQueue();
-    ListQueue<int> timeBuffer = new ListQueue();
+    // ListQueue<int> timeBuffer = new ListQueue();
+    StartTime intervalTime = new StartTime(new DateTime.now().millisecondsSinceEpoch);
+    // int intervalTime = new DateTime.now().millisecondsSinceEpoch;
     print(widget.cameras);
     if (widget.cameras == null || widget.cameras!.length < 1) {
       print('No camera is found');
@@ -95,7 +102,7 @@ class _CameraState extends State<Camera> {
             isDetecting = true;
             int startTime = new DateTime.now().millisecondsSinceEpoch;
             if (widget.model == resnet) {
-              runResnetOnFrame(img, startTime, seenBuffer, timeBuffer);
+              runResnetOnFrame(img, startTime, seenBuffer, intervalTime);
             } else {
               runYoloOnFrame(img, startTime);
             }
@@ -105,13 +112,8 @@ class _CameraState extends State<Camera> {
     }
   }
 
-  void runResnetOnFrame(CameraImage img, int startTime, ListQueue<Tuple2<String, double>> seenBuffer) async {
-
-    // convert camera img to bytes
-    List<Uint8List> imgAsBytes = img.planes.map((plane) {
-      return plane.bytes;
-    }).toList();
-
+  void runResnetOnFrame(CameraImage img, int startTime, ListQueue<Tuple2<String, double>> seenBuffer,
+      StartTime timeInterval) async {
     var recognitions = await Tflite.runModelOnFrame(
       bytesList: imgAsBytes,
       imageHeight: img.height,
@@ -127,9 +129,10 @@ class _CameraState extends State<Camera> {
     }
 
     if (recognitions!.isNotEmpty && _cameraOn) {
-      switch (thresholdDetection(recognitions, seenBuffer, timeBuffer)) {
+      switch (thresholdDetection(recognitions, seenBuffer, timeInterval)) {
         case Status.negativeNormal:
           // do nothing :)
+          // Fluttertoast.cancel(); // hide all toasts
           break;
         case Status.negativeThreshold:
           // show toast!
@@ -137,10 +140,10 @@ class _CameraState extends State<Camera> {
               msg: "Hold the camera 30 cm away from the plant",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.CENTER,
-              timeInSecForIosWeb: 2,
+              timeInSecForIosWeb: 4,
               backgroundColor: Colors.black12,
               textColor: Colors.white,
-              fontSize: 20.0
+              fontSize: 16.0
           );
           break;
         case Status.detected:
@@ -171,10 +174,16 @@ class _CameraState extends State<Camera> {
       });
 
 
+          Fluttertoast.cancel(); // hide all toasts
+          HapticFeedback.heavyImpact();
+          _pc.open();
           setState(() {
             _cameraOn = false;
             _numResults = 0;
           });
+Fluttertoast.cancel(); // hide all toasts
+          HapticFeedback.heavyImpact();
+          _pc.open();
           break;
       }
     }
@@ -205,8 +214,8 @@ class _CameraState extends State<Camera> {
     });
   }
 
-  Status thresholdDetection(List<dynamic> recognitions, ListQueue<Tuple2<String, double>> seenBuffer,
-      ListQueue<int> timeBuffer) {
+  Status thresholdDetection(List<dynamic> recognitions, ListQueue<Tuple2<String, double>> seenBuffer, StartTime
+  startTime) {
     String label = recognitions[0]["label"]; // assume greatest confidence is first presented
     double conf = recognitions[0]["confidence"];
 
@@ -217,10 +226,11 @@ class _CameraState extends State<Camera> {
     }
 
     int currentTime = new DateTime.now().millisecondsSinceEpoch;
-    timeBuffer.add(currentTime);
-    if (currentTime - timeBuffer.first >= MAX_LOOK_BACK_TIME) {
-      timeBuffer.removeFirst();
-    }
+
+    // if (currentTime - startTime.val >= MAX_LOOK_BACK_TIME) {
+    //   print("RESET");
+    //   startTime.val = currentTime;
+    // }
 
     bool aboveThreshold = seenBuffer.every((element) => element.item2 >= MIN_CONFIDENCE_VAL);
     Set<String> setBuffer = seenBuffer.map((element) => element.item1).toSet(); // get all recognitions
@@ -231,7 +241,7 @@ class _CameraState extends State<Camera> {
     // print(setBuffer);
     // print("thresh: $aboveThreshold, same: $sameElement");
     if (aboveThreshold && sameElement && notNegative && minFrames) {
-      timeBuffer.clear();
+      startTime.val = currentTime;
       foundSpecies = setBuffer.first;
       return Status.detected;
     } else {
@@ -301,7 +311,7 @@ class _CameraState extends State<Camera> {
         ),
         borderRadius: radius,
         onPanelClosed: () {
-          controller!.startImageStream((image) => null);
+          Fluttertoast.cancel(); // hide all toasts
           setState(() {
             _cameraOn = true;
             _numResults = 2;
