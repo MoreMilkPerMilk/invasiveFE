@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -10,18 +13,20 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 class Panel extends StatefulWidget {
   String foundSpecies;
   PanelController _pc;
+  XFile photo;
 
-  Panel(this.foundSpecies, this._pc);
+  Panel(this.foundSpecies, this.photo, this._pc);
 
   @override
-  _PanelState createState() => _PanelState(this.foundSpecies, this._pc);
+  _PanelState createState() => _PanelState(this.foundSpecies, this._pc, this.photo);
 }
 
 class _PanelState extends State<Panel> {
-  _PanelState(this.foundSpecies, this._pc);
+  _PanelState(this.foundSpecies, this._pc, this.photo);
 
   String foundSpecies;
   PanelController _pc;
+  XFile photo;
 
   bool _reportButtonDisabled = false;
 
@@ -45,12 +50,17 @@ class _PanelState extends State<Panel> {
               padding: const EdgeInsets.all(15.0),
               child: FittedBox(
                 fit: BoxFit.contain,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10.0),
-                  child: Image(
-                    image: NetworkImage(
-                        'https://weeds.brisbane.qld.gov.au/sites/default/files/styles/large/public/images/lantana_camara17.jpg?itok=6FcRI2y7'),
-                    width: 300,
+                child: Container(
+                  height: 200,
+                  width: 200,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10.0),
+                    child: FittedBox(
+                      fit: BoxFit.fitWidth,
+                      child: Image.file(
+                        File(photo.path),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -97,6 +107,7 @@ class _PanelState extends State<Panel> {
                             ),
                             onPressed: () {
                               // Respond to button press
+                              _pc.close();
                             },
                             icon: Icon(Icons.cancel_schedule_send, size: 18),
                             label: Text("CANCEL"),
@@ -111,7 +122,7 @@ class _PanelState extends State<Panel> {
                               primary: Colors.green,
                             ),
                             onPressed: () {
-                              // Respond to button press
+                              _pc.close();
                             },
                             icon: Icon(Icons.done, size: 18),
                             label: Text("DONE"),
