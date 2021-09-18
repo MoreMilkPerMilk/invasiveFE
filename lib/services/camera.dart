@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ import 'models.dart';
 
 const int MAX_LOOK_BACK_SIZE = 5;
 const double MIN_CONFIDENCE_VAL = 0.90;
+XFile photo = new XFile.fromData(new Uint8List(1));
 
 typedef void Callback(List<dynamic>? list, int h, int w);
 
@@ -88,8 +90,8 @@ class _CameraState extends State<Camera> {
     );
 
     int endTime = new DateTime.now().millisecondsSinceEpoch;
-    print("Detection took ${endTime - startTime}");
-    print(recognitions);
+    // print("Detection took ${endTime - startTime}");
+    // print(recognitions); 
     if (!_cameraOn) {
       seenBuffer.clear();
     }
@@ -105,9 +107,12 @@ class _CameraState extends State<Camera> {
       //     weeds_present: [],
       // );
       // addLocation(location);
-
-      HapticFeedback.heavyImpact();
-      _pc.open(); // show the slide over widget
+      controller!.takePicture().then((value) {
+        photo = value;
+        _pc.open();
+        HapticFeedback.heavyImpact();
+      });
+      // _pc.open(); // show the slide over widget
       setState(() {
         _cameraOn = false;
         _numResults = 0;
@@ -203,7 +208,7 @@ class _CameraState extends State<Camera> {
         backdropEnabled: true,
         controller: _pc,
         minHeight: 0,
-        panel: Panel(foundSpecies, _pc),
+        panel: Panel(foundSpecies, photo, _pc),
         body: Transform.scale( // HAMISH: Fixed the weird scaling issues!
           scale: scale,
           child: Center(
