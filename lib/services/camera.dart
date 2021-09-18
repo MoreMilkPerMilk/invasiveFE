@@ -91,7 +91,7 @@ class _CameraState extends State<Camera> {
 
     int endTime = new DateTime.now().millisecondsSinceEpoch;
     // print("Detection took ${endTime - startTime}");
-    // print(recognitions); 
+    // print(recognitions);
     if (!_cameraOn) {
       seenBuffer.clear();
     }
@@ -108,7 +108,11 @@ class _CameraState extends State<Camera> {
       // );
       // addLocation(location);
       controller!.takePicture().then((value) {
-        photo = value;
+        // photo = value;
+        setState(() {
+          photo = value;
+        });
+        print(photo.name);
         _pc.open();
         HapticFeedback.heavyImpact();
       });
@@ -159,9 +163,9 @@ class _CameraState extends State<Camera> {
     bool sameElement = setBuffer.length == 1;
     bool notNegative = setBuffer.every((element) => element != "Negatives");
     bool minFrames = seenBuffer.length == MAX_LOOK_BACK_SIZE;
-    print(seenBuffer);
-    print(setBuffer);
-    print("thresh: $aboveThreshold, same: $sameElement");
+    // print(seenBuffer);
+    // print(setBuffer);
+    // print("thresh: $aboveThreshold, same: $sameElement");
     if (aboveThreshold && sameElement && notNegative && minFrames) {
       foundSpecies = setBuffer.first;
       return true;
@@ -220,6 +224,7 @@ class _CameraState extends State<Camera> {
           setState(() {
             _cameraOn = true;
             _numResults = 2;
+            // photo = new XFile.fromData(new Uint8List(1));
           });
         },
       ),
