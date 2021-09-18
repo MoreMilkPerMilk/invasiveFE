@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:invasive_fe/models/Location.dart';
+import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
@@ -36,9 +36,9 @@ class _MapsPageState extends State<MapsPage> {
   /// information that should be refreshed each time maps opens goes here
   @override
   void initState() {
-    getAllLocations().then((locations) =>
+    getAllPhotoLocations().then((locations) =>
       markers = locations.map((loc) => WeedMarker(
-        location: loc,
+        photoLocation: loc,
         heatmap: heatmapMode)).toList());
     // fixme: for efficiency, this shouldn't be here
     getAllSpecies().then((speciesList) =>
@@ -82,7 +82,7 @@ class _MapsPageState extends State<MapsPage> {
                           popupBuilder: (_, Marker marker) {
                             // this conditional is necessary since popupBuilder must take a Marker
                             if (marker is WeedMarker) {
-                              return WeedMarkerPopup(location: marker.location);
+                              return WeedMarkerPopup(photoLocation: marker.photoLocation);
                             }
                             return Card(child: Text('Error: Not a weed.'));
                           }),
@@ -138,15 +138,15 @@ class _MapsPageState extends State<MapsPage> {
 
 
 class WeedMarker extends Marker {
-  final Location location;
+  final PhotoLocation photoLocation;
   static final double markerSize = 40;
 
-  WeedMarker({required this.location, required bool heatmap})
+  WeedMarker({required this.photoLocation, required bool heatmap})
       : super(
     anchorPos: AnchorPos.align(AnchorAlign.center),
     height: heatmap ? markerSize * 2 : markerSize,
     width: heatmap ? markerSize * 2 : markerSize,
-    point: LatLng(location.lat, location.long),
+    point: LatLng(photoLocation.location.latitude, photoLocation.location.longitude),
     builder: heatmap ?
         (BuildContext ctx) => Container(
           decoration: BoxDecoration(
@@ -168,9 +168,9 @@ class WeedMarker extends Marker {
 
 
 class WeedMarkerPopup extends StatelessWidget {
-  const WeedMarkerPopup({Key? key, required this.location})
+  const WeedMarkerPopup({Key? key, required this.photoLocation})
       : super(key: key);
-  final Location location;
+  final PhotoLocation photoLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -182,12 +182,12 @@ class WeedMarkerPopup extends StatelessWidget {
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: location.weeds_present.map((weed) => Column(
+          children: photoLocation.weeds_present.map((weed) => Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               if (weed.image_filename != null) Image.network(weed.image_filename!, width: 200),
               Text(species[weed.species_id]),
-              Text('${location.lat}-${location.long}'),
+              Text('${photoLocation.location.latitude}-${photoLocation.location.longitude}'),
             ],
           )).toList()
         )

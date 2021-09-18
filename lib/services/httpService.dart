@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/User.dart';
-import 'package:invasive_fe/models/Location.dart';
+import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:objectid/objectid.dart';
 
@@ -31,13 +31,13 @@ const API_URL = 'http://invasivesys.uqcloud.net:80';
 // --------------------------------
 
 /// communicate with backend server to HTTP GET all weed instances.
-Future<List<Location>> getAllLocations() async {
+Future<List<PhotoLocation>> getAllPhotoLocations() async {
   final response = await http.get(Uri.parse(API_URL + "/locations"));
 
   if (response.statusCode == 200) {
     // log(response.body);
     // var result = await compute(User.parseUserList, response.body);
-    var result = Location.parseLocationList(response.body);
+    var result = PhotoLocation.parsePhotoLocationList(response.body);
     result.forEach((element) {
       log(element.toString());
     });
@@ -49,7 +49,7 @@ Future<List<Location>> getAllLocations() async {
 }
 
 /// add location (will merge with pre-existing locations in the DB)
-Future<bool> addLocation(Location location) async {
+Future<bool> addLocation(PhotoLocation location) async {
   final response = await http.post(
     Uri.parse(API_URL + "/locations/add"),
     headers: <String, String>{
@@ -68,7 +68,7 @@ Future<bool> addLocation(Location location) async {
 }
 
 /// delete location
-Future<bool> deleteLocation(Location location) async {
+Future<bool> deleteLocation(PhotoLocation location) async {
   final response = await http.post(
     Uri.parse(API_URL + "/locations/delete"),
     headers: <String, String>{

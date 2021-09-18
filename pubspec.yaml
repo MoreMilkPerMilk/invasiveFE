@@ -29,6 +29,8 @@ dependencies:
   tflite: ^1.1.2
   http: 0.13.3  # allows for REST api queries
   json_annotation: ^4.0.0  # easy conversion between JSON <--> Class
+  geojson: ^1.0.0
+  geopoint: ^1.0.0
   uuid:
   sliding_up_panel: ^2.0.0+1
 
