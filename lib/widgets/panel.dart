@@ -150,30 +150,25 @@ class _PanelState extends State<Panel> {
       _reportButtonDisabled = true;
     });
     var pos = await determinePosition();
-
-    // convert Xfile photo to Image
-    final bytes = await File(photo.path).readAsBytes();
-    final Image photoImage = img.decodeImage(bytes) as Image;
-
-    compute(sendReportToBackend, PhotoLocationData(pos, photoImage, foundSpecies));
+    compute(sendReportToBackend, PhotoLocationData(pos, photo, foundSpecies));
   }
 }
 
 class PhotoLocationData{
   // Helper class to pass multiple parameters to compute
   final Position pos;
-  final Image photoImage;
+  final XFile photoImage;
   final String speciesName;
   PhotoLocationData(this.pos, this.photoImage, this.speciesName);
 }
 
 Future<void> sendReportToBackend(PhotoLocationData data) async {
+
   var photoLocation = new PhotoLocation(
     id: ObjectId(),
-    name: DateTime.now().toString(),
     photo: data.photoImage,
     location: GeoPoint(latitude: data.pos.latitude, longitude: data.pos.longitude),
-    weeds_present: [], // need to add WeedInstance or species name here...
+    weeds_present: [],
   );
 
   // add report to backend also

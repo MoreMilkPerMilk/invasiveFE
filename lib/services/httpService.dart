@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:flutter/cupertino.dart';
+import 'package:geojson/geojson.dart';
 import 'package:http/http.dart' as http;
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/User.dart';
@@ -30,17 +32,18 @@ const API_URL = 'http://invasivesys.uqcloud.net:80';
 //  LOCATIONS
 // --------------------------------
 
-/// communicate with backend server to HTTP GET all weed instances.
+/// communicate with backend server to HTTP GET all photoLocation instances. // todo: refix this
 Future<List<PhotoLocation>> getAllPhotoLocations() async {
   final response = await http.get(Uri.parse(API_URL + "/locations"));
 
   if (response.statusCode == 200) {
     // log(response.body);
     // var result = await compute(User.parseUserList, response.body);
+
     var result = PhotoLocation.parsePhotoLocationList(response.body);
-    result.forEach((element) {
-      log(element.toString());
-    });
+    // result.forEach((element) {
+    //   log(element.toString());
+    // });
 
     return result;
     // return compute(WeedInstance.parseWeedInstanceList, response.body);
@@ -49,34 +52,37 @@ Future<List<PhotoLocation>> getAllPhotoLocations() async {
 }
 
 /// add location (will merge with pre-existing locations in the DB)
-Future<bool> addPhotoLocation(PhotoLocation location) async {
+Future<bool> addPhotoLocation(PhotoLocation photoLocation) async {
+  // final response = await http.post(
+  //   Uri.parse(API_URL + "/locations/add"),
+  //   headers: <String, String>{
+  //     'Content-Type': 'application/json; charset=UTF-8',
+  //   },
+  //   body: location.toJson(),
+  // );
+
+  // String image = photoLocation.photo == null ? "" : photoLocation.photo!;
+  // ByteData bytes = await rootBundle.load(image); // fixme: incomplete
+  print(photoLocation.photo);
+  print("PATH");
+  print(photoLocation.photo.path); // fixme: appears to be null path?
+  // convert Xfile photo to Image
+  final imageBytes = await File(photoLocation.photo.path).readAsBytes();
+  //final Image photoImage = img.decodeImage(bytes) as Image;
+
+
   final response = await http.post(
-    Uri.parse(API_URL + "/locations/add"),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: location.toJson(),
+      Uri.parse(API_URL + "/photoLocations/add?"
+          "photo_location_id=${ObjectId()}&"
+          "location=${GeoJsonPoint(geoPoint: photoLocation.location)}&"),
+      headers: <String, String>{
+        'Content-Type': 'multipart/form-data; boundary="&"',
+      },
+      body: "&" + base64Encode(imageBytes) + "&"
   );
 
   print(response.body);
-  print(location.toJson());
-
-  // String image = weed.image_filename == null ? "" : weed.image_filename!;
-  // ByteData bytes = await rootBundle.load(image); // fixme: incomplete
-  // final response = await http.post(
-  //     Uri.parse(API_URL + "/weeds/add?"
-  //         "weed_id=${ObjectId()}&"
-  //         "species_id=${weed.species_id}&"
-  //         "discovery_date=${weed.discovery_date}&"
-  //         "removed=${weed.removed}&"
-  //         "removal_date=${weed.removed ? weed.removal_date : ""}&"
-  //         "replaced=${weed.replaced}&"
-  //         "replaced_species=${weed.replaced ? weed.replaced_species : ""}"),
-  //     headers: <String, String>{
-  //       'Content-Type': 'multipart/form-data; boundary="&"',
-  //     },
-  //     body: "&" + image + "&"
-  // );
+  print(photoLocation.toJson());
 
   if (response.statusCode == 200) {
     return true;
@@ -237,26 +243,27 @@ Future<List<WeedInstance>> getAllWeeds() async {
   throw "HTTP Error Code: ${response.statusCode}";
 }
 
-Future<bool> addWeed(WeedInstance weed) async {
-  String image = weed.image_filename == null ? "" : weed.image_filename!;
-  ByteData bytes = await rootBundle.load(image); // fixme: incomplete
-  final response = await http.post(
-    Uri.parse(API_URL + "/weeds/add?"
-        "weed_id=${ObjectId()}&"
-        "species_id=${weed.species_id}&"
-        "discovery_date=${weed.discovery_date}&"
-        "removed=${weed.removed}&"
-        "removal_date=${weed.removed ? weed.removal_date : ""}&"
-        "replaced=${weed.replaced}&"
-        "replaced_species=${weed.replaced ? weed.replaced_species : ""}"),
-    headers: <String, String>{
-      'Content-Type': 'multipart/form-data; boundary="&"',
-    },
-    body: "&" + image + "&"
-  );
-
-  if (response.statusCode == 200) {
-    return true;
-  }
-  throw "HTTP Error Code: ${response.statusCode}";
-}
+// todo: refactor this
+// Future<bool> addWeed(WeedInstance weed) async {
+//   String image = weed.image_filename == null ? "" : weed.image_filename!;
+//   ByteData bytes = await rootBundle.load(image); // fixme: incomplete
+//   final response = await http.post(
+//     Uri.parse(API_URL + "/weeds/add?"
+//         "weed_id=${ObjectId()}&"
+//         "species_id=${weed.species_id}&"
+//         "discovery_date=${weed.discovery_date}&"
+//         "removed=${weed.removed}&"
+//         "removal_date=${weed.removed ? weed.removal_date : ""}&"
+//         "replaced=${weed.replaced}&"
+//         "replaced_species=${weed.replaced ? weed.replaced_species : ""}"),
+//     headers: <String, String>{
+//       'Content-Type': 'multipart/form-data; boundary="&"',
+//     },
+//     body: "&" + image + "&"
+//   );
+//
+//   if (response.statusCode == 200) {
+//     return true;
+//   }
+//   throw "HTTP Error Code: ${response.statusCode}";
+// }

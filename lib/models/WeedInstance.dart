@@ -5,12 +5,14 @@ class WeedInstance {
   String speciesName;
   String discovery_date;
   String info;
+  String image_filename;
 
   WeedInstance({
     required this.species_id,
     required this.speciesName,
     required this.discovery_date,
     required this.info,
+    required this.image_filename
   });
 
   String toJson() {
@@ -27,7 +29,8 @@ class WeedInstance {
         species_id: json['species_id'],
         speciesName: json['species_name'],
         discovery_date: json['discovery_date'],
-        info: json['info']
+        info: json['info'],
+        image_filename: json['image_filename']
     );
   }
 

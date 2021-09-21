@@ -1,5 +1,7 @@
 import 'dart:developer';
-import 'dart:html';
+import 'dart:typed_data';
+import 'package:flutter/services.dart' show ByteData, rootBundle;
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/User.dart';
@@ -29,12 +31,15 @@ class HttpTestPage extends StatelessWidget {
               child: Text('/Locations'),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 log("/Add Location w/o Weeds");
+                ByteData imgBytes = await rootBundle.load('assets/placeholder.png');
+                print(imgBytes);
+                Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
+                XFile xFile = XFile.fromData(imgUint8List, path: 'assets/placeholder.png'); // fixme: this has no path set...
                 var loc = PhotoLocation(
                     id: ObjectId(),
-                    name: "152 Gailey Road Brisbane",
-                    photo: ,
+                    photo: xFile,
                     location: GeoPoint(latitude: 4, longitude: 4),
                     weeds_present: []
                 );
@@ -43,26 +48,31 @@ class HttpTestPage extends StatelessWidget {
               child: Text('/Add Location w/o Weeds'),
             ),
             ElevatedButton(
-              onPressed: () {
-                log("/Add Location w/ Weeds");
-                var weed = WeedInstance(species_id: 0, discovery_date: "2000/03/02", removed: false, replaced: false, image_filename: "image_url");
+              onPressed: () async {
+                log("/Add PhotoLocation");
+                ByteData imgBytes = await rootBundle.load('assets/placeholder.png');
+                Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
+                XFile xFile = XFile.fromData(imgUint8List);
                 var loc = PhotoLocation(
                     id: ObjectId(),
-                    name: "152 Gailey Road Brisbane",
-                    location:,
-                    weeds_present: [weed]
+                    photo: xFile,
+                    location: GeoPoint(latitude: 4, longitude: 4),
+                    weeds_present: []
                 );
                 addPhotoLocation(loc);
               },
               child: Text('/Add Location w/ Weeds'),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 log("/Delete Location");
+                ByteData imgBytes = await rootBundle.load('assets/placeholder.png');
+                Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
+                XFile xFile = XFile.fromData(imgUint8List);
                 var loc = PhotoLocation(
                     id: ObjectId(),
-                    name: "152 Gailey Road Brisbane",
-                    lat:0.0, long:0.0,
+                    photo: xFile,
+                    location: GeoPoint(latitude: 4, longitude: 4),
                     weeds_present: []
                 );
                 deleteLocation(loc);

@@ -185,7 +185,7 @@ class WeedMarkerPopup extends StatelessWidget {
           children: photoLocation.weeds_present.map((weed) => Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              if (weed.image_filename != null) Image.network(weed.image_filename!, width: 200), // need to refactor this to use photoLocation image
+              if (weed.image_filename != null) Image.network(weed.image_filename!, width: 200), // need to refactor this to use photoLOcation image
               Text(species[weed.species_id]),
               Text('${photoLocation.location.latitude}-${photoLocation.location.longitude}'),
             ],
