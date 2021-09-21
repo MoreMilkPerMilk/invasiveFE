@@ -4,9 +4,14 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:invasive_fe/models/Location.dart';
+import 'package:geopoint/geopoint.dart';
+import 'package:image/image.dart' as img;
+import 'package:invasive_fe/models/PhotoLocation.dart';
+import 'package:invasive_fe/models/Report.dart';
+import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
+import 'package:invasive_fe/widgets/maps.dart';
 import 'package:objectid/objectid.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -145,17 +150,42 @@ class _PanelState extends State<Panel> {
       _reportButtonDisabled = true;
     });
     var pos = await determinePosition();
-    compute(reportLocationToBackend, pos);
+
+    // convert Xfile photo to Image
+    final bytes = await File(photo.path).readAsBytes();
+    final Image photoImage = img.decodeImage(bytes) as Image;
+
+    compute(sendReportToBackend, PhotoLocationData(pos, photoImage, foundSpecies));
   }
 }
 
-Future<void> reportLocationToBackend(Position pos) async {
-  var location = new Location(
+class PhotoLocationData{
+  // Helper class to pass multiple parameters to compute
+  final Position pos;
+  final Image photoImage;
+  final String speciesName;
+  PhotoLocationData(this.pos, this.photoImage, this.speciesName);
+}
+
+Future<void> sendReportToBackend(PhotoLocationData data) async {
+  var photoLocation = new PhotoLocation(
     id: ObjectId(),
     name: DateTime.now().toString(),
-    lat: pos.latitude,
-    long: pos.longitude,
-    weeds_present: [],
+    photo: data.photoImage,
+    location: GeoPoint(latitude: data.pos.latitude, longitude: data.pos.longitude),
+    weeds_present: [], // need to add WeedInstance or species name here...
   );
-  await addLocation(location);
+
+  // add report to backend also
+  // var report = new Report(
+  //     report_id: report_id,
+  //     species: species,
+  //     name: name,
+  //     status: status,
+  //     photoLocations: photoLocations,
+  //     notes: notes,
+  //     polygon: polygon)
+
+  //await addReport(report);
+  await addPhotoLocation(photoLocation);
 }

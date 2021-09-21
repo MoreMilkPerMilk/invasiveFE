@@ -38,7 +38,7 @@ class HttpTestPage extends StatelessWidget {
                     location: GeoPoint(latitude: 4, longitude: 4),
                     weeds_present: []
                 );
-                addLocation(loc);
+                addPhotoLocation(loc);
               },
               child: Text('/Add Location w/o Weeds'),
             ),
@@ -52,7 +52,7 @@ class HttpTestPage extends StatelessWidget {
                     location:,
                     weeds_present: [weed]
                 );
-                addLocation(loc);
+                addPhotoLocation(loc);
               },
               child: Text('/Add Location w/ Weeds'),
             ),

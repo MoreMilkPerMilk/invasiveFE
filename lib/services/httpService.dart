@@ -49,7 +49,7 @@ Future<List<PhotoLocation>> getAllPhotoLocations() async {
 }
 
 /// add location (will merge with pre-existing locations in the DB)
-Future<bool> addLocation(PhotoLocation location) async {
+Future<bool> addPhotoLocation(PhotoLocation location) async {
   final response = await http.post(
     Uri.parse(API_URL + "/locations/add"),
     headers: <String, String>{
@@ -60,6 +60,23 @@ Future<bool> addLocation(PhotoLocation location) async {
 
   print(response.body);
   print(location.toJson());
+
+  // String image = weed.image_filename == null ? "" : weed.image_filename!;
+  // ByteData bytes = await rootBundle.load(image); // fixme: incomplete
+  // final response = await http.post(
+  //     Uri.parse(API_URL + "/weeds/add?"
+  //         "weed_id=${ObjectId()}&"
+  //         "species_id=${weed.species_id}&"
+  //         "discovery_date=${weed.discovery_date}&"
+  //         "removed=${weed.removed}&"
+  //         "removal_date=${weed.removed ? weed.removal_date : ""}&"
+  //         "replaced=${weed.replaced}&"
+  //         "replaced_species=${weed.replaced ? weed.replaced_species : ""}"),
+  //     headers: <String, String>{
+  //       'Content-Type': 'multipart/form-data; boundary="&"',
+  //     },
+  //     body: "&" + image + "&"
+  // );
 
   if (response.statusCode == 200) {
     return true;

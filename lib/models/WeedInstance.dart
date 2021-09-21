@@ -2,44 +2,32 @@ import 'dart:convert';
 
 class WeedInstance {
   int species_id;
+  String speciesName;
   String discovery_date;
-  bool removed;
-  String? removal_date;
-  bool replaced;
-  String? replaced_species;
-  String? image_filename;
+  String info;
 
   WeedInstance({
     required this.species_id,
+    required this.speciesName,
     required this.discovery_date,
-    required this.removed,
-    this.removal_date,
-    required this.replaced,
-    this.replaced_species,
-    this.image_filename,
+    required this.info,
   });
 
   String toJson() {
     return jsonEncode(<String, dynamic>{
       'species_id': species_id,
+      'species_name': speciesName,
       'discovery_date': discovery_date,
-      'removed': removed,
-      'removal_date': removal_date,
-      'replaced': replaced,
-      'replaced_species': replaced_species,
-      'image_filename': image_filename,
+      'info': info,
     });
   }
 
   factory WeedInstance.fromJson(Map<String, dynamic> json) {
     return WeedInstance(
         species_id: json['species_id'],
+        speciesName: json['species_name'],
         discovery_date: json['discovery_date'],
-        removed: json['removed'],
-        removal_date: json['removal_date'],
-        replaced: json['replaced'],
-        replaced_species: json['replaced_species'],
-        image_filename: json['image_filename']
+        info: json['info']
     );
   }
 
@@ -47,16 +35,8 @@ class WeedInstance {
   String toString() {
     var output = "";
     output += "species_id: ${this.species_id}\n";
+    output += "species_name: ${this.speciesName}\n";
     output += "discovery_date: ${this.discovery_date}\n";
-    output += "removed: ${this.removed}\n";
-    if (this.removed) {
-      output += "removal_date: ${this.removal_date}\n";
-    }
-    output += "replaced: ${this.replaced}\n";
-    if (this.replaced) {
-      output += "replaced_species: ${this.replaced_species}\n";
-    }
-    output += "image_url: ${this.image_filename != null ? this.image_filename : "None"}\n";
     return output;
   }
 
