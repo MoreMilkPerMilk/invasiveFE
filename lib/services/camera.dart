@@ -230,7 +230,16 @@ class _CameraState extends State<Camera> {
         body: Transform.scale( // HAMISH: Fixed the weird scaling issues!
           scale: scale,
           child: Center(
-            child: CameraPreview(controller!),
+            child: Stack(children: [
+              CameraPreview(controller!),
+              Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: Align(
+                      child: Image(image: AssetImage('assets/frame.png'), width: 250, height: 250)
+                  )
+              ),
+            ]),
           ),
         ),
         borderRadius: radius,

@@ -73,6 +73,7 @@ flutter:
   assets:
     - assets/resnet.tflite
     - assets/labels.txt
+    - assets/frame.png
     - assets/placeholder.png
   # To add assets to your application, add an assets section, like this:
   # assets:
