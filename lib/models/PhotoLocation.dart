@@ -11,7 +11,7 @@ import 'WeedInstance.dart';
 class PhotoLocation {
   ObjectId id;
   String name;
-  List<Uint8List> photo; // bytes list for image
+  Image photo;
   GeoPoint location;
   List<WeedInstance> weeds_present;
 
@@ -34,13 +34,12 @@ class PhotoLocation {
     return jsonEncode(<String, dynamic>{
       '_id': id.toString(),
       'name': name,
-      'photo': photo,
       'point': GeoJsonPoint(geoPoint: location),
       'weeds_present': weedsPresentJson,
     });
   }
 
-  factory PhotoLocation.fromJson(Map<String, dynamic> json) {
+  factory PhotoLocation.fromJson(Map<String, dynamic> json, Image photo) {
     List<WeedInstance> weeds_present = [];
     json['weeds_present'].forEach((element) {
       weeds_present.add(WeedInstance.fromJson(element));
@@ -49,7 +48,7 @@ class PhotoLocation {
     return PhotoLocation(
       id: ObjectId.fromHexString(json['_id']),
       name: json['name'],
-      photo: json['photo'],
+      photo: photo,
       location: json['location'],
       weeds_present: weeds_present,
     );
@@ -76,6 +75,6 @@ class PhotoLocation {
   /// Parse a list of Locations in JSON format
   static List<PhotoLocation> parsePhotoLocationList(String responseBody) {
     final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
-    return parsed.map<PhotoLocation>((json) => PhotoLocation.fromJson(json)).toList();
+    return parsed.map<PhotoLocation>((json) => PhotoLocation.fromJson(json, img)).toList();
   }
 }

@@ -82,15 +82,13 @@ class _CameraState extends State<Camera> {
 
   void runResnetOnFrame(CameraImage img, int startTime, ListQueue<Tuple2<String, double>> seenBuffer) async {
 
-    // convert camera img to bytes todo
+    // convert camera img to bytes
     List<Uint8List> imgAsBytes = img.planes.map((plane) {
       return plane.bytes;
     }).toList();
 
     var recognitions = await Tflite.runModelOnFrame(
-      bytesList: img.planes.map((plane) {
-        return plane.bytes;
-      }).toList(),
+      bytesList: imgAsBytes,
       imageHeight: img.height,
       imageWidth: img.width,
       numResults: _numResults,
@@ -103,21 +101,8 @@ class _CameraState extends State<Camera> {
       seenBuffer.clear();
     }
     if (recognitions!.isNotEmpty && _cameraOn && thresholdDetection(recognitions, seenBuffer)) {
-      // todo hack
-      // Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      Position pos = await determinePosition();
-      var geoPoint = GeoPoint(latitude: pos.latitude, longitude: pos.longitude);
 
-      var location = new PhotoLocation(
-          id: ObjectId(),
-          name: DateTime.now().toString(),
-          photo: imgAsBytes,
-          location: geoPoint,
-          weeds_present: [],
-      );
-      addLocation(location);
-
-      HapticFeedback.heavyImpact();
+      HapticFeedback.heavyImpact();  // vibrate on detection
       _pc.open(); // show the slide over widget
       setState(() {
         _cameraOn = false;
