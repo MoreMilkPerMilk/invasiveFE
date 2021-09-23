@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -75,13 +76,13 @@ class _CameraState extends State<Camera> {
   void startCamera() {
     ListQueue<Tuple2<String, double>> seenBuffer = new ListQueue();
     // ListQueue<int> timeBuffer = new ListQueue();
-    StartTime intervalTime = new StartTime(new DateTime.now().millisecondsSinceEpoch);
+    StartTime intervalTime =
+        new StartTime(new DateTime.now().millisecondsSinceEpoch);
     // int intervalTime = new DateTime.now().millisecondsSinceEpoch;
     print(widget.cameras);
     if (widget.cameras == null || widget.cameras!.length < 1) {
       print('No camera is found');
     } else {
-
       // resolution lowered for android devices
       var cameraRes = ResolutionPreset.high;
       if (Platform.isAndroid) {
@@ -114,9 +115,14 @@ class _CameraState extends State<Camera> {
   }
 
   void runResnetOnFrame(
-      CameraImage img, int startTime, ListQueue<Tuple2<String, double>> seenBuffer, StartTime timeInterval) async {
+      CameraImage img,
+      int startTime,
+      ListQueue<Tuple2<String, double>> seenBuffer,
+      StartTime timeInterval) async {
     var recognitions = await Tflite.runModelOnFrame(
-      bytesList: imgAsBytes,
+      bytesList: img.planes.map((plane) {
+        return plane.bytes;
+      }).toList(),
       imageHeight: img.height,
       imageWidth: img.width,
       numResults: _numResults,
@@ -147,32 +153,31 @@ class _CameraState extends State<Camera> {
               fontSize: 16.0);
           break;
         case Status.detected:
-			// if android we directly convert yuv420 to png (workaround for takePicture())
-		      if (Platform.isAndroid) {
-		
-		        // convert yuv420 to png
-		        convertYUV420toImageColor(img).then((png_img) {
-		          XFile photo = XFile.fromData(png_img!.getBytes());
-		          // show the slide over widget
-		          _pc.open();
-		          HapticFeedback.heavyImpact();
-		        });
-		      } else {
-
-          // show the slide over widget
-		  controller!.takePicture().then((value) {
-        // photo = value;
-        setState(() {
-          photo = value;
-          // show the slide over widget
-          _pc.open();
-          HapticFeedback.heavyImpact();
-        });
-        print(photo.name);
-        _pc.open();
-        HapticFeedback.heavyImpact();
-      });
-
+          // if android we directly convert yuv420 to png (workaround for takePicture())
+          if (Platform.isAndroid) {
+            // convert yuv420 to png
+            convertYUV420toImageColor(img).then((png_img) {
+              XFile photo = XFile.fromData(png_img!.getBytes());
+              // show the slide over widget
+              _pc.open();
+              HapticFeedback.heavyImpact();
+            });
+          } else {
+            // show the slide over widget
+            controller!.takePicture().then((value) {
+              // photo = value;
+              // setState(() {
+              //   photo = value;
+              //   // show the slide over widget
+              //   _pc.open();
+              //   HapticFeedback.heavyImpact();
+              // });
+              photo = value;
+              print(photo.name);
+              _pc.open();
+              HapticFeedback.heavyImpact();
+            });
+          }
 
           setState(() {
             _cameraOn = false;
@@ -209,9 +214,10 @@ class _CameraState extends State<Camera> {
     });
   }
 
-  Status thresholdDetection(
-      List<dynamic> recognitions, ListQueue<Tuple2<String, double>> seenBuffer, StartTime startTime) {
-    String label = recognitions[0]["label"]; // assume greatest confidence is first presented
+  Status thresholdDetection(List<dynamic> recognitions,
+      ListQueue<Tuple2<String, double>> seenBuffer, StartTime startTime) {
+    String label = recognitions[0]
+        ["label"]; // assume greatest confidence is first presented
     double conf = recognitions[0]["confidence"];
 
     seenBuffer.add(Tuple2<String, double>(label, conf));
@@ -227,15 +233,19 @@ class _CameraState extends State<Camera> {
     //   startTime.val = currentTime;
     // }
 
-    bool aboveThreshold = seenBuffer.every((element) => element.item2 >= MIN_CONFIDENCE_VAL);
-    Set<String> setBuffer = seenBuffer.map((element) => element.item1).toSet(); // get all recognitions
+    bool aboveThreshold =
+        seenBuffer.every((element) => element.item2 >= MIN_CONFIDENCE_VAL);
+    Set<String> setBuffer = seenBuffer
+        .map((element) => element.item1)
+        .toSet(); // get all recognitions
     bool sameElement = setBuffer.length == 1;
     bool notNegative = setBuffer.every((element) => element != "Negatives");
     bool minFrames = seenBuffer.length == MAX_LOOK_BACK_SIZE;
     // print(seenBuffer);
     // print(setBuffer);
     // print("thresh: $aboveThreshold, same: $sameElement");
-    if ((!sameElement || !notNegative || !aboveThreshold) && (currentTime - startTime.val > MAX_LOOK_BACK_TIME)) {
+    if ((!sameElement || !notNegative || !aboveThreshold) &&
+        (currentTime - startTime.val > MAX_LOOK_BACK_TIME)) {
       // we have consecutively had negative values -- display toast
       startTime.val = currentTime;
       return Status.negativeThreshold;
@@ -302,8 +312,12 @@ class _CameraState extends State<Camera> {
                   height: double.infinity,
                   child: Align(
                       child: ColorFiltered(
-                          colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.2), BlendMode.dstATop),
-                          child: Image(image: AssetImage('assets/frame.png'), width: 250, height: 250)))),
+                          colorFilter: ColorFilter.mode(
+                              Colors.black.withOpacity(0.2), BlendMode.dstATop),
+                          child: Image(
+                              image: AssetImage('assets/frame.png'),
+                              width: 250,
+                              height: 250)))),
             ]),
           ),
         ),
