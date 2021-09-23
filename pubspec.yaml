@@ -51,6 +51,7 @@ dependencies:
   geolocator: ^7.6.0
   google_fonts: ^2.1.0
   html_unescape: ^2.0.0
+  string_extensions: ^0.3.2
 
 
 dev_dependencies:

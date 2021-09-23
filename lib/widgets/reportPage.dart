@@ -58,7 +58,8 @@ class ReportPage extends StatelessWidget {
                     alignment: Alignment.center,
                     child: CircularProgressIndicator());
               }
-            }));
+            })
+    );
   }
 }
 
@@ -74,33 +75,34 @@ class CardWithHeader extends StatelessWidget {
     return Padding(
         // space around the card
         padding: EdgeInsets.only(
-            top: 16,
-            left: 16,
-            right: 16),
+            top: externalPadding,
+            left: externalPadding,
+            right: externalPadding),
         child: Container(
           // expand cards to fill screen width
           width: double.infinity,
           child: Card(
-                elevation: 10.0,
-                shadowColor: Colors.black,
-                color: Color.fromRGBO(220, 220, 220, 1),
+                elevation: 3,
+                color: Color.fromRGBO(240, 240, 240, 1),
                 margin: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15))
+                    borderRadius: BorderRadius.all(Radius.circular(8))
                 ),
                 // card contents
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Align(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          // space around the header text
-                          padding: EdgeInsets.all(internalPadding),
-                          child: Text(header,
-                              style: GoogleFonts.openSans(
-                                  fontWeight: FontWeight.bold, fontSize: 18)),
-                        )),
-                    Padding(padding: EdgeInsets.all(internalPadding), child: body)
+                    Padding(
+                      // space around the header text
+                      padding: EdgeInsets.all(internalPadding),
+                      child: Text(header,
+                          style: GoogleFonts.openSans(
+                              fontWeight: FontWeight.bold, fontSize: 18)),
+                    ),
+                    Padding(
+                        padding: EdgeInsets.only(left: internalPadding, right: internalPadding, bottom: internalPadding),
+                        child: body
+                    )
                   ],
                 )
             )
@@ -126,10 +128,12 @@ class PlantInfoBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(species.council_declaration);
     return Row(
       children: [
+        // info
         Expanded(
-            flex: 7,
+            flex: 6,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -137,17 +141,28 @@ class PlantInfoBox extends StatelessWidget {
                 HeadingColonBody("Scientific Name: ", species.species),
                 HeadingColonBody("Family: ", species.family),
                 HeadingColonBody("Council Declaration: ", HtmlUnescape().convert(species.council_declaration)), // fixme: doesn't fix the garble. i tried ~james
+                // this doesn't work for some reason
                 //HeadingColonBody("State Declaration: ", species.state_declaration.first),
-                HeadingColonBody("Control Methods: ", species.control_methods[0]),
+                // HeadingColonBody("Control Methods: ", species.control_methods[0]),
                 HeadingColonBody("Environmental Impact: ", ""),
-                SeverityBar(SeverityBar.HIGH)
+                SeverityBar(SeverityBar.MED) // hard-code this for now
               ]
             )
         ),
+        Padding(padding: EdgeInsets.only(left: internalPadding)),
+        // image
         Expanded(
-            flex:
-                3, // this image can use no more than 30% of the parent's width
-            child: Image.network(weed.image_filename!))
+            // make a square that fills 40% of the available width, and crop the image into that square
+            flex: 4,
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: FittedBox(
+                fit: BoxFit.cover,
+                clipBehavior: Clip.hardEdge,
+                child: Image.network(weed.image_filename!)
+              )
+            )
+        )
       ],
     );
   }
@@ -158,19 +173,24 @@ class SeverityBar extends StatelessWidget {
   static const int LOW = 0;
   static const int MED = 1;
   static const int HIGH = 2;
+
   final int severity;
+  final double height = 20;
+
+  final TextStyle bodyStyle = GoogleFonts.openSans(
+      fontSize: 11,
+      color: Colors.black
+  );
 
   SeverityBar(this.severity);
 
   @override
   Widget build(BuildContext context) {
       return Container(
-        height: 30,
+        height: height,
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(
-              color: Colors.black
-            )
+            borderRadius: BorderRadius.circular(height / 2),
+            border: Border.all()
         ),
         child:
           Stack(
@@ -178,42 +198,43 @@ class SeverityBar extends StatelessWidget {
             children: [
               Row(
                 children: [
+                  // filled portion of the bar
                   Expanded(
                     flex: severity == LOW ? 1 : severity == MED ? 5 : 9,
                     child: Container(
-                      height: 30,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(15),
-                              bottomLeft: Radius.circular(15)
+                              topLeft: Radius.circular(height / 2),
+                              bottomLeft: Radius.circular(height / 2)
                           ),
                           color: severity == LOW ? Colors.yellow : severity == MED ? Colors.orange : Colors.red
                       ),
                     )
                   ),
+                  // empty portion of the bar
                   Expanded(
                       flex: severity == LOW ? 9 : severity == MED ? 5 : 1,
                       child: Container(
-                        height: 30,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(15),
-                                bottomRight: Radius.circular(15)),
+                                topRight: Radius.circular(height / 2),
+                                bottomRight: Radius.circular(height / 2)),
                             color: Colors.white
                         ),
                       )
                   ),
                 ],
               ),
+              // low-med-high text
               Padding(
                 padding: EdgeInsets.only(left: 12, right: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text("low"),
-                    Text("med"),
-                    Text("high")
+                    Text("low", style: bodyStyle),
+                    Text("med", style: bodyStyle),
+                    Text("high", style: bodyStyle)
                   ],
                 ),
               )
