@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
@@ -55,10 +56,21 @@ class _CameraState extends State<Camera> {
     if (widget.cameras == null || widget.cameras!.length < 1) {
       print('No camera is found');
     } else {
-      controller = new CameraController(
-        widget.cameras![0],
-        ResolutionPreset.high,
-      );
+      // joe is a fucking idiot I AGREE
+      if (Platform.isAndroid) {
+        // HAMISH: nasty hack to make camera image saving working for android
+        controller = new CameraController(
+          widget.cameras![0],
+          ResolutionPreset.high,
+          imageFormatGroup: ImageFormatGroup.jpeg
+        );
+      } else if (Platform.isIOS) {
+        controller = new CameraController(
+          widget.cameras![0],
+          ResolutionPreset.high,
+        );
+      }
+
       controller!.initialize().then((_) {
         if (!mounted) {
           return;
@@ -101,9 +113,28 @@ class _CameraState extends State<Camera> {
       seenBuffer.clear();
     }
     if (recognitions!.isNotEmpty && _cameraOn && thresholdDetection(recognitions, seenBuffer)) {
+      // todo hack
+      // Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      // Position pos = await determinePosition();
+      // var location = new Location(
+      //     id: ObjectId(),
+      //     name: DateTime.now().toString(),
+      //     lat: pos.latitude,
+      //     long: pos.longitude,
+      //     weeds_present: [],
+      // );
+      // addLocation(location);
+      print("THRESHOLD REACHED, TAING PICTURE!!!!");
+      if (Platform.isAndroid) {
 
-      HapticFeedback.heavyImpact();  // vibrate on detection
-      _pc.open(); // show the slide over widget
+        controller!.;
+      }
+      controller!.takePicture().then((value) {
+        photo = value;
+        _pc.open();
+        HapticFeedback.heavyImpact();
+      });
+      // _pc.open(); // show the slide over widget
       setState(() {
         _cameraOn = false;
         _numResults = 0;
@@ -208,6 +239,7 @@ class _CameraState extends State<Camera> {
         ),
         borderRadius: radius,
         onPanelClosed: () {
+          controller!.startImageStream((image) => null);
           setState(() {
             _cameraOn = true;
             _numResults = 2;
