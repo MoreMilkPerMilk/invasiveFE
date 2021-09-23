@@ -222,7 +222,10 @@ class _CameraState extends State<Camera> {
                   width: double.infinity,
                   height: double.infinity,
                   child: Align(
-                      child: Image(image: AssetImage('assets/frame.png'), width: 250, height: 250)
+                      child: ColorFiltered(
+                          colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.2), BlendMode.dstATop),
+                          child: Image(image: AssetImage('assets/frame.png'), width: 250, height: 250)
+                      )
                   )
               ),
             ]),
