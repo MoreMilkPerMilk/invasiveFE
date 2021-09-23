@@ -8,9 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geopoint/geopoint.dart';
+import 'package:image/image.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
+import 'package:invasive_fe/services/imgConversionService.dart';
 import 'package:invasive_fe/widgets/panel.dart';
 import 'package:objectid/objectid.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -56,20 +58,16 @@ class _CameraState extends State<Camera> {
     if (widget.cameras == null || widget.cameras!.length < 1) {
       print('No camera is found');
     } else {
-      // joe is a fucking idiot I AGREE
+
+      // resolution lowered for android devices
+      var cameraRes = ResolutionPreset.high;
       if (Platform.isAndroid) {
-        // HAMISH: nasty hack to make camera image saving working for android
-        controller = new CameraController(
-          widget.cameras![0],
-          ResolutionPreset.high,
-          imageFormatGroup: ImageFormatGroup.jpeg
-        );
-      } else if (Platform.isIOS) {
-        controller = new CameraController(
-          widget.cameras![0],
-          ResolutionPreset.high,
-        );
+        cameraRes = ResolutionPreset.medium;
       }
+      controller = new CameraController(
+        widget.cameras![0],
+        cameraRes,
+      );
 
       controller!.initialize().then((_) {
         if (!mounted) {
@@ -113,28 +111,26 @@ class _CameraState extends State<Camera> {
       seenBuffer.clear();
     }
     if (recognitions!.isNotEmpty && _cameraOn && thresholdDetection(recognitions, seenBuffer)) {
-      // todo hack
-      // Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      // Position pos = await determinePosition();
-      // var location = new Location(
-      //     id: ObjectId(),
-      //     name: DateTime.now().toString(),
-      //     lat: pos.latitude,
-      //     long: pos.longitude,
-      //     weeds_present: [],
-      // );
-      // addLocation(location);
-      print("THRESHOLD REACHED, TAING PICTURE!!!!");
+
+      // if android we directly convert yuv420 to png (workaround for takePicture())
       if (Platform.isAndroid) {
 
-        controller!.;
+        // convert yuv420 to png
+        convertYUV420toImageColor(img).then((png_img) {
+          XFile photo = XFile.fromData(png_img!.getBytes());
+          // show the slide over widget
+          _pc.open();
+          HapticFeedback.heavyImpact();
+        });
+      } else {
+        controller!.takePicture().then((value) {
+          photo = value;
+          // show the slide over widget
+          _pc.open();
+          HapticFeedback.heavyImpact();
+        });
       }
-      controller!.takePicture().then((value) {
-        photo = value;
-        _pc.open();
-        HapticFeedback.heavyImpact();
-      });
-      // _pc.open(); // show the slide over widget
+
       setState(() {
         _cameraOn = false;
         _numResults = 0;
