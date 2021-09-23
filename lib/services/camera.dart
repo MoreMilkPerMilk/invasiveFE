@@ -30,6 +30,7 @@ const int MAX_LOOK_BACK_TIME = 10000;
 
 class StartTime {
   int val;
+
   StartTime(this.val);
 }
 
@@ -112,8 +113,8 @@ class _CameraState extends State<Camera> {
     }
   }
 
-  void runResnetOnFrame(CameraImage img, int startTime, ListQueue<Tuple2<String, double>> seenBuffer,
-      StartTime timeInterval) async {
+  void runResnetOnFrame(
+      CameraImage img, int startTime, ListQueue<Tuple2<String, double>> seenBuffer, StartTime timeInterval) async {
     var recognitions = await Tflite.runModelOnFrame(
       bytesList: imgAsBytes,
       imageHeight: img.height,
@@ -143,8 +144,7 @@ class _CameraState extends State<Camera> {
               timeInSecForIosWeb: 4,
               backgroundColor: Colors.black12,
               textColor: Colors.white,
-              fontSize: 16.0
-          );
+              fontSize: 16.0);
           break;
         case Status.detected:
 			// if android we directly convert yuv420 to png (workaround for takePicture())
@@ -174,16 +174,11 @@ class _CameraState extends State<Camera> {
       });
 
 
-          Fluttertoast.cancel(); // hide all toasts
-          HapticFeedback.heavyImpact();
-          _pc.open();
           setState(() {
             _cameraOn = false;
             _numResults = 0;
           });
-Fluttertoast.cancel(); // hide all toasts
-          HapticFeedback.heavyImpact();
-          _pc.open();
+          Fluttertoast.cancel(); // hide all toasts
           break;
       }
     }
@@ -214,8 +209,8 @@ Fluttertoast.cancel(); // hide all toasts
     });
   }
 
-  Status thresholdDetection(List<dynamic> recognitions, ListQueue<Tuple2<String, double>> seenBuffer, StartTime
-  startTime) {
+  Status thresholdDetection(
+      List<dynamic> recognitions, ListQueue<Tuple2<String, double>> seenBuffer, StartTime startTime) {
     String label = recognitions[0]["label"]; // assume greatest confidence is first presented
     double conf = recognitions[0]["confidence"];
 
@@ -240,6 +235,11 @@ Fluttertoast.cancel(); // hide all toasts
     // print(seenBuffer);
     // print(setBuffer);
     // print("thresh: $aboveThreshold, same: $sameElement");
+    if ((!sameElement || !notNegative || !aboveThreshold) && (currentTime - startTime.val > MAX_LOOK_BACK_TIME)) {
+      // we have consecutively had negative values -- display toast
+      startTime.val = currentTime;
+      return Status.negativeThreshold;
+    }
     if (aboveThreshold && sameElement && notNegative && minFrames) {
       startTime.val = currentTime;
       foundSpecies = setBuffer.first;
@@ -291,7 +291,8 @@ Fluttertoast.cancel(); // hide all toasts
         controller: _pc,
         minHeight: 0,
         panel: Panel(foundSpecies, photo, _pc),
-        body: Transform.scale( // HAMISH: Fixed the weird scaling issues!
+        body: Transform.scale(
+          // HAMISH: Fixed the weird scaling issues!
           scale: scale,
           child: Center(
             child: Stack(children: [
@@ -302,10 +303,7 @@ Fluttertoast.cancel(); // hide all toasts
                   child: Align(
                       child: ColorFiltered(
                           colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.2), BlendMode.dstATop),
-                          child: Image(image: AssetImage('assets/frame.png'), width: 250, height: 250)
-                      )
-                  )
-              ),
+                          child: Image(image: AssetImage('assets/frame.png'), width: 250, height: 250)))),
             ]),
           ),
         ),
