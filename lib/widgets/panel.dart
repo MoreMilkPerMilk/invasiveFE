@@ -20,23 +20,30 @@ class Panel extends StatefulWidget {
   PanelController _pc;
   XFile photo;
 
-  Panel(this.foundSpecies, this.photo, this._pc);
+  Panel(this.foundSpecies, this.photo, this._pc) {
+    print("init panel with name $foundSpecies");
+  }
 
   @override
-  _PanelState createState() => _PanelState(this.foundSpecies, this._pc, this.photo);
+  _PanelState createState() {
+    print("creating state with name $foundSpecies");
+    // return new _PanelState(this.foundSpecies, this._pc, this.photo);
+    return new _PanelState();
+  }
 }
 
 class _PanelState extends State<Panel> {
-  _PanelState(this.foundSpecies, this._pc, this.photo);
+  // _PanelState(this.foundSpecies, this._pc, this.photo);
 
-  String foundSpecies;
-  PanelController _pc;
-  XFile photo;
+  // String foundSpecies;
+  // PanelController _pc;
+  // XFile photo;
 
   bool _reportButtonDisabled = false;
 
   @override
   Widget build(BuildContext context) {
+    print("building panel with name ${widget.foundSpecies}");
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(30.0),
@@ -47,7 +54,7 @@ class _PanelState extends State<Panel> {
                 text: 'You Found: ',
                 style: TextStyle(fontSize: 30),
                 children: <TextSpan>[
-                  TextSpan(text: '$foundSpecies', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
+                  TextSpan(text: '${widget.foundSpecies}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
                 ],
               ),
             ),
@@ -63,7 +70,7 @@ class _PanelState extends State<Panel> {
                     child: FittedBox(
                       fit: BoxFit.fitWidth,
                       child: Image.file(
-                        File(photo.path),
+                        File(widget.photo.path),
                       ),
                     ),
                   ),
@@ -112,7 +119,7 @@ class _PanelState extends State<Panel> {
                             ),
                             onPressed: () {
                               // Respond to button press
-                              _pc.close();
+                              widget._pc.close();
                             },
                             icon: Icon(Icons.cancel_schedule_send, size: 18),
                             label: Text("CANCEL"),
@@ -127,7 +134,7 @@ class _PanelState extends State<Panel> {
                               primary: Colors.green,
                             ),
                             onPressed: () {
-                              _pc.close();
+                              widget._pc.close();
                             },
                             icon: Icon(Icons.done, size: 18),
                             label: Text("DONE"),

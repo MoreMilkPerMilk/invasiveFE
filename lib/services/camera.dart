@@ -221,6 +221,8 @@ class _CameraState extends State<Camera> {
     var scale = size.aspectRatio * camera.aspectRatio;
     if (scale < 1) scale = 1 / scale;
 
+    print("rebuilding with species: $foundSpecies");
+
     return Container(
       child: SlidingUpPanel(
         backdropEnabled: true,
