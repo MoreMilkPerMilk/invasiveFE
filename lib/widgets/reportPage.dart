@@ -51,7 +51,7 @@ class ReportPage extends StatelessWidget {
                       body: PlantInfoBox(species: species!, weed: weed)),
                   CardWithHeader(
                       header: "Reporting", body: WeedsReportingBox()),
-                  CardWithHeader(header: "RESOURCES", body: ResourcesBox())
+                  //CardWithHeader(header: "RESOURCES", body: ResourcesBox())
                 ]);
               } else {
                 return Align(
@@ -297,6 +297,7 @@ class WeedsReportingBox extends StatelessWidget {
       children: [
         Text("You have reported the location of this invasive species to the authorities, please add any additional information as required.", style: bodyStyle),
         //weedsAroundSlider
+        ReportUpdateForm()
       ],
     );
   }
@@ -387,7 +388,10 @@ class _ReportUpdateFormState extends State {
             children: [
               Expanded(
                   child: Container(
-                      decoration: BoxDecoration(border: Border.all()),
+                      decoration: BoxDecoration(
+                          border: Border.all(),
+                          color: Colors.white
+                      ),
                       child: TextField(
                         decoration: InputDecoration(
                             isDense: true, contentPadding: EdgeInsets.all(6)),
