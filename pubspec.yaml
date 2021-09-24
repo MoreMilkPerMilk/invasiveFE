@@ -31,7 +31,7 @@ dependencies:
   json_annotation: ^4.0.0  # easy conversion between JSON <--> Class
   geojson: ^1.0.0
   geopoint: ^1.0.0
-  uuid:
+  uuid: ^3.0.4
   sliding_up_panel: ^2.0.0+1
   fluttertoast: ^8.0.8
 
@@ -56,6 +56,7 @@ dependencies:
   google_fonts: ^2.1.0
   html_unescape: ^2.0.0
   string_extensions: ^0.3.2
+  file_picker: ^4.1.1
 
 
 dev_dependencies:

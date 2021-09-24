@@ -36,7 +36,7 @@ const API_URL = 'http://invasivesys.uqcloud.net:80';
 
 /// communicate with backend server to HTTP GET all photoLocation instances. // todo: refix this
 Future<List<PhotoLocation>> getAllPhotoLocations() async {
-  final response = await http.get(Uri.parse(API_URL + "/locations"));
+  final response = await http.get(Uri.parse(API_URL + "/photolocations"));
 
   if (response.statusCode == 200) {
     // log(response.body);
@@ -56,7 +56,7 @@ Future<List<PhotoLocation>> getAllPhotoLocations() async {
 /// add location (will merge with pre-existing locations in the DB)
 Future<bool> addPhotoLocation(PhotoLocation photoLocation) async {
   // final response = await http.post(
-  //   Uri.parse(API_URL + "/locations/add"),
+  //   Uri.parse(API_URL + "/photolocations/add"),
   //   headers: <String, String>{
   //     'Content-Type': 'application/json; charset=UTF-8',
   //   },
@@ -89,8 +89,8 @@ Future<bool> addPhotoLocation(PhotoLocation photoLocation) async {
   //final Image photoImage = img.decodeImage(bytes) as Image;
 
   final response = await http.post(
-      Uri.parse(API_URL + "/photoLocations/add?"
-          "photo_location_id=${ObjectId()}&"
+      Uri.parse(API_URL + "/photolocations/add?"
+          "_id=${ObjectId()}&"
           "location=${GeoJsonPoint(geoPoint: photoLocation.location)}&"),
       headers: <String, String>{
         'Content-Type': 'multipart/form-data; boundary="&"',
@@ -110,7 +110,7 @@ Future<bool> addPhotoLocation(PhotoLocation photoLocation) async {
 /// delete location
 Future<bool> deleteLocation(PhotoLocation location) async {
   final response = await http.post(
-    Uri.parse(API_URL + "/locations/delete"),
+    Uri.parse(API_URL + "/photolocations/delete"),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -138,6 +138,7 @@ Future<List<User>> getAllUsers() async {
     // log(response.body);
     // var result = await compute(User.parseUserList, response.body);
     var result = User.parseUserList(response.body);
+    log("result = " + result.toString());
     result.forEach((element) {
       log(element.toString());
     });
@@ -167,13 +168,19 @@ Future<User> getUserById(int personId) async {
 
 /// add User
 Future<bool> addUser(User user) async {
+  log("addUser");
+  log(API_URL + "/users/create");
   final response = await http.post(
     Uri.parse(API_URL + "/users/create"),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
     body: user.toJson(),
-  );
+  ).timeout(const Duration(seconds: 4)); //timeout for testing
+  log("after res");
+
+  log("add user response = " + response.statusCode.toString() + " " + response.body.toString());
+  log("response = " + response.toString());
 
   if (response.statusCode == 200) {
     return true;
@@ -194,20 +201,20 @@ Future<bool> deleteUser(int personId) async {
 }
 
 /// add identification
-Future<bool> addWeedToUser(int personId, WeedInstance weed) async {
-  final response = await http.put(
-    Uri.parse(API_URL + "/users/add_identification?person_id=$personId"),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: weed.toJson(),
-  );
-
-  if (response.statusCode == 200) {
-    return true;
-  }
-  throw "HTTP Error Code: ${response.statusCode}";
-}
+// Future<bool> addWeedToUser(int personId, WeedInstance weed) async {
+//   final response = await http.put(
+//     Uri.parse(API_URL + "/users/add_identification?person_id=$personId"),
+//     headers: <String, String>{
+//       'Content-Type': 'application/json; charset=UTF-8',
+//     },
+//     body: weed.toJson(),
+//   );
+//
+//   if (response.statusCode == 200) {
+//     return true;
+//   }
+//   throw "HTTP Error Code: ${response.statusCode}";
+// }
 
 // --------------------------------
 //  SPECIES
@@ -245,20 +252,27 @@ Future<Species> getSpeciesById(int speciesID) async {
 }
 
 // --------------------------------
+//  Councils
+// --------------------------------
+
+
+// --------------------------------
 //  WEEDS
 // --------------------------------
 
-Future<List<WeedInstance>> getAllWeeds() async {
-  final response = await http.get(Uri.parse(API_URL + "/weeds"));
-  if (response.statusCode == 200) {
-    var result = WeedInstance.parseWeedInstanceList(response.body);
-    result.forEach((element) {
-      log(element.toString());
-    });
-    return result;
-  }
-  throw "HTTP Error Code: ${response.statusCode}";
-}
+//no more weedinstance class can remove
+
+// Future<List<WeedInstance>> getAllWeeds() async {
+//   final response = await http.get(Uri.parse(API_URL + "/weeds"));
+//   if (response.statusCode == 200) {
+//     var result = WeedInstance.parseWeedInstanceList(response.body);
+//     result.forEach((element) {
+//       log(element.toString());
+//     });
+//     return result;
+//   }
+//   throw "HTTP Error Code: ${response.statusCode}";
+// }
 
 // todo: refactor this
 // Future<bool> addWeed(WeedInstance weed) async {
