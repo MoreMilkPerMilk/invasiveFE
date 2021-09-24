@@ -53,11 +53,8 @@ class PhotoLocation {
     return output;
   }
 
-  /// Parse a list of Locations in JSON format todo: refactor this
-  static Future<List<PhotoLocation>> parsePhotoLocationList(String responseBody) async {
-    // ByteData imgBytes = await rootBundle.load('assets/placeholder.png');
-    // Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
-    // XFile xFile = XFile.fromData(imgUint8List);
+  /// Parse a list of councils in JSON format
+  static List<PhotoLocation> parsePhotoLocationList(String responseBody) {
     final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
     return parsed.map<PhotoLocation>((json) => PhotoLocation.fromJson(json)).toList();
   }

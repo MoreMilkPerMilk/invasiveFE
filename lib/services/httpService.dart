@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:developer';
@@ -6,6 +7,9 @@ import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:flutter/cupertino.dart';
 import 'package:geojson/geojson.dart';
 import 'package:http/http.dart' as http;
+import 'package:invasive_fe/models/Community.dart';
+import 'package:invasive_fe/models/Council.dart';
+import 'package:invasive_fe/models/Event.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
@@ -254,7 +258,200 @@ Future<Species> getSpeciesById(int speciesID) async {
 // --------------------------------
 //  Councils
 // --------------------------------
+Future<List<Council>> getAllCouncils() async {
+  final response = await http.get(Uri.parse(API_URL + "/councils"));
 
+  if (response.statusCode == 200) {
+    var result = Council.parseCouncilList(response.body);
+    result.forEach((element) {
+      log(element.toString());
+    });
+    return result;
+  }
+
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+Future<List<Council>> getCouncilById(ObjectId council_id) async {
+  final response = await http.get(Uri.parse(API_URL + "/councils/${council_id.toString()}"));
+
+  if (response.statusCode == 200) {
+    var result = Council.parseCouncilList(response.body);
+    result.forEach((element) {
+      log(element.toString());
+    });
+    return result;
+  }
+
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+Future<List<Council>> searchForCouncilBySearchTerm(String search_term) async {
+  final response = await http.get(Uri.parse(API_URL + "/councils/search?search_term=$search_term"));
+
+  if (response.statusCode == 200) {
+    var result = Council.parseCouncilList(response.body);
+    result.forEach((element) {
+      log(element.toString());
+    });
+    return result;
+  }
+
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+Future<List<Council>> searchForCouncilByLocation(PhotoLocation location) async {
+  final response = await http.post(
+    Uri.parse(API_URL + "/councils/search/location"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: location.toJson(),
+  );
+  if (response.statusCode == 200) {
+    var result = Council.parseCouncilList(response.body);
+    result.forEach((element) {
+      log(element.toString());
+    });
+    return result;
+  }
+
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+Future<List<PhotoLocation>> getCouncilPhotoLocations(ObjectId council_id) async {
+  final response = await http.get(Uri.parse(API_URL + "/councils/photolocations?council_id=${council_id.toString()}"));
+
+  if (response.statusCode == 200) {
+    var result = PhotoLocation.parsePhotoLocationList(response.body);
+    result.forEach((element) {
+      log(element.toString());
+    });
+    return result;
+  }
+
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+// --------------------------------
+//  COMMUNITIES
+// --------------------------------
+/**
+ * Useful as communities can contain complex boundaries,
+ * and pulling all of them will be VERRRRRRRRRY SLOW
+ */
+Future<List<Community>> peekCommmunities() async {
+  final response = await http.get(Uri.parse(API_URL + "/communities/peek"));
+
+  if (response.statusCode == 200) {
+    var result = Community.parseCommunityList(response.body);
+    result.forEach((element) {
+      log(element.toString());
+    });
+    return result;
+  }
+
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+Future<List<Community>> getCommunity(ObjectId community_id) async {
+  final response = await http.get(Uri.parse(API_URL + "/communities/${community_id.toString()}"));
+
+  if (response.statusCode == 200) {
+    var result = Community.parseCommunityList(response.body);
+    result.forEach((element) {
+      log(element.toString());
+    });
+    return result;
+  }
+
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+Future<List<PhotoLocation>> getCommunityLocations(ObjectId community_id) async {
+  final response = await http.get(Uri.parse(API_URL + "/communities/locations/${community_id.toString()}"));
+
+  if (response.statusCode == 200) {
+    var result = PhotoLocation.parsePhotoLocationList(response.body);
+    result.forEach((element) {
+      log(element.toString());
+    });
+    return result;
+  }
+
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+Future<List<Community>> searchForCommunityBySearchTerm(String search_term) async {
+  final response = await http.get(Uri.parse(API_URL + "/communities/search?search_term=$search_term"));
+
+  if (response.statusCode == 200) {
+    var result = Community.parseCommunityList(response.body);
+    result.forEach((element) {
+      log(element.toString());
+    });
+    return result;
+  }
+
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+Future<List<Community>> searchForCommunityByLocation(PhotoLocation photoLocation) async {
+  final response = await http.post(
+    Uri.parse(API_URL + "/communities/search/location"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: photoLocation.toJson(),
+  );
+  if (response.statusCode == 200) {
+    var result = Community.parseCommunityList(response.body);
+    result.forEach((element) {
+      log(element.toString());
+    });
+    return result;
+  }
+
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+Future<Community> addUserToCommunity(ObjectId communityId, User user) async {
+  final response = await http.put(
+    Uri.parse(API_URL + "/communities/users/add?community_id=${communityId.toString()}"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: user.toJson(),
+  );
+
+  if (response.statusCode == 200) {
+    final parsed = jsonDecode(response.body).cast<Map<String, dynamic>>();
+    var result = Community.fromJson(parsed);
+    log(result.toString());
+    return result;
+  }
+
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+Future<Community> addEventToCommunity(ObjectId communityId, Event event) async {
+  final response = await http.put(
+    Uri.parse(API_URL + "/communities/users/add?community_id=${communityId.toString()}"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: event.toJson(),
+  );
+
+  if (response.statusCode == 200) {
+    final parsed = jsonDecode(response.body).cast<Map<String, dynamic>>();
+    var result = Community.fromJson(parsed);
+    log(result.toString());
+    return result;
+  }
+
+  throw "HTTP Error Code: ${response.statusCode}";
+}
 
 // --------------------------------
 //  WEEDS
