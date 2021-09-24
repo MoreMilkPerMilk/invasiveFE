@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:camera/camera.dart';
@@ -10,6 +11,7 @@ import 'package:objectid/objectid.dart';
 import 'package:uuid/uuid.dart';
 import 'package:geojson/geojson.dart';
 import 'package:geopoint/geopoint.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../services/httpService.dart';
 
@@ -32,40 +34,36 @@ class HttpTestPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                log("/Add Location w/o Weeds");
-                String path = 'assets/placeholder.png';
-                ByteData imgBytes = await rootBundle.load(path);
-                print(imgBytes);
-                Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
-                XFile xFile = XFile.fromData(imgUint8List, path: 'assets/placeholder.png'); // fixme: this has no path set...
-                var loc = PhotoLocation(
-                    id: ObjectId(),
-                    photo: xFile,
-                    photoPath: path,
-                    location: GeoPoint(latitude: 4, longitude: 4),
-                    weeds_present: []
-                );
-                addPhotoLocation(loc);
-              },
-              child: Text('/Add Location w/o Weeds'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
+                File file = new File("");
                 log("/Add PhotoLocation");
                 String path = 'assets/placeholder.png';
                 ByteData imgBytes = await rootBundle.load('assets/placeholder.png');
+                print(imgBytes);
                 Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
-                XFile xFile = XFile.fromData(imgUint8List);
+
+                FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+                if (result != null) {
+                  String? path = result.files.single.path;
+
+                  String p = "";
+                  if (path != null) {
+                    p = path;
+                  }
+                  file = File(p);
+                } else {
+                  // User canceled the picker
+                }
+                // XFile xFile = XFile.fromData(imgUint8List, path: 'assets/placeholder.png'); // fixme: this has no path set...
                 var loc = PhotoLocation(
                     id: ObjectId(),
-                    photo: xFile,
-                    photoPath: path,
+                    photo: file,
                     location: GeoPoint(latitude: 4, longitude: 4),
-                    weeds_present: []
+                    image_filename: 'placeholder.png' //BAD
                 );
                 addPhotoLocation(loc);
               },
-              child: Text('/Add Location w/ Weeds'),
+              child: Text('/Add PhotoLocation'),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -76,10 +74,9 @@ class HttpTestPage extends StatelessWidget {
                 XFile xFile = XFile.fromData(imgUint8List);
                 var loc = PhotoLocation(
                     id: ObjectId(),
-                    photo: xFile,
-                    photoPath: path,
+                    photo: new File(""),
                     location: GeoPoint(latitude: 4, longitude: 4),
-                    weeds_present: []
+                    image_filename: 'placeholder.png' //BAD
                 );
                 deleteLocation(loc);
               },
@@ -97,7 +94,7 @@ class HttpTestPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 log("/Add User");
-                var user = User(person_id: 999, first_name: "test user", last_name: "last", date_joined: "1999-01-01", count_identified: 0, previous_tags: []);
+                var user = User(id: ObjectId(), first_name: "test user", last_name: "last", date_joined: "1999-01-01", reports: []);
                 addUser(user);
               },
               child: Text('/Add User'),
@@ -119,6 +116,15 @@ class HttpTestPage extends StatelessWidget {
               child: Text('/Species'),
             ),
             Spacer(),
+            Spacer(),
+            ElevatedButton(
+              onPressed: () {
+                log("/Councils");
+                getAllUsers();
+                // getUserById(1);
+              },
+              child: Text('/Councils'),
+            ),
           ],
         ),
       ),

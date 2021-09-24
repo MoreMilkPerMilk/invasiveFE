@@ -232,10 +232,10 @@ Future<void> sendReportToBackend(PhotoLocationData data) async {
 
   var photoLocation = new PhotoLocation(
     id: ObjectId(),
-    photo: data.photoImage,
-    photoPath: data.photoPath,
+    // photo: data.photoImage,
+    photo: new File(""),
     location: GeoPoint(latitude: data.pos.latitude, longitude: data.pos.longitude),
-    weeds_present: [],
+    image_filename: 'placeholder.png', //BAD
   );
 
   // add report to backend also

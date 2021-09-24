@@ -32,6 +32,7 @@ class _MapsPageState extends State<MapsPage> {
   List<Marker> markers = [];
   bool heatmapMode = false;
   List<bool> isSelected = [true, false];
+  late List<LatLng> _polygon;
 
   /// information that should be refreshed each time maps opens goes here
   @override
@@ -45,6 +46,12 @@ class _MapsPageState extends State<MapsPage> {
       species = Map.fromIterable(speciesList, // convert species list to map for quick id lookup
           key: (e) => e.species_id,
           value: (e) => e));
+
+    _polygon = <LatLng>[
+      LatLng(32.3078, -64.7505),
+      LatLng(25.7617, -80.1918),
+      LatLng(18.4655, -66.1057),
+    ];
     super.initState();
   }
 
@@ -91,7 +98,18 @@ class _MapsPageState extends State<MapsPage> {
                           onPressed: null,
                           child: Text(markers.length.toString()),
                         );},
-                    ),
+                    ),MapPolygonLayer(
+                        polygons: [
+                          MapPolygon(
+                            points: _polygon,
+                            color: Colors.pink[200],
+                            strokeColor: Colors.pink[800],
+                            strokeWidth: 3,
+                          )
+                        ].toSet(),
+                      ),
+                    ],
+
                   ]
               ),
               Padding(
@@ -182,14 +200,14 @@ class WeedMarkerPopup extends StatelessWidget {
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: photoLocation.weeds_present.map((weed) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              if (weed.image_filename != null) Image.network(weed.image_filename!, width: 200), // need to refactor this to use photoLOcation image
-              Text(species[weed.species_id]),
-              Text('${photoLocation.location.latitude}-${photoLocation.location.longitude}'),
-            ],
-          )).toList()
+          // children: photoLocation.weeds_present.map((weed) => Column(
+          //   mainAxisSize: MainAxisSize.min,
+          //   children: <Widget>[
+          //     if (weed.image_filename != null) Image.network(weed.image_filename!, width: 200), // need to refactor this to use photoLOcation image
+          //     Text(species[weed.species_id]),
+          //     Text('${photoLocation.location.latitude}-${photoLocation.location.longitude}'),
+          //   ],
+          // )).toList()
         )
       ),
     );
