@@ -19,15 +19,12 @@ class Panel extends StatefulWidget {
   String foundSpecies;
   PanelController _pc;
   XFile photo;
+  bool negative;
 
-  Panel(this.foundSpecies, this.photo, this._pc) {
-    print("init panel with name $foundSpecies");
-  }
+  Panel(this.foundSpecies, this.photo, this._pc, this.negative);
 
   @override
   _PanelState createState() {
-    print("creating state with name $foundSpecies");
-    // return new _PanelState(this.foundSpecies, this._pc, this.photo);
     return new _PanelState();
   }
 }
@@ -43,7 +40,64 @@ class _PanelState extends State<Panel> {
 
   @override
   Widget build(BuildContext context) {
-    print("building panel with name ${widget.foundSpecies}");
+    if (widget.negative) {
+      return Center(
+          child: Padding(
+              padding: const EdgeInsets.all(30.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Text("If you are trying to report an invasive plant, it is not being detected. Would you like to "
+                  //     "report it manually?"),
+                  Text.rich(
+                    TextSpan(
+                      text: "Cannot Detect Invasive Species!\n",
+                      style: TextStyle(fontSize: 23),
+                    ),
+                  ),
+                  Text.rich(TextSpan(
+                    text: "If you are trying to report an invasive plant, it is not being detected. Would you like to "
+                        "report it manually?",
+                    style: TextStyle(fontSize: 15),
+                  )),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: OutlinedButton.icon(
+                              style: TextButton.styleFrom(
+                                primary: Colors.red,
+                              ),
+                              onPressed: () {
+                                // Respond to button press
+                                widget._pc.close();
+                              },
+                              icon: Icon(Icons.cancel_outlined, size: 18),
+                              label: Text("CANCEL"),
+                            )),
+                      ),
+                      Expanded(
+                        child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: OutlinedButton.icon(
+                              style: TextButton.styleFrom(
+                                primary: Colors.green,
+                              ),
+                              onPressed: () {
+                                // Respond to button press
+                                // widget._pc.close();
+                              },
+                              icon: Icon(Icons.arrow_forward_rounded, size: 18),
+                              label: Text("CONTINUE"),
+                            )),
+                      ),
+                    ],
+                  ),
+                ],
+              )));
+    }
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(30.0),
@@ -84,15 +138,14 @@ class _PanelState extends State<Panel> {
                     children: [
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              // Respond to button press
-                            },
-                            icon: Icon(Icons.my_library_add_rounded, size: 18),
-                            label: Text("ADD DETAILS"),
-                          )
-                        ),
+                            padding: const EdgeInsets.all(8.0),
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                // Respond to button press
+                              },
+                              icon: Icon(Icons.my_library_add_rounded, size: 18),
+                              label: Text("ADD DETAILS"),
+                            )),
                       ),
                       Expanded(
                         child: Padding(
@@ -103,8 +156,7 @@ class _PanelState extends State<Panel> {
                               },
                               icon: Icon(Icons.info_outline, size: 18),
                               label: Text("MORE INFO"),
-                            )
-                        ),
+                            )),
                       ),
                     ],
                   ),
@@ -112,34 +164,32 @@ class _PanelState extends State<Panel> {
                     children: [
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: OutlinedButton.icon(
-                            style: TextButton.styleFrom(
-                              primary: Colors.red,
-                            ),
-                            onPressed: () {
-                              // Respond to button press
-                              widget._pc.close();
-                            },
-                            icon: Icon(Icons.cancel_schedule_send, size: 18),
-                            label: Text("CANCEL"),
-                          )
-                        ),
+                            padding: const EdgeInsets.all(8.0),
+                            child: OutlinedButton.icon(
+                              style: TextButton.styleFrom(
+                                primary: Colors.red,
+                              ),
+                              onPressed: () {
+                                // Respond to button press
+                                widget._pc.close();
+                              },
+                              icon: Icon(Icons.cancel_schedule_send, size: 18),
+                              label: Text("CANCEL"),
+                            )),
                       ),
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: OutlinedButton.icon(
-                            style: TextButton.styleFrom(
-                              primary: Colors.green,
-                            ),
-                            onPressed: () {
-                              widget._pc.close();
-                            },
-                            icon: Icon(Icons.done, size: 18),
-                            label: Text("DONE"),
-                          )
-                        ),
+                            padding: const EdgeInsets.all(8.0),
+                            child: OutlinedButton.icon(
+                              style: TextButton.styleFrom(
+                                primary: Colors.green,
+                              ),
+                              onPressed: () {
+                                widget._pc.close();
+                              },
+                              icon: Icon(Icons.done, size: 18),
+                              label: Text("DONE"),
+                            )),
                       ),
                     ],
                   ),

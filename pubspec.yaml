@@ -66,11 +66,17 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  fonts:
+    - family: mono
+      fonts:
+        - asset: fonts/mono_bold.ttf
+        - asset: fonts/mono_boldital.ttf
+          style: italic
 
   assets:
     - assets/resnet.tflite
