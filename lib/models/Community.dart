@@ -73,9 +73,11 @@ class Community {
         name: json['name'],
         events: events,
         members: members,
-        boundary: MultiPolygon.fromJson(json['boundary']),
-        suburbs: json['suburbs'],
-        councils: json['councils']
+        boundary: json['boundary'] == null ?
+            MultiPolygon(polygons: [], name: "polygon") :
+                MultiPolygon.fromJson(json['boundary']),
+        suburbs: (json['suburbs'].runtimeType.toString() == "List<String>") ? ([...json['suburbs']]) : ([json['suburbs']].cast<String>()),
+        councils: (json['councils'].runtimeType.toString() == "List<String>") ? ([...json['councils']]) : ([json['councils']].cast<String>()),
     );
   }
 
@@ -103,6 +105,7 @@ class Community {
 
   /// Parse a list of communities in JSON format
   static List<Community> parseCommunityList(String responseBody) {
+    log(responseBody);
     final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
     return parsed.map<Community>((json) => Community.fromJson(json)).toList();
   }

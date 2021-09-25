@@ -13,22 +13,27 @@ class MultiPolygon extends GeoJsonMultiPolygon {
       super(polygons: polygons, name: name);
 
   factory MultiPolygon.fromJson(Map<String, dynamic> json) {
-    List<List<List<double>>> coordinates = [];
+    List<List<List<List<double>>>> coordinates = [];
 
-    coordinates = List<List<List<double>>>.from(json["coordinates"].map(
-            (x) => List<List<double>>.from(
-            x.map((x) => List<double>.from(x.map((x) => x.toDouble()))))));
+    log("coords");
+    log("coords = " + json['coordinates'].toString());
+    coordinates = List<List<List<List<double>>>>.from(json["coordinates"].map(
+            (x) => List<List<List<double>>>.from(
+            x.map((x) => List<List<double>>.from(
+                x.map((x) => List<double>.from(x.map((x) => x.toDouble()))))))));
 
     //construct MuliPolygon from coordinates
     List<GeoJsonPolygon> polygons = [];
-    coordinates.forEach((element) {
-      GeoSerie geoSerie = new GeoSerie(name: "MultiPolygon GeoSeries", type: GeoSerieType.polygon,
-          geoPoints: List<GeoPoint>.from(element.map(
-              (x) => GeoPoint(latitude: x.first, longitude: x.last)
-          )));
+    coordinates.forEach((coordinatesPolygon) {
+      coordinatesPolygon.forEach((element) {
+        GeoSerie geoSerie = new GeoSerie(name: "MultiPolygon GeoSeries", type: GeoSerieType.polygon,
+            geoPoints: List<GeoPoint>.from(element.map(
+                    (x) => GeoPoint(latitude: x.first, longitude: x.last)
+            )));
 
-      List<GeoSerie> geoSeries = [geoSerie];
-      polygons.add(new GeoJsonPolygon(geoSeries: geoSeries));
+        List<GeoSerie> geoSeries = [geoSerie];
+        polygons.add(new GeoJsonPolygon(geoSeries: geoSeries));
+      });
     });
 
     log(polygons.toString());

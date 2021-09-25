@@ -95,7 +95,7 @@ Future<bool> addPhotoLocation(PhotoLocation photoLocation) async {
   final response = await http.post(
       Uri.parse(API_URL + "/photolocations/add?"
           "_id=${ObjectId()}&"
-          "location=${GeoJsonPoint(geoPoint: photoLocation.location)}&"),
+          "location=${photoLocation.toString()}&"),
       headers: <String, String>{
         'Content-Type': 'multipart/form-data; boundary="&"',
       },
@@ -141,6 +141,7 @@ Future<List<User>> getAllUsers() async {
   if (response.statusCode == 200) {
     // log(response.body);
     // var result = await compute(User.parseUserList, response.body);
+    log("response body = " + response.body);
     var result = User.parseUserList(response.body);
     log("result = " + result.toString());
     result.forEach((element) {
@@ -259,7 +260,7 @@ Future<Species> getSpeciesById(int speciesID) async {
 //  Councils
 // --------------------------------
 Future<List<Council>> getAllCouncils() async {
-  final response = await http.get(Uri.parse(API_URL + "/councils"));
+  final response = await http.get(Uri.parse(API_URL + "/councils/peek"));
 
   if (response.statusCode == 200) {
     var result = Council.parseCouncilList(response.body);
@@ -272,7 +273,7 @@ Future<List<Council>> getAllCouncils() async {
   throw "HTTP Error Code: ${response.statusCode}";
 }
 
-Future<List<Council>> getCouncilById(ObjectId council_id) async {
+Future<Council> getCouncilById(ObjectId council_id) async {
   final response = await http.get(Uri.parse(API_URL + "/councils/${council_id.toString()}"));
 
   if (response.statusCode == 200) {
@@ -280,7 +281,7 @@ Future<List<Council>> getCouncilById(ObjectId council_id) async {
     result.forEach((element) {
       log(element.toString());
     });
-    return result;
+    return result.first;
   }
 
   throw "HTTP Error Code: ${response.statusCode}";
@@ -288,12 +289,14 @@ Future<List<Council>> getCouncilById(ObjectId council_id) async {
 
 Future<List<Council>> searchForCouncilBySearchTerm(String search_term) async {
   final response = await http.get(Uri.parse(API_URL + "/councils/search?search_term=$search_term"));
-
+  log(API_URL + "/councils/search?search_term=$search_term");
   if (response.statusCode == 200) {
+    log(response.body.toString());
     var result = Council.parseCouncilList(response.body);
     result.forEach((element) {
       log(element.toString());
     });
+
     return result;
   }
 
@@ -315,6 +318,11 @@ Future<List<Council>> searchForCouncilByLocation(PhotoLocation location) async {
     });
     return result;
   }
+  log(response.body.toString());
+  log(location.location.geoPoint.toString());
+  log(location.location.geoPoint.toGeoJsonFeatureString());
+
+  log(location.toJson());
 
   throw "HTTP Error Code: ${response.statusCode}";
 }
@@ -354,14 +362,14 @@ Future<List<Community>> peekCommmunities() async {
   throw "HTTP Error Code: ${response.statusCode}";
 }
 
-Future<List<Community>> getCommunity(ObjectId community_id) async {
+Future<Community> getCommunity(ObjectId community_id) async {
   final response = await http.get(Uri.parse(API_URL + "/communities/${community_id.toString()}"));
 
   if (response.statusCode == 200) {
-    var result = Community.parseCommunityList(response.body);
-    result.forEach((element) {
-      log(element.toString());
-    });
+    // final parsed = jsonDecode(response.body).cast<Map<String, dynamic>>();
+    final parsed = jsonDecode(response.body);
+    var result = Community.fromJson(parsed);
+    log(result.toString());
     return result;
   }
 
@@ -369,8 +377,9 @@ Future<List<Community>> getCommunity(ObjectId community_id) async {
 }
 
 Future<List<PhotoLocation>> getCommunityLocations(ObjectId community_id) async {
-  final response = await http.get(Uri.parse(API_URL + "/communities/locations/${community_id.toString()}"));
+  final response = await http.get(Uri.parse(API_URL + "/communities/locations?community_id=${community_id.toString()}"));
 
+  log("url = " + API_URL + "/communities/locations/?community_id=${community_id.toString()}");
   if (response.statusCode == 200) {
     var result = PhotoLocation.parsePhotoLocationList(response.body);
     result.forEach((element) {
@@ -378,6 +387,8 @@ Future<List<PhotoLocation>> getCommunityLocations(ObjectId community_id) async {
     });
     return result;
   }
+
+  log(response.body.toString());
 
   throw "HTTP Error Code: ${response.statusCode}";
 }

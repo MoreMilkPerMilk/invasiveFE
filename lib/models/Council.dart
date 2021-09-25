@@ -45,14 +45,16 @@ class Council {
   }
 
   factory Council.fromJson(Map<String, dynamic> json) {
-    log(json.toString());
+    // log(json.toString());
 
     return Council(
         id: ObjectId.fromHexString(json['_id']),
         name: json['name'],
-        boundary: MultiPolygon.fromJson(json['boundary']),
-        species_occuring: json['species_occuring'],
-        lga_code: int.parse(json['lga_code']),
+        boundary: json['boundary'] == null ?
+                      MultiPolygon(polygons: [], name: "polygon") :
+                            MultiPolygon.fromJson(json['boundary']),
+        species_occuring: (json['species_occuring'].runtimeType.toString() == "List<String>") ? ([...json['species_occuring']]) : ([json['species_occuring']].cast<String>()),
+        lga_code: json['lga_code'],
         abbreviated_name: json['abbreviated_name'],
         area_sqkm: json['area_sqkm']
     );
