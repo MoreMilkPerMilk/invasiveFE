@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:geojson/geojson.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geopoint/geopoint.dart';
 import 'package:image/image.dart' as img;
@@ -234,7 +235,7 @@ Future<void> sendReportToBackend(PhotoLocationData data) async {
     id: ObjectId(),
     // photo: data.photoImage,
     photo: new File(""),
-    location: GeoPoint(latitude: data.pos.latitude, longitude: data.pos.longitude),
+    location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: data.pos.latitude, longitude: data.pos.longitude)),
     image_filename: 'placeholder.png', //BAD
   );
 

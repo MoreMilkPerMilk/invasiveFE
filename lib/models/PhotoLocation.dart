@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:developer';
 import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,7 +13,7 @@ class PhotoLocation {
   ObjectId id;
   File photo; //for app use
   String image_filename; //from db to load as XFile photo
-  GeoPoint location;
+  GeoJsonPoint location;
 
   PhotoLocation({
     required this.id,
@@ -23,10 +24,10 @@ class PhotoLocation {
 
 
   String toJson() { // may be redundant with api call structure
-
     return jsonEncode(<String, dynamic>{
       '_id': id.toString(),
-      'point': GeoJsonPoint(geoPoint: location),
+      // 'point': '{"type":"Point","coordinates":' + location.geoPoint.toGeoJsonCoordinatesString() + '}',
+      'point': {"type":"Point", "coordinates": [location.geoPoint.latitude, location.geoPoint.longitude]},
       'image_filename': image_filename
     });
   }
@@ -35,6 +36,8 @@ class PhotoLocation {
     // ByteData imgBytes = rootBundle.load(json['image_filename']) as ByteData;
     // Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
     // XFile xFile = XFile.fromData(imgUint8List);
+    log("photolocation fromJson "   + json.toString());
+    log(json['_id'].toString());
     return PhotoLocation(
       id: ObjectId.fromHexString(json['_id']),
       // photo: new XFile("assets/placeholder.png"),

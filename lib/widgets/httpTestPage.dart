@@ -58,7 +58,7 @@ class HttpTestPage extends StatelessWidget {
                 var loc = PhotoLocation(
                     id: ObjectId(),
                     photo: file,
-                    location: GeoPoint(latitude: 4, longitude: 4),
+                    location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: 4, longitude: 4)),
                     image_filename: 'placeholder.png' //BAD
                 );
                 addPhotoLocation(loc);
@@ -75,7 +75,7 @@ class HttpTestPage extends StatelessWidget {
                 var loc = PhotoLocation(
                     id: ObjectId(),
                     photo: new File(""),
-                    location: GeoPoint(latitude: 4, longitude: 4),
+                    location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: 4, longitude: 4)),
                     image_filename: 'placeholder.png' //BAD
                 );
                 deleteLocation(loc);
@@ -116,15 +116,71 @@ class HttpTestPage extends StatelessWidget {
               child: Text('/Species'),
             ),
             Spacer(),
+            ElevatedButton(
+              onPressed: () {
+                log("/councils/peek");
+                getAllCouncils();
+                // getUserById(1);
+              },
+              child: Text('/councils/peek'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                log("/councils/613ef4c84ed77d2294042db6");
+                getCouncilById(ObjectId.fromHexString("613ef4c84ed77d2294042db6"));
+                // getUserById(1);
+              },
+              child: Text('/councils/bundaberg'),
+            ),
+            TextField(
+              decoration: const InputDecoration(
+                  hintText: 'Search for a council by name',
+                  labelText: 'Council search'
+              ),
+              onSubmitted: (String? value) {
+                print("field has value " + value.toString());
+                log("SAVEDDDD");
+                String search_term = "";
+                if (value != null) {
+                  search_term = value;
+                }
+                log("SAVED");
+                searchForCouncilBySearchTerm(search_term);
+              },
+            ),
+            ElevatedButton(
+              onPressed: () {
+                log("/councils/search/location");
+                searchForCouncilByLocation(new PhotoLocation(id: ObjectId(), photo: File(""), image_filename: "", location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: 27.4975, longitude: 153.0137))));
+              },
+              child: Text('/councils/search/location (using uni lat long)'),
+            ),
             Spacer(),
             ElevatedButton(
               onPressed: () {
-                log("/Councils");
-                getAllUsers();
+                log("/communities/peek");
+                peekCommmunities();
                 // getUserById(1);
               },
-              child: Text('/Councils'),
+              child: Text('/communities/peek'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                log("/communities/weedwackers");
+                getCommunity(ObjectId.fromHexString("612ef1285412b4a4e946adff"));
+                // getUserById(1);
+              },
+              child: Text('/communities/weedwackers'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                log("/communities/locations/weedwackers");
+                getCommunityLocations(ObjectId.fromHexString("612ef1285412b4a4e946adff"));
+                // getUserById(1);
+              },
+              child: Text('/communities/locations/weedwackers'),
+            ),
+
           ],
         ),
       ),

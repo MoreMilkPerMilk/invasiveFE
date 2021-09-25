@@ -98,18 +98,7 @@ class _MapsPageState extends State<MapsPage> {
                           onPressed: null,
                           child: Text(markers.length.toString()),
                         );},
-                    ),MapPolygonLayer(
-                        polygons: [
-                          MapPolygon(
-                            points: _polygon,
-                            color: Colors.pink[200],
-                            strokeColor: Colors.pink[800],
-                            strokeWidth: 3,
-                          )
-                        ].toSet(),
-                      ),
-                    ],
-
+                    ),
                   ]
               ),
               Padding(
@@ -164,7 +153,7 @@ class WeedMarker extends Marker {
     anchorPos: AnchorPos.align(AnchorAlign.center),
     height: heatmap ? markerSize * 2 : markerSize,
     width: heatmap ? markerSize * 2 : markerSize,
-    point: LatLng(photoLocation.location.latitude, photoLocation.location.longitude),
+    point: LatLng(photoLocation.location.geoPoint.latitude, photoLocation.location.geoPoint.longitude),
     builder: heatmap ?
         (BuildContext ctx) => Container(
           decoration: BoxDecoration(
