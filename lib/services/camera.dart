@@ -63,9 +63,12 @@ class _CameraState extends State<Camera> {
   CameraController? controller;
   bool isDetecting = false;
   bool _cameraOn = true;
-  int _numResults = 2;
+  int _numResults = 1;
   PanelController _pc = new PanelController();
   String foundSpecies = "None";
+
+  int repeatedNegativeCount = 0;
+  bool repeatedNegative = false;
 
   @override
   void initState() {
@@ -142,15 +145,20 @@ class _CameraState extends State<Camera> {
           // Fluttertoast.cancel(); // hide all toasts
           break;
         case Status.negativeThreshold:
-          // show toast!
-          Fluttertoast.showToast(
-              msg: "Hold the camera 30 cm away from the plant",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.CENTER,
-              timeInSecForIosWeb: 4,
-              backgroundColor: Colors.black12,
-              textColor: Colors.white,
-              fontSize: 16.0);
+          if (repeatedNegativeCount == 2) {
+            repeatedNegative = true;
+            _pc.open();
+            stopTfliteDetection();
+          } else {
+            Fluttertoast.showToast(
+                msg: "Hold the camera 30 cm away from the plant",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+                timeInSecForIosWeb: 4,
+                backgroundColor: Colors.black12,
+                textColor: Colors.white,
+                fontSize: 16.0);
+          }
           break;
         case Status.detected:
           // if android we directly convert yuv420 to png (workaround for takePicture())
@@ -179,10 +187,7 @@ class _CameraState extends State<Camera> {
             });
           }
 
-          setState(() {
-            _cameraOn = false;
-            _numResults = 0;
-          });
+          stopTfliteDetection();
           Fluttertoast.cancel(); // hide all toasts
           break;
       }
@@ -190,6 +195,21 @@ class _CameraState extends State<Camera> {
 
     widget.setRecognitions(recognitions, img.height, img.width);
     isDetecting = false;
+  }
+
+  void startTfliteDetection() {
+    setState(() {
+      _cameraOn = true;
+      _numResults = 1;
+      // photo = new XFile.fromData(new Uint8List(1));
+    });
+  }
+
+  void stopTfliteDetection() {
+    setState(() {
+      _cameraOn = false;
+      _numResults = 0;
+    });
   }
 
   void runYoloOnFrame(CameraImage img, int startTime) {
@@ -248,6 +268,7 @@ class _CameraState extends State<Camera> {
         (currentTime - startTime.val > MAX_LOOK_BACK_TIME)) {
       // we have consecutively had negative values -- display toast
       startTime.val = currentTime;
+      repeatedNegativeCount++;
       return Status.negativeThreshold;
     }
     if (aboveThreshold && sameElement && notNegative && minFrames) {
@@ -293,16 +314,15 @@ class _CameraState extends State<Camera> {
     var scale = size.aspectRatio * camera.aspectRatio;
     if (scale < 1) scale = 1 / scale;
 
-    print("rebuilding with species: $foundSpecies");
 
     return Container(
       child: SlidingUpPanel(
         backdropEnabled: true,
         controller: _pc,
         minHeight: 0,
-        panel: Panel(foundSpecies, photo, _pc),
-        body: Transform.scale(
-          // HAMISH: Fixed the weird scaling issues!
+        maxHeight: repeatedNegative == false ? 500 : 300,
+        panel: Panel(foundSpecies, photo, _pc, repeatedNegative),
+        body: Transform.scale( // HAMISH: Fixed the weird scaling issues!
           scale: scale,
           child: Center(
             child: Stack(children: [
@@ -324,11 +344,9 @@ class _CameraState extends State<Camera> {
         borderRadius: radius,
         onPanelClosed: () {
           Fluttertoast.cancel(); // hide all toasts
-          setState(() {
-            _cameraOn = true;
-            _numResults = 2;
-            // photo = new XFile.fromData(new Uint8List(1));
-          });
+          repeatedNegativeCount = 0;
+          repeatedNegative = false;
+          startTfliteDetection();
         },
       ),
     );
