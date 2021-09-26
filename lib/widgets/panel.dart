@@ -157,7 +157,7 @@ class _PanelState extends State<Panel> {
       _reportButtonDisabled = true;
     });
     var pos = await determinePosition();
-    compute(sendReportToBackend, PhotoLocationData(pos, photo, foundSpecies));
+    compute(sendReportToBackend, PhotoLocationData(pos, widget.photo, widget.foundSpecies));
   }
 }
 
