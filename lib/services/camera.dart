@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geopoint/geopoint.dart';
-import 'package:image/image.dart';
+import 'package:image/image.dart' as img;
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
