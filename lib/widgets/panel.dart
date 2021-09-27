@@ -131,7 +131,7 @@ class _PanelState extends State<Panel> {
                     child: FittedBox(
                       fit: BoxFit.fitWidth,
                       child: Image.file(
-                        File(widget.photo.path),
+                        File(widget.photoPath),
                       ),
                     ),
                   ),
