@@ -12,12 +12,14 @@ import 'WeedInstance.dart';
 class PhotoLocation {
   ObjectId id;
   XFile photo;
+  String photoPath;
   GeoPoint location;
   List<WeedInstance> weeds_present;
 
   PhotoLocation({
     required this.id,
     required this.photo,
+    required this.photoPath,
     required this.location,
     required this.weeds_present
   });
@@ -40,6 +42,7 @@ class PhotoLocation {
     return PhotoLocation(
       id: ObjectId.fromHexString(json['_id']),
       photo: photo,
+      photoPath: json['photoPath'],
       location: json['location'],
       weeds_present: weeds_present,
     );
