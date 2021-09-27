@@ -33,13 +33,15 @@ class HttpTestPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 log("/Add Location w/o Weeds");
-                ByteData imgBytes = await rootBundle.load('assets/placeholder.png');
+                String path = 'assets/placeholder.png';
+                ByteData imgBytes = await rootBundle.load(path);
                 print(imgBytes);
                 Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
                 XFile xFile = XFile.fromData(imgUint8List, path: 'assets/placeholder.png'); // fixme: this has no path set...
                 var loc = PhotoLocation(
                     id: ObjectId(),
                     photo: xFile,
+                    photoPath: path,
                     location: GeoPoint(latitude: 4, longitude: 4),
                     weeds_present: []
                 );
@@ -50,12 +52,14 @@ class HttpTestPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 log("/Add PhotoLocation");
+                String path = 'assets/placeholder.png';
                 ByteData imgBytes = await rootBundle.load('assets/placeholder.png');
                 Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
                 XFile xFile = XFile.fromData(imgUint8List);
                 var loc = PhotoLocation(
                     id: ObjectId(),
                     photo: xFile,
+                    photoPath: path,
                     location: GeoPoint(latitude: 4, longitude: 4),
                     weeds_present: []
                 );
@@ -66,12 +70,14 @@ class HttpTestPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 log("/Delete Location");
+                String path = 'assets/placeholder.png';
                 ByteData imgBytes = await rootBundle.load('assets/placeholder.png');
                 Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
                 XFile xFile = XFile.fromData(imgUint8List);
                 var loc = PhotoLocation(
                     id: ObjectId(),
                     photo: xFile,
+                    photoPath: path,
                     location: GeoPoint(latitude: 4, longitude: 4),
                     weeds_present: []
                 );

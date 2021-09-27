@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
@@ -19,9 +20,10 @@ class Panel extends StatefulWidget {
   String foundSpecies;
   PanelController _pc;
   XFile photo;
+  String photoPath;
   bool negative;
 
-  Panel(this.foundSpecies, this.photo, this._pc, this.negative);
+  Panel(this.foundSpecies, this.photo, this.photoPath, this._pc, this.negative);
 
   @override
   _PanelState createState() {
@@ -34,12 +36,17 @@ class _PanelState extends State<Panel> {
 
   // String foundSpecies;
   // PanelController _pc;
-  // XFile photo;
+
 
   bool _reportButtonDisabled = false;
 
   @override
   Widget build(BuildContext context) {
+    // XFile testPhoto = XFile(widget.photoPath);
+    // photo.readAsBytes().then((value){
+    //   imgBytes = value;
+    // });
+    // Image img = Image.memory(imgBytes);
     if (widget.negative) {
       return Center(
           child: Padding(
@@ -185,6 +192,7 @@ class _PanelState extends State<Panel> {
                                 primary: Colors.green,
                               ),
                               onPressed: () {
+                                report();
                                 widget._pc.close();
                               },
                               icon: Icon(Icons.done, size: 18),
@@ -202,12 +210,12 @@ class _PanelState extends State<Panel> {
     );
   }
 
-  Future<void> callback() async {
+  Future<void> report() async {
     setState(() {
       _reportButtonDisabled = true;
     });
     var pos = await determinePosition();
-    compute(sendReportToBackend, PhotoLocationData(pos, widget.photo, widget.foundSpecies));
+    compute(sendReportToBackend, PhotoLocationData(pos, widget.photo, widget.photoPath, widget.foundSpecies));
   }
 }
 
@@ -215,8 +223,9 @@ class PhotoLocationData{
   // Helper class to pass multiple parameters to compute
   final Position pos;
   final XFile photoImage;
+  final String photoPath;
   final String speciesName;
-  PhotoLocationData(this.pos, this.photoImage, this.speciesName);
+  PhotoLocationData(this.pos, this.photoImage, this.photoPath, this.speciesName);
 }
 
 Future<void> sendReportToBackend(PhotoLocationData data) async {
@@ -224,6 +233,7 @@ Future<void> sendReportToBackend(PhotoLocationData data) async {
   var photoLocation = new PhotoLocation(
     id: ObjectId(),
     photo: data.photoImage,
+    photoPath: data.photoPath,
     location: GeoPoint(latitude: data.pos.latitude, longitude: data.pos.longitude),
     weeds_present: [],
   );

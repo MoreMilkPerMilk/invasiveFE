@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'dart:developer';
+import 'package:camera/camera.dart';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:flutter/cupertino.dart';
 import 'package:geojson/geojson.dart';
@@ -10,6 +11,7 @@ import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:objectid/objectid.dart';
+import 'package:path_provider/path_provider.dart';
 
 const API_URL = 'http://invasivesys.uqcloud.net:80';
 
@@ -61,15 +63,30 @@ Future<bool> addPhotoLocation(PhotoLocation photoLocation) async {
   //   body: location.toJson(),
   // );
 
-  // String image = photoLocation.photo == null ? "" : photoLocation.photo!;
-  // ByteData bytes = await rootBundle.load(image); // fixme: incomplete
-  print(photoLocation.photo);
+  String photoPath = photoLocation.photoPath == null ? "" : photoLocation.photoPath;
+  //ByteData bytes = await rootBundle.load(photoPath); // fixme: incomplete
+  XFile photoFile = XFile(photoPath);
+  // Image boy = Image.file(
+  //   File(photoPath),
+  // );
+  // print("Bytes");
+  // print(bytes);
+  // var boits = bytes.getUint8(0);
+  print(photoFile);
+  print(photoFile.path);
   print("PATH");
-  print(photoLocation.photo.path); // fixme: appears to be null path?
+  // Directory tempDir = await getTemporaryDirectory();
+  // String tempPath = tempDir.path;
+  //photoLocation.photo.path = tempPath;
+  //print(photoLocation.photo.readAsString());
+  //print(photoLocation.photo.path); // fixme: appears to be null path?
   // convert Xfile photo to Image
-  final imageBytes = await File(photoLocation.photo.path).readAsBytes();
-  //final Image photoImage = img.decodeImage(bytes) as Image;
+  //final imageBytes = await File(photoLocation.photo.path).readAsBytes();
+  //photoLocation.photo.saveTo(tempPath);
 
+  final imageBytes = await photoFile.readAsBytes();
+  print("Successfully converted image to bytes...");
+  //final Image photoImage = img.decodeImage(bytes) as Image;
 
   final response = await http.post(
       Uri.parse(API_URL + "/photoLocations/add?"
@@ -82,7 +99,7 @@ Future<bool> addPhotoLocation(PhotoLocation photoLocation) async {
   );
 
   print(response.body);
-  print(photoLocation.toJson());
+  //print(photoLocation.toJson());
 
   if (response.statusCode == 200) {
     return true;

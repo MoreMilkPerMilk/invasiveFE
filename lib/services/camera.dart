@@ -17,6 +17,7 @@ import 'package:invasive_fe/services/httpService.dart';
 import 'package:invasive_fe/services/imgConversionService.dart';
 import 'package:invasive_fe/widgets/panel.dart';
 import 'package:objectid/objectid.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:tflite/tflite.dart';
 import 'package:tuple/tuple.dart';
@@ -26,6 +27,7 @@ import 'models.dart';
 const int MAX_LOOK_BACK_SIZE = 5;
 const double MIN_CONFIDENCE_VAL = 0.90;
 XFile photo = new XFile.fromData(new Uint8List(1));
+String photoPath = "";
 
 const int MAX_LOOK_BACK_TIME = 10000;
 
@@ -164,29 +166,35 @@ class _CameraState extends State<Camera> {
           // if android we directly convert yuv420 to png (workaround for takePicture())
           if (Platform.isAndroid) {
             // convert yuv420 to png
-            convertYUV420toImageColor(img).then((png_img) {
-              XFile photo = XFile.fromData(png_img!.getBytes());
-              // show the slide over widget
-              _pc.open();
-              HapticFeedback.heavyImpact();
+            convertYUV420toImageColor(img).then((png_img) async {
+
+              Directory tempDir = await getTemporaryDirectory();
+              String img_path = '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}';
+              // Uint8List bytes = img.planes.map((plane) {
+              //   return plane.bytes;
+              // }) as Uint8List;
+              // photo = XFile.fromData(bytes);
+              photo = XFile.fromData(png_img!.getBytes());
+              photoPath = img_path;
+              photo.saveTo(img_path);
+              print("PHOTO PATH FUCK");
+              print(photo.path);
+
             });
+            // controller!.takePicture().then((value) {
+            //   photo = value;
+            // });
           } else {
             // show the slide over widget
             controller!.takePicture().then((value) {
-              // photo = value;
-              // setState(() {
-              //   photo = value;
-              //   // show the slide over widget
-              //   _pc.open();
-              //   HapticFeedback.heavyImpact();
-              // });
               photo = value;
-              print(photo.name);
-              _pc.open();
-              HapticFeedback.heavyImpact();
             });
           }
 
+          // show the slide over widget
+          print(photo.path);
+          _pc.open();
+          HapticFeedback.heavyImpact();
           stopTfliteDetection();
           Fluttertoast.cancel(); // hide all toasts
           break;
@@ -321,7 +329,7 @@ class _CameraState extends State<Camera> {
         controller: _pc,
         minHeight: 0,
         maxHeight: repeatedNegative == false ? 500 : 300,
-        panel: Panel(foundSpecies, photo, _pc, repeatedNegative),
+        panel: Panel(foundSpecies, photo, photoPath, _pc, repeatedNegative),
         body: Transform.scale( // HAMISH: Fixed the weird scaling issues!
           scale: scale,
           child: Center(
