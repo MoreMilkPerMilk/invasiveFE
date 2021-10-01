@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:invasive_fe/models/Council.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/User.dart';
@@ -11,6 +12,7 @@ import 'package:invasive_fe/services/httpService.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
+import 'package:objectid/objectid.dart';
 
 // openstreetmap tile servers: https://wiki.openstreetmap.org/wiki/Tile_servers
 
@@ -32,7 +34,7 @@ class _MapsPageState extends State<MapsPage> {
   List<Marker> markers = [];
   bool heatmapMode = false;
   List<bool> isSelected = [true, false];
-  late List<LatLng> _polygon;
+  late List<Polygon> councilPolygons = [];
 
   /// information that should be refreshed each time maps opens goes here
   @override
@@ -47,11 +49,27 @@ class _MapsPageState extends State<MapsPage> {
           key: (e) => e.species_id,
           value: (e) => e));
 
-    _polygon = <LatLng>[
-      LatLng(32.3078, -64.7505),
-      LatLng(25.7617, -80.1918),
-      LatLng(18.4655, -66.1057),
-    ];
+    List<Council> councils = [];
+
+    getCouncilById(ObjectId.fromHexString("613ef4c74ed77d2294042db4")).then((council) {
+      // councils = councils_;
+      // councils_.forEach((council) {
+        print("council");
+        print(council);
+        print(council.boundary.toGeoJsonMultiPolygon().polygons.first.geoSeries.length);
+        var polygon = List<LatLng>.from(council.boundary.toGeoJsonMultiPolygon().polygons.first.geoSeries.first.geoPoints.map(
+                (x) => LatLng(x.latitude, x.longitude)
+        ));
+        print(polygon);
+        print(polygon.length);
+        councilPolygons.add(new Polygon(points: polygon, color: Color.fromRGBO(255, 0, 0, 0.2), borderColor: Color.fromRGBO(255, 0, 0, 1)));
+      // });
+    });
+
+
+    // _polygons.add(new Polygon(points: _polygon, color: new Color.fromRGBO(
+    //     255, 0, 0, 1.0)));
+    print("ADD POLYGON");
     super.initState();
   }
 
@@ -99,6 +117,7 @@ class _MapsPageState extends State<MapsPage> {
                           child: Text(markers.length.toString()),
                         );},
                     ),
+                    PolygonLayerOptions(polygons: councilPolygons)
                   ]
               ),
               Padding(

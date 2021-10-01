@@ -28,7 +28,7 @@ class MultiPolygon extends GeoJsonMultiPolygon {
       coordinatesPolygon.forEach((element) {
         GeoSerie geoSerie = new GeoSerie(name: "MultiPolygon GeoSeries", type: GeoSerieType.polygon,
             geoPoints: List<GeoPoint>.from(element.map(
-                    (x) => GeoPoint(latitude: x.first, longitude: x.last)
+                    (x) => GeoPoint(latitude: x.last, longitude: x.first)
             )));
 
         List<GeoSerie> geoSeries = [geoSerie];
