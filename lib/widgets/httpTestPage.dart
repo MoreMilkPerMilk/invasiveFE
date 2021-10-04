@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
+import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:objectid/objectid.dart';
 import 'package:uuid/uuid.dart';
 import 'package:geojson/geojson.dart';
@@ -22,6 +23,22 @@ class HttpTestPage extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
+            Spacer(),
+            ElevatedButton(
+              onPressed: () {
+                var weed = WeedInstance(
+                    species_id: 41,
+                    discovery_date: "2000/03/02",
+                    removed: false,
+                    replaced: false,
+                    image_filename: "image_url");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ReportPage(weed: weed)
+                ));
+              },
+              child: Text('Report Page'),
+            ),
             Spacer(),
             ElevatedButton(
               onPressed: () {

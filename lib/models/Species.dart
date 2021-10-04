@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:string_extensions/string_extensions.dart';
 
 class Species {
   int species_id;
@@ -38,9 +39,14 @@ class Species {
   });
 
   factory Species.fromJson(Map<String, dynamic> json) {
+    String name = json['name']!;
+    try {
+      // sometimes this conversion throws an error, but most of the time it works
+      name = name.toTitleCase()!;
+    } catch (error) {}
     return Species(
         species_id: json['species_id'],
-        name: json['name'],
+        name: name,
         species: json['species'],
         growth_form: json['growth_form'],
         info: json['info'],

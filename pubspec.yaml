@@ -35,8 +35,6 @@ dependencies:
   sliding_up_panel: ^2.0.0+1
   fluttertoast: ^8.0.8
 
-
-
   # leaflet things
   flutter_map: ^0.13.1  # leaflet for flutter
   latlong2: ^0.8.0
@@ -53,6 +51,9 @@ dependencies:
   indent: ^2.0.0
   objectid: ^2.0.0
   geolocator: ^7.6.0
+  google_fonts: ^2.1.0
+  html_unescape: ^2.0.0
+  string_extensions: ^0.3.2
 
 
 dev_dependencies:
