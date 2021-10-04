@@ -29,8 +29,8 @@ class HttpTestPage extends StatelessWidget {
                 var weed = WeedInstance(
                     species_id: 41,
                     discovery_date: "2000/03/02",
-                    removed: false,
-                    replaced: false,
+                    speciesName: "weedy weed",
+                    info: "some info",
                     image_filename: "image_url");
                 Navigator.push(
                   context,
