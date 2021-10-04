@@ -37,6 +37,7 @@ class _PanelState extends State<Panel> {
   // XFile photo;
 
   bool _reportButtonDisabled = false;
+  late String dropdownValue = 'Unsure';
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +62,34 @@ class _PanelState extends State<Panel> {
                         "report it manually?",
                     style: TextStyle(fontSize: 15),
                   )),
+                  DropdownButton<String>(
+                    value: dropdownValue,
+                    icon: const Icon(Icons.arrow_drop_down),
+                    hint: Text("Select Weed"),
+                    menuMaxHeight: 350,
+                    iconSize: 20,
+                    elevation: 16,
+                    style: const TextStyle(color: Colors.blue),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.blueAccent,
+                    ),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        dropdownValue = newValue!;
+                      });
+                    },
+                    items: <String>['Lantana', 'Chinee apple', 'Parkinsonia', 'Parthenium', 'Prickly acacia', 'Rubber'
+                        ' vine', 'Siam weed', 'Snake weed', 'Unsure']
+                        .map<DropdownMenuItem<String>>(
+                            (String
+                    value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
                   Row(
                     children: [
                       Expanded(
@@ -87,7 +116,9 @@ class _PanelState extends State<Panel> {
                               ),
                               onPressed: () {
                                 // Respond to button press
-                                // widget._pc.close();
+                                print("MANUAL REPORT");
+                                widget._pc.close();
+                                dropdownValue = 'Unsure';
                               },
                               icon: Icon(Icons.arrow_forward_rounded, size: 18),
                               label: Text("CONTINUE"),
@@ -211,16 +242,16 @@ class _PanelState extends State<Panel> {
   }
 }
 
-class PhotoLocationData{
+class PhotoLocationData {
   // Helper class to pass multiple parameters to compute
   final Position pos;
   final XFile photoImage;
   final String speciesName;
+
   PhotoLocationData(this.pos, this.photoImage, this.speciesName);
 }
 
 Future<void> sendReportToBackend(PhotoLocationData data) async {
-
   var photoLocation = new PhotoLocation(
     id: ObjectId(),
     photo: data.photoImage,
