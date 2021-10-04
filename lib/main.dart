@@ -22,7 +22,7 @@ class Main extends StatefulWidget {
 }
 
 class _MainState extends State<Main> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
   static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.w600);
   static List<Widget> _widgetOptions = <Widget>[
     // Text(
@@ -30,12 +30,12 @@ class _MainState extends State<Main> {
     //   style: optionStyle,
     // ),
     HttpTestPage(),
+    CameraHomePage(),
+    MapsPage(),
     Text(
-      'Community',
+      'Profile',
       style: optionStyle,
     ),
-    MapsPage(),
-    CameraHomePage(),
   ];
 
   @override
@@ -74,20 +74,20 @@ class _MainState extends State<Main> {
               color: Colors.black,
               tabs: [
                 GButton(
-                  icon: LineIcons.home,
-                  text: 'Home',
+                  icon: LineIcons.users,
+                  text: 'Community',
                 ),
                 GButton(
-                  icon: LineIcons.userFriends,
-                  text: 'Community',
+                  icon: LineIcons.retroCamera,
+                  text: 'Camera',
                 ),
                 GButton(
                   icon: LineIcons.map,
                   text: 'Map',
                 ),
                 GButton(
-                  icon: LineIcons.retroCamera,
-                  text: 'Camera',
+                  icon: LineIcons.userCircle,
+                  text: 'Profile',
                 ),
               ],
               selectedIndex: _selectedIndex,
