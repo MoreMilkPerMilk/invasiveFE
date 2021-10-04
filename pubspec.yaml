@@ -31,7 +31,7 @@ dependencies:
   json_annotation: ^4.0.0  # easy conversion between JSON <--> Class
   geojson: ^1.0.0
   geopoint: ^1.0.0
-  uuid:
+  uuid: ^3.0.4
   sliding_up_panel: ^2.0.0+1
   fluttertoast: ^8.0.8
 
@@ -42,7 +42,7 @@ dependencies:
   latlong2: ^0.8.0
   flutter_map_marker_popup: ^1.0.0+2
   flutter_map_marker_cluster: ^0.4.0
-  image: ^2.1.4
+  image: ^3.0.4
   cupertino_icons: ^1.0.2
   google_nav_bar: ^5.0.5
   line_icons: ^2.0.1
