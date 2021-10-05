@@ -2,11 +2,14 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:flutter/cupertino.dart';
 import 'package:geojson/geojson.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/src/media_type.dart';
+
 import 'package:invasive_fe/models/Community.dart';
 import 'package:invasive_fe/models/Council.dart';
 import 'package:invasive_fe/models/Event.dart';
@@ -57,58 +60,97 @@ Future<List<PhotoLocation>> getAllPhotoLocations() async {
   throw "HTTP Error Code: ${response.statusCode}";
 }
 
-/// add location (will merge with pre-existing locations in the DB)
-Future<bool> addPhotoLocation(PhotoLocation photoLocation) async {
-  // final response = await http.post(
-  //   Uri.parse(API_URL + "/photolocations/add"),
-  //   headers: <String, String>{
-  //     'Content-Type': 'application/json; charset=UTF-8',
-  //   },
-  //   body: location.toJson(),
-  // );
-
-  String photoPath = photoLocation.photoPath == null ? "" : photoLocation.photoPath;
-  //ByteData bytes = await rootBundle.load(photoPath); // fixme: incomplete
-  XFile photoFile = XFile(photoPath);
-  // Image boy = Image.file(
-  //   File(photoPath),
-  // );
-  // print("Bytes");
-  // print(bytes);
-  // var boits = bytes.getUint8(0);
-  print(photoFile);
-  print(photoFile.path);
-  print("PATH");
-  // Directory tempDir = await getTemporaryDirectory();
-  // String tempPath = tempDir.path;
-  //photoLocation.photo.path = tempPath;
-  //print(photoLocation.photo.readAsString());
-  //print(photoLocation.photo.path); // fixme: appears to be null path?
-  // convert Xfile photo to Image
-  //final imageBytes = await File(photoLocation.photo.path).readAsBytes();
-  //photoLocation.photo.saveTo(tempPath);
-
-  final imageBytes = await photoFile.readAsBytes();
-  print("Successfully converted image to bytes...");
-  //final Image photoImage = img.decodeImage(bytes) as Image;
-
+/// create location
+Future<PhotoLocation> createLocation(PhotoLocation location) async {
   final response = await http.post(
-      Uri.parse(API_URL + "/photolocations/add?"
-          "_id=${ObjectId()}&"
-          "location=${photoLocation.toString()}&"),
-      headers: <String, String>{
-        'Content-Type': 'multipart/form-data; boundary="&"',
-      },
-      body: "&" + base64Encode(imageBytes) + "&"
+    Uri.parse(API_URL + "/photolocations/create"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: location.toJson(),
   );
 
   print(response.body);
-  //print(photoLocation.toJson());
+  print(location.toJson());
 
   if (response.statusCode == 200) {
-    return true;
+    return PhotoLocation.fromJson(jsonDecode(response.body));
   }
+
   throw "HTTP Error Code: ${response.statusCode}";
+}
+
+//upload photo to an already present photolocation
+Future<bool> uploadPhotoToPhotoLocation(String filename, Stream<List<int>> stream, int streamLength, String photoLocationId) async {
+  var request = http.MultipartRequest(
+    'POST', Uri.parse(API_URL + "/photolocations/uploadphoto/${photoLocationId}"),
+  );
+  Map<String,String> headers={
+    'accept': 'application/json',
+    "Content-type": "multipart/form-data"
+  };
+  request.files.add(
+    http.MultipartFile(
+      'file', //field
+      stream, //bytes
+      streamLength, //length
+      filename: filename, // filename
+      contentType: MediaType('image','jpeg'),
+    ),
+  );
+  request.headers.addAll(headers);
+
+  print("request: "+request.toString());
+  var res = await request.send();
+
+  if (res.statusCode == 200) return true;
+
+  throw "HTTP Error Code: ${res.statusCode}";
+}
+
+/// add location (will merge with pre-existing locations in the DB)
+Future<bool> addPhotoLocation(PhotoLocation photoLocation) async {
+  //create
+  createLocation(photoLocation).then((PhotoLocation loc) async {
+    print("file path last " + loc.photo.path.split("/").last);
+    print("file " + loc.photo.toString());
+    print("path = " + loc.photo.path);
+    // String placeholder = await rootBundle.loadString('assets/placeholder.png');
+    // print("placejo " + placeholder);
+    var f = XFile("/storage/emulated/0/Download/image.png");
+    int length = await f.length();
+    return uploadPhotoToPhotoLocation("/storage/emulated/0/Download/image.png", f.readAsBytes().asStream(), length, loc.id.toString());
+  });
+
+  return false;
+
+  // // String image = photoLocation.photo == null ? "" : photoLocation.photo!;
+  // // ByteData bytes = await rootBundle.load(image); // fixme: incomplete
+  // print(photoLocation.photo);
+  // print("PATH");
+  // print(photoLocation.photo.path); // fixme: appears to be null path?
+  // // convert Xfile photo to Image
+  // final imageBytes = await File(photoLocation.photo.path).readAsBytes();
+  // //final Image photoImage = img.decodeImage(bytes) as Image;
+  //
+  //
+  // final response = await http.post(
+  //     Uri.parse(API_URL + "/photolocations/add?"
+  //         "_id=${ObjectId()}&"
+  //         "location=${photoLocation.toString()}&"),
+  //     headers: <String, String>{
+  //       'Content-Type': 'multipart/form-data; boundary="&"',
+  //     },
+  //     body: "&" + base64Encode(imageBytes) + "&"
+  // );
+  //
+  // print(response.body);
+  // print(photoLocation.toJson());
+  //
+  // if (response.statusCode == 200) {
+  //   return true;
+  // }
+  // throw "HTTP Error Code: ${response.statusCode}";
 }
 
 /// delete location
