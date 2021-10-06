@@ -20,11 +20,11 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 class Panel extends StatefulWidget {
   String foundSpecies;
   PanelController _pc;
-  XFile photo;
-  String photoPath;
+  File photo;
+  //String photoPath;
   bool negative;
 
-  Panel(this.foundSpecies, this.photo, this.photoPath, this._pc, this.negative);
+  Panel(this.foundSpecies, this.photo, this._pc, this.negative);
 
   @override
   _PanelState createState() {
@@ -132,7 +132,7 @@ class _PanelState extends State<Panel> {
                     child: FittedBox(
                       fit: BoxFit.fitWidth,
                       child: Image.file(
-                        File(widget.photoPath),
+                        widget.photo,
                       ),
                     ),
                   ),
@@ -193,6 +193,7 @@ class _PanelState extends State<Panel> {
                                 primary: Colors.green,
                               ),
                               onPressed: () {
+                                print("PRESSED DONE");
                                 report();
                                 widget._pc.close();
                               },
@@ -216,28 +217,32 @@ class _PanelState extends State<Panel> {
       _reportButtonDisabled = true;
     });
     var pos = await determinePosition();
-    compute(sendReportToBackend, PhotoLocationData(pos, widget.photo, widget.photoPath, widget.foundSpecies));
+    print(pos);
+    //compute(sendReportToBackend, PhotoLocationData(pos, widget.photo));
+    sendReportToBackend(PhotoLocationData(pos, widget.photo));
   }
 }
 
 class PhotoLocationData{
   // Helper class to pass multiple parameters to compute
   final Position pos;
-  final XFile photoImage;
-  final String photoPath;
-  final String speciesName;
-  PhotoLocationData(this.pos, this.photoImage, this.photoPath, this.speciesName);
+  final File photoImage;
+  //final String photoPath;
+  //final String speciesName;
+  PhotoLocationData(this.pos, this.photoImage);
 }
 
 Future<void> sendReportToBackend(PhotoLocationData data) async {
 
+  print("SENDING LOCATION DATA TO BACKEND");
   var photoLocation = new PhotoLocation(
     id: ObjectId(),
     // photo: data.photoImage,
-    photo: new File(""),
+    photo: data.photoImage,
     location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: data.pos.latitude, longitude: data.pos.longitude)),
-    image_filename: 'placeholder.png', //BAD
+    image_filename: 'cameraboyyy.png',//data.photoImage.path.split("/")[-1] // good?
   );
+  print(photoLocation.toString());
 
   // add report to backend also
   // var report = new Report(
@@ -250,5 +255,5 @@ Future<void> sendReportToBackend(PhotoLocationData data) async {
   //     polygon: polygon)
 
   //await addReport(report);
-  await addPhotoLocation(photoLocation);
+  addPhotoLocation(photoLocation);
 }
