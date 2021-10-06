@@ -62,6 +62,7 @@ Future<List<PhotoLocation>> getAllPhotoLocations() async {
 
 /// create location
 Future<PhotoLocation> createLocation(PhotoLocation location) async {
+  print("creating location");
   final response = await http.post(
     Uri.parse(API_URL + "/photolocations/create"),
     headers: <String, String>{
@@ -69,7 +70,7 @@ Future<PhotoLocation> createLocation(PhotoLocation location) async {
     },
     body: location.toJson(),
   );
-
+  print("create location response: ");
   print(response.body);
   print(location.toJson());
 
@@ -111,17 +112,18 @@ Future<bool> uploadPhotoToPhotoLocation(String filename, Stream<List<int>> strea
 /// add location (will merge with pre-existing locations in the DB)
 Future<bool> addPhotoLocation(PhotoLocation photoLocation) async {
   //create
+  print("Adding photo location...");
   createLocation(photoLocation).then((PhotoLocation loc) async {
     print("file path last " + loc.photo.path.split("/").last);
     print("file " + loc.photo.toString());
     print("path = " + loc.photo.path);
     // String placeholder = await rootBundle.loadString('assets/placeholder.png');
     // print("placejo " + placeholder);
-    var f = XFile("/storage/emulated/0/Download/image.png");
+    //var f = XFile("/storage/emulated/0/Download/image.png");
+    var f = XFile(photoLocation.photo.path);
     int length = await f.length();
-    return uploadPhotoToPhotoLocation("/storage/emulated/0/Download/image.png", f.readAsBytes().asStream(), length, loc.id.toString());
+    return uploadPhotoToPhotoLocation(photoLocation.photo.path, f.readAsBytes().asStream(), length, loc.id.toString());
   });
-
   return false;
 
   // // String image = photoLocation.photo == null ? "" : photoLocation.photo!;

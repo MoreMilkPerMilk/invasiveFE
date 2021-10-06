@@ -26,8 +26,8 @@ import 'models.dart';
 
 const int MAX_LOOK_BACK_SIZE = 5;
 const double MIN_CONFIDENCE_VAL = 0.90;
-XFile photo = new XFile.fromData(new Uint8List(1));
-String photoPath = "";
+File photo = new File (new XFile.fromData(new Uint8List(1)).path);
+//String photoPath = "";
 
 const int MAX_LOOK_BACK_TIME = 10000;
 
@@ -174,20 +174,17 @@ class _CameraState extends State<Camera> {
               //   return plane.bytes;
               // }) as Uint8List;
               // photo = XFile.fromData(bytes);
-              photo = XFile.fromData(png_img!.getBytes());
-              photoPath = img_path;
-              photo.saveTo(img_path);
-              print("PHOTO PATH FUCK");
+              XFile xfile = XFile.fromData(png_img!.getBytes(), path: img_path);
+              xfile.saveTo(img_path);
+              photo = File(img_path);
+              //photoPath = img_path;
+              print("BIG DOGGY FILE PATH");
               print(photo.path);
-
             });
-            // controller!.takePicture().then((value) {
-            //   photo = value;
-            // });
           } else {
             // show the slide over widget
             controller!.takePicture().then((value) {
-              photo = value;
+              photo = new File(value.path);
             });
           }
 
@@ -329,7 +326,7 @@ class _CameraState extends State<Camera> {
         controller: _pc,
         minHeight: 0,
         maxHeight: repeatedNegative == false ? 500 : 300,
-        panel: Panel(foundSpecies, photo, photoPath, _pc, repeatedNegative),
+        panel: Panel(foundSpecies, photo, _pc, repeatedNegative),
         body: Transform.scale( // HAMISH: Fixed the weird scaling issues!
           scale: scale,
           child: Center(
