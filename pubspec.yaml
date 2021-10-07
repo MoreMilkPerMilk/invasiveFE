@@ -86,6 +86,18 @@ flutter:
     - assets/labels.txt
     - assets/frame.png
     - assets/placeholder.png
+    - assets/badges/lowsev_1.jpg
+    - assets/badges/lowsev_2.jpg
+    - assets/badges/lowsev_3.jpg
+    - assets/badges/medsev_1.jpg
+    - assets/badges/medsev_2.jpg
+    - assets/badges/medsev_3.jpg
+    - assets/badges/highsev_1.jpg
+    - assets/badges/highsev_2.jpg
+    - assets/badges/highsev_3.jpg
+    - assets/badges/none.jpg
+    - assets/badges/medal.jpg
+    - assets/badges/location_1.jpg
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
