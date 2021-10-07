@@ -518,6 +518,7 @@ Future<List<Report>> getAllReports() async {
       log(element.toString());
     });
     return result;
+
   }
 
   throw "HTTP Error Code: ${response.statusCode}";

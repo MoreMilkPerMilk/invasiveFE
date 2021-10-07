@@ -12,7 +12,7 @@ import 'package:objectid/objectid.dart';
 class Report {
   ObjectId id;
   String name;
-  String species_id;
+  int species_id;
   String status;
   List<PhotoLocation> photoLocations;
   String notes;
@@ -57,7 +57,7 @@ class Report {
 
     return Report(
       id: ObjectId.fromHexString(json['_id']),
-      species_id: json['species_id'],
+      species_id: int.parse(json['species_id']),
       name: json['name'],
       status: json['status'],
       photoLocations: photo_locations,

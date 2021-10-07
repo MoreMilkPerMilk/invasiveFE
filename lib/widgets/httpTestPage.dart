@@ -5,6 +5,7 @@ import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
+import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:invasive_fe/widgets/reportPage.dart';
@@ -34,6 +35,32 @@ class HttpTestPage extends StatelessWidget {
               },
               child: Text('/Locations'),
             ),
+            Spacer(),
+            ElevatedButton(
+              child: Text("Hello!"),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ReportPage(
+                  report: Report(
+                      id: ObjectId(),
+                      status: "status",
+                      notes: "notes",
+                      polygon: GeoJsonMultiPolygon(),
+                      photoLocations: [
+                        PhotoLocation(
+                            id: ObjectId(),
+                            photo: new File("assets/placeholder.png"),
+                            location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
+                            image_filename: 'placeholder.png'
+                        )
+                      ],
+                      name: "test",
+                      species_id: 41
+                  ),
+                ))
+              ),
+            ),
+            Spacer(),
             ElevatedButton(
               onPressed: () async {
                 File file = new File("");

@@ -1,7 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:invasive_fe/models/Location.dart';
+import 'package:geojson/geojson.dart';
+import 'package:geopoint/geopoint.dart';
+import 'package:invasive_fe/models/Geometry.dart';
+import 'package:invasive_fe/models/PhotoLocation.dart';
+import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
@@ -9,6 +15,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:objectid/objectid.dart';
+import 'dart:io';
 
 // openstreetmap tile servers: https://wiki.openstreetmap.org/wiki/Tile_servers
 
@@ -30,25 +37,27 @@ class MapsPage extends StatefulWidget {
 
 class _MapsPageState extends State<MapsPage> {
   // list of locations to display as markers on the map
-  List<Location> locations = [];
+  List<Report> reports = [];
   // utility that specifies which view-mode button is selected
   List<bool> isSelected = [true, false];
   // the position of the user. defaults to the location of UQ, St. Lucia
   LatLng userPosition = LatLng(-27.4975, 153.0137);
   // the state of this future determines whether to display a loading screen
   late Future loaded;
+  late String _now;
+  late Timer _everyXSeconds;
 
   /// information that should be refreshed each time maps opens goes here
   @override
   void initState() {
     super.initState();
-    Future locationsFuture = getAllLocations();
+    Future reportsFuture = getAllReports();
     Future speciesFuture = getAllSpecies();
     Future positionFuture = determinePosition();
 
     // rather than here, we generate the markers in build() so they refresh on setState()
-    locationsFuture.then((locations) => setState(() {
-      this.locations = locations;
+    reportsFuture.then((reports) => setState(() {
+      this.reports = reports;
     }));
 
     // create the {species id => species} map
@@ -57,32 +66,48 @@ class _MapsPageState extends State<MapsPage> {
         key: (e) => e.species_id,
         value: (e) => e));
 
-    // set the user's position
+    // set the user's position every X seconds
     positionFuture.then((position) => setState(() {
       userPosition = LatLng(position.latitude, position.longitude);
     }));
 
-    loaded = Future.wait([locationsFuture, speciesFuture, positionFuture]);
+    var _now = DateTime.now().second.toString();
+    _everyXSeconds = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (this.mounted) {
+        determinePosition().then((position) => setState(() {
+          userPosition = LatLng(position.latitude, position.longitude);
+          print(userPosition);
+        }));
+      }
+    });
+
+
+    loaded = Future.wait([reportsFuture, speciesFuture, positionFuture]);
   }
 
   @override
   Widget build(BuildContext context) {
-    /* for debug:
     List<WeedMarker> markers = [
       WeedMarker(
-          location: Location(
+          report: Report(
+              id: ObjectId(),
+              status: "status",
+              notes: "notes",
+              polygon: GeoJsonMultiPolygon(),
+              photoLocations: [
+                PhotoLocation(
+                    id: ObjectId(),
+                    photo: new File("assets/placeholder.png"),
+                    location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
+                    image_filename: 'placeholder.png'
+                )
+              ],
               name: "test",
-              lat: -27.4975,
-              long: 153.0137,
-              weeds_present: [
-                WeedInstance(
-                    species_id: 41,
-                    discovery_date: "2021-1-1",
-                    removed: false,
-                    replaced: false)
-              ]))
-    ];*/
-    List<WeedMarker> markers = locations.map((loc) => WeedMarker(location: loc)).toList();
+              species_id: 41
+          )
+      )
+    ];
+    // List<WeedMarker> markers = reports.map((rep) => WeedMarker(report: rep)).toList();
     return Scaffold(
         body: Stack(children: [
       // this future builder returns a loading page until its given futures have
@@ -140,7 +165,7 @@ class _MapsPageState extends State<MapsPage> {
                               // this conditional is necessary since popupBuilder must take a Marker
                               if (marker is WeedMarker) {
                                 return WeedMarkerPopup(
-                                    location: marker.location);
+                                    report: marker.report);
                               }
                               // this code should never run as we only ever make WeedMarkers
                               return Card(child: Text('Error: Not a weed.'));
@@ -212,18 +237,19 @@ class _MapsPageState extends State<MapsPage> {
 /// weeds captured at a Location
 class WeedMarker extends Marker {
   // represents weed data
-  final Location location;
+  final Report report;
   // size of this marker. must be the same as its widget's internal size, or
   // the visual size and hit-box size will be different
   static final double markerSize = 40;
 
-  WeedMarker({required this.location})
+  WeedMarker({required this.report})
       : super(
           anchorPos: AnchorPos.align(AnchorAlign.bottom),
           // the code will be modified soon as heatmap bugs are fixed
           height: heatmapMode ? markerSize * 2 : markerSize,
           width: heatmapMode ? markerSize * 2 : markerSize,
-          point: LatLng(location.lat, location.long),
+          point: LatLng(report.photoLocations.first.location.geoPoint.latitude,
+              report.photoLocations.first.location.geoPoint.longitude),
           builder: heatmapMode
               ? (BuildContext ctx) => Container(
                     decoration: BoxDecoration(
@@ -242,9 +268,9 @@ class WeedMarker extends Marker {
 /// the on-click popup for a weed marker. built by the popupcontroller when a
 /// weedmarker is clicked.
 class WeedMarkerPopup extends StatelessWidget {
-  const WeedMarkerPopup({Key? key, required this.location}) : super(key: key);
+  const WeedMarkerPopup({Key? key, required this.report}) : super(key: key);
   // contains all the weed information, such as location and species
-  final Location location;
+  final Report report;
 
   @override
   Widget build(BuildContext context) {
@@ -255,21 +281,16 @@ class WeedMarkerPopup extends StatelessWidget {
             borderRadius: BorderRadius.circular(15), // sexy curves
           ),
           child: Column(
-              // column of weed information blocks
-              mainAxisSize: MainAxisSize.min,
-              children: location.weeds_present
-                  .map((weed) => Column(
-                        // a single weed information block, which is a column of weed information
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          // present basic weed information
-                          if (weed.image_filename != null)
-                            Image.network(weed.image_filename!, width: 200),
-                          Text(species[weed.species_id]!.name),
-                          Text('${location.lat}-${location.long}'),
-                        ],
-                      ))
-                  .toList())),
+            // a single weed information block, which is a column of weed information
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              // present basic weed information
+              Image.network(report.photoLocations.first.image_filename, width: 200),
+              Text(species[report.species_id]!.name),
+              Text('${report.photoLocations.first.location.geoPoint.latitude}-${report.photoLocations.first.location.geoPoint.longitude}'),
+            ],
+          )
+      )
     );
   }
 }
