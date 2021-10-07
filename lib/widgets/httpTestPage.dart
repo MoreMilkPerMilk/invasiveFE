@@ -26,21 +26,6 @@ class HttpTestPage extends StatelessWidget {
         child: Column(
           children: [
             Spacer(),
-            ElevatedButton(
-              onPressed: () {
-                var weed = WeedInstance(
-                    species_id: 41,
-                    discovery_date: "2000/03/02",
-                    removed: false,
-                    replaced: false,
-                    image_filename: "image_url");
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ReportPage(weed: weed)
-                ));
-              },
-              child: Text('Report Page'),
-            ),
             Spacer(),
             ElevatedButton(
               onPressed: () {

@@ -36,7 +36,6 @@ dependencies:
   fluttertoast: ^8.0.8
 
 
-
   # leaflet things
   flutter_map: ^0.13.1  # leaflet for flutter
   latlong2: ^0.8.0
