@@ -13,6 +13,7 @@ import 'package:http_parser/src/media_type.dart';
 import 'package:invasive_fe/models/Community.dart';
 import 'package:invasive_fe/models/Council.dart';
 import 'package:invasive_fe/models/Event.dart';
+import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
@@ -502,6 +503,20 @@ Future<Community> addEventToCommunity(ObjectId communityId, Event event) async {
     final parsed = jsonDecode(response.body).cast<Map<String, dynamic>>();
     var result = Community.fromJson(parsed);
     log(result.toString());
+    return result;
+  }
+
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+Future<List<Report>> getAllReports() async {
+  final response = await http.get(Uri.parse(API_URL + "/reports"));
+
+  if (response.statusCode == 200) {
+    var result = Report.parseReportList(response.body);
+    result.forEach((element) {
+      log(element.toString());
+    });
     return result;
   }
 
