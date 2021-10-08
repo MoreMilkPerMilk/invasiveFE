@@ -266,7 +266,7 @@ class _MapsPageState extends State<MapsPage> {
                     id: ObjectId(),
                     photo: new File("assets/placeholder.png"),
                     location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
-                    image_filename: 'placeholder.png'
+                    image_filename: 'assets/placeholder.png'
                 )
               ],
               name: "test",
@@ -351,35 +351,69 @@ class ReportMarkerPopup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 200,
-      child: Card(
+    Species thisSpecies = species[report.species_id]!;
+    return Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15), // sexy curves
           ),
-          child: Column(
-            // a single report information block, which is a column of report information
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               // present basic report information
-              Image.network(report.photoLocations.first.image_filename, width: 200),
-              Text(species[report.species_id]!.name),
-              Text('${report.photoLocations.first.location.geoPoint.latitude}-${report.photoLocations.first.location.geoPoint.longitude}'),
-            ],
+              Padding(
+                padding: EdgeInsets.all(3),
+                child: Container(
+                    width: 80, // we're going to get a 80x80 box. note AspectRatio will ensure width = height
+                    clipBehavior: Clip.hardEdge, // to clip the rounded corners
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15)
+                    ),
+                    child: AspectRatio(
+                        aspectRatio: 1,
+                        child: FittedBox(
+                            fit: BoxFit.cover,
+                            clipBehavior: Clip.hardEdge, // to clip the image into a square
+                            child: Image.asset(report.photoLocations.first.image_filename)
+                        )
+                    )
+                )
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 10)
+              ),
+              Container(
+                width: 200,
+                child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(thisSpecies.name),
+                      Text('${report.photoLocations.first.location.geoPoint.latitude}-${report.photoLocations.first.location.geoPoint.longitude}'),
+                      Text(thisSpecies.council_declaration)
+                    ]
+                ),
+              ),
+              Padding(
+                  padding: EdgeInsets.only(left: 10)
+              ),
+              Icon(
+                Icons.arrow_forward_ios
+              ),
+              Padding(
+                  padding: EdgeInsets.only(left: 10)
+              ),
+            ]
           )
-      )
     );
   }
 }
 
 class CommunityMarkerPopup extends StatelessWidget {
   const CommunityMarkerPopup({Key? key, required this.location}) : super(key: key);
-  // contains all the report information, such as location and species
   final LatLng location;
 
   @override
   Widget build(BuildContext context) {
-    print("building community popup");
     return Container(
         width: 200,
         child: Card(
