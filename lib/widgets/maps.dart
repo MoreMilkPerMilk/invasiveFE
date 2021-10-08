@@ -102,10 +102,11 @@ class _MapsPageState extends State<MapsPage> {
                         center: userPosition,
                         zoom: 13.0,
                         // disable map rotation for now
-                        interactiveFlags:
-                            InteractiveFlag.all & ~InteractiveFlag.rotate,
+                        interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
                         // hide all popups when the map is tapped
-                        onTap: (_) => widget._popupLayerController.hidePopup(),
+                        onTap: (_) {
+                          widget._popupLayerController.hidePopup();
+                        },
                         plugins: [MarkerClusterPlugin()],
                       ),
                       layers: [
@@ -165,7 +166,10 @@ class _MapsPageState extends State<MapsPage> {
           popupSnap: PopupSnap.markerTop,
           popupController: widget._popupLayerController,
           popupAnimation: PopupAnimation.fade(duration: Duration(milliseconds: 100)),
-          popupBuilder: (_, Marker marker) => ReportMarkerPopup(report: (marker as ReportMarker).report)),
+          popupBuilder: (_, Marker marker) {
+            if (marker is CommunityMarker) return CommunityMarkerPopup(location: marker.location);
+            else return ReportMarkerPopup(report: (marker as ReportMarker).report);
+          }),
       // widget to represent marker clusters
       builder: (context, markers) {
         return FloatingActionButton(
@@ -195,7 +199,10 @@ class _MapsPageState extends State<MapsPage> {
           popupSnap: PopupSnap.markerTop,
           popupController: widget._popupLayerController,
           popupAnimation: PopupAnimation.fade(duration: Duration(milliseconds: 100)),
-          popupBuilder: (_, Marker marker) => CommunityMarkerPopup(location: (marker as CommunityMarker).location)),
+          popupBuilder: (_, Marker marker) {
+            if (marker is CommunityMarker) return CommunityMarkerPopup(location: marker.location);
+            else return ReportMarkerPopup(report: (marker as ReportMarker).report);
+          }),
       // widget to represent marker clusters
       builder: (context, markers) {
         return FloatingActionButton(
@@ -230,7 +237,9 @@ class _MapsPageState extends State<MapsPage> {
       onPressed: (int index) {
         // setState() rebuilds the map with the updated view mode
         setState(() {
-          // the heatmap button is the second button. this variable determines the map UI
+          // if changing tabs, hide all popups
+          if (communityView != (index == 1)) widget._popupLayerController.hidePopup();
+          // the community view button is the second button. this variable determines the map UI
           communityView = index == 1;
           // change the UI of the buttons to highlight which button was clicked
           for (int i = 0; i < isSelected.length; i++) {
