@@ -176,7 +176,7 @@ class _MapsPageState extends State<MapsPage> {
           onPressed: null,
           // handled by the MarkerClusterLayer
           // display the number of markers clustered in the icon
-          child: Text(markers.length.toString()), // fixme: this number is the number of markers plus one, not the number of markers
+          child: Text(markers.length.toString()),
         );
       },
     );
@@ -209,7 +209,7 @@ class _MapsPageState extends State<MapsPage> {
           onPressed: null,
           // handled by the MarkerClusterLayer
           // display the number of markers clustered in the icon
-          child: Text(markers.length.toString()), // fixme: this number is the number of markers plus one, not the number of markers
+          child: Text(markers.length.toString()),
         );
       },
     );
@@ -287,7 +287,7 @@ class ReportMarker extends Marker {
   final Report report;
   // size of this marker. must be the same as its widget's internal size, or
   // the visual size and hit-box size will be different
-  static final double markerSize = 40;
+  static final double markerSize = 30;
 
   ReportMarker(this.report) : super(
     anchorPos: AnchorPos.align(AnchorAlign.top),
@@ -295,13 +295,13 @@ class ReportMarker extends Marker {
     width: markerSize,
     point: LatLng(report.photoLocations.first.location.geoPoint.latitude,
         report.photoLocations.first.location.geoPoint.longitude),
-    builder: (BuildContext ctx) => Icon(Icons.location_pin, size: markerSize),
+    builder: (BuildContext ctx) => Icon(Icons.grass, size: markerSize),
   );
 }
 
 class CommunityMarker extends Marker {
   final LatLng location;
-  static final double markerSize = 40;
+  static final double markerSize = 30;
 
   CommunityMarker(this.location) : super(
     anchorPos: AnchorPos.align(AnchorAlign.center),
@@ -315,7 +315,7 @@ class CommunityMarker extends Marker {
 class UserLocationMarker extends Marker {
   // size of this marker. must be the same as its widget's internal size, or
   // the visual size and hit-box size will be different
-  static final double markerSize = 40;
+  static final double markerSize = 30;
 
   UserLocationMarker(LatLng location)
       : super(
@@ -324,10 +324,21 @@ class UserLocationMarker extends Marker {
     height: markerSize,
     width: markerSize,
     point: location,
-    builder: (BuildContext ctx) => Icon(
-      Icons.circle,
-      size: markerSize,
-      color: Colors.blue,
+    builder: (BuildContext ctx) => Stack(
+      alignment: Alignment.center,
+      children: [
+        Icon(
+          Icons.circle,
+          size: markerSize,
+          color: Colors.white,
+        ),
+        Icon(
+          Icons.circle,
+          size: markerSize * 0.75,
+          color: Colors.blue
+        )
+      ]
+
     )
   );
 }
