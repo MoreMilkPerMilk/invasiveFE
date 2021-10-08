@@ -9,11 +9,13 @@ import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
+import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:objectid/objectid.dart';
 import 'dart:io';
+import 'package:google_fonts/google_fonts.dart';
 
 // openstreetmap tile servers: https://wiki.openstreetmap.org/wiki/Tile_servers
 
@@ -290,7 +292,7 @@ class ReportMarker extends Marker {
   static final double markerSize = 30;
 
   ReportMarker(this.report) : super(
-    anchorPos: AnchorPos.align(AnchorAlign.top),
+    anchorPos: AnchorPos.align(AnchorAlign.center),
     height: markerSize,
     width: markerSize,
     point: LatLng(report.photoLocations.first.location.geoPoint.latitude,
@@ -345,9 +347,13 @@ class UserLocationMarker extends Marker {
 
 /// the on-click popup for a report marker. built by the popupcontroller when a reportmarker is clicked.
 class ReportMarkerPopup extends StatelessWidget {
-  const ReportMarkerPopup({Key? key, required this.report}) : super(key: key);
   // contains all the report information, such as location and species
   final Report report;
+  static final TextStyle bodyFont = GoogleFonts.openSans(
+      fontSize: 12,
+  );
+
+  const ReportMarkerPopup({Key? key, required this.report}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -363,7 +369,7 @@ class ReportMarkerPopup extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.all(3),
                 child: Container(
-                    width: 80, // we're going to get a 80x80 box. note AspectRatio will ensure width = height
+                    width: 90, // we're going to get a width x width box. note AspectRatio will ensure width = height
                     clipBehavior: Clip.hardEdge, // to clip the rounded corners
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15)
@@ -387,9 +393,25 @@ class ReportMarkerPopup extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(thisSpecies.name),
-                      Text('${report.photoLocations.first.location.geoPoint.latitude}-${report.photoLocations.first.location.geoPoint.longitude}'),
-                      Text(thisSpecies.council_declaration)
+                      Text(thisSpecies.name,
+                          style: GoogleFonts.openSans(
+                              fontSize: 12
+                          )
+                      ),
+                      Text('${report.photoLocations.first.location.geoPoint.latitude}-${report.photoLocations.first.location.geoPoint.longitude}',
+                          style: GoogleFonts.openSans(
+                              fontSize: 12
+                          )
+                      ),
+                      Text(thisSpecies.council_declaration,
+                          style: GoogleFonts.openSans(
+                              fontSize: 12
+                          )
+                      ),
+                      Padding(
+                          padding: EdgeInsets.only(top: 5)
+                      ),
+                      SeverityBar(1)
                     ]
                 ),
               ),
