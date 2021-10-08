@@ -358,74 +358,81 @@ class ReportMarkerPopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Species thisSpecies = species[report.species_id]!;
-    return Card(
+    return GestureDetector(
+      onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ReportPage(report: report),
+          )
+      ),
+      child: Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15), // sexy curves
           ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              // present basic report information
-              Padding(
-                padding: EdgeInsets.all(3),
-                child: Container(
-                    width: 90, // we're going to get a width x width box. note AspectRatio will ensure width = height
-                    clipBehavior: Clip.hardEdge, // to clip the rounded corners
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15)
-                    ),
-                    child: AspectRatio(
-                        aspectRatio: 1,
-                        child: FittedBox(
-                            fit: BoxFit.cover,
-                            clipBehavior: Clip.hardEdge, // to clip the image into a square
-                            child: Image.asset(report.photoLocations.first.image_filename)
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // present basic report information
+                Padding(
+                    padding: EdgeInsets.all(3),
+                    child: Container(
+                        width: 90, // we're going to get a width x width box. note AspectRatio will ensure width = height
+                        clipBehavior: Clip.hardEdge, // to clip the rounded corners
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15)
+                        ),
+                        child: AspectRatio(
+                            aspectRatio: 1,
+                            child: FittedBox(
+                                fit: BoxFit.cover,
+                                clipBehavior: Clip.hardEdge, // to clip the image into a square
+                                child: Image.asset(report.photoLocations.first.image_filename)
+                            )
                         )
                     )
-                )
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 10)
-              ),
-              Container(
-                width: 200,
-                child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(thisSpecies.name,
-                          style: GoogleFonts.openSans(
-                              fontSize: 12
-                          )
-                      ),
-                      Text('${report.photoLocations.first.location.geoPoint.latitude}-${report.photoLocations.first.location.geoPoint.longitude}',
-                          style: GoogleFonts.openSans(
-                              fontSize: 12
-                          )
-                      ),
-                      Text(thisSpecies.council_declaration,
-                          style: GoogleFonts.openSans(
-                              fontSize: 12
-                          )
-                      ),
-                      Padding(
-                          padding: EdgeInsets.only(top: 5)
-                      ),
-                      SeverityBar(1)
-                    ]
                 ),
-              ),
-              Padding(
-                  padding: EdgeInsets.only(left: 10)
-              ),
-              Icon(
-                Icons.arrow_forward_ios
-              ),
-              Padding(
-                  padding: EdgeInsets.only(left: 10)
-              ),
-            ]
+                Padding(
+                    padding: EdgeInsets.only(left: 10)
+                ),
+                Container(
+                  width: 200,
+                  child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(thisSpecies.name,
+                            style: GoogleFonts.openSans(
+                                fontSize: 12
+                            )
+                        ),
+                        Text('${report.photoLocations.first.location.geoPoint.latitude}-${report.photoLocations.first.location.geoPoint.longitude}',
+                            style: GoogleFonts.openSans(
+                                fontSize: 12
+                            )
+                        ),
+                        Text(thisSpecies.council_declaration,
+                            style: GoogleFonts.openSans(
+                                fontSize: 12
+                            )
+                        ),
+                        Padding(
+                            padding: EdgeInsets.only(top: 5)
+                        ),
+                        SeverityBar(1)
+                      ]
+                  ),
+                ),
+                Padding(
+                    padding: EdgeInsets.only(left: 10)
+                ),
+                Icon(
+                    Icons.arrow_forward_ios
+                ),
+                Padding(
+                    padding: EdgeInsets.only(left: 10)
+                ),
+              ]
           )
+      ),
     );
   }
 }
