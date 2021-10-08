@@ -23,7 +23,7 @@ const String MAPBOX_ACCESS_TOKEN =
 // map of species id to Species objects; the entire species database
 Map<int, Species> species = {};
 // whether the map view mode is heat mode
-bool heatmapMode = false;
+bool communityView = false;
 
 class MapsPage extends StatefulWidget {
   // controls showing and hiding map marker popups
@@ -80,25 +80,26 @@ class _MapsPageState extends State<MapsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // todo: add marker for user location, test whether reopening the map updates the center
-    List<WeedMarker> markers = [
+    List<Marker> markers = communityView ? [
+      CommunityMarker(LatLng(-27.4475, 153.0137))
+    ] : [
       WeedMarker(
-          report: Report(
-              id: ObjectId(),
-              status: "status",
-              notes: "notes",
-              polygon: GeoJsonMultiPolygon(),
-              photoLocations: [
-                PhotoLocation(
-                    id: ObjectId(),
-                    photo: new File("assets/placeholder.png"),
-                    location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
-                    image_filename: 'placeholder.png'
-                )
-              ],
-              name: "test",
-              species_id: 41
-          )
+        Report(
+          id: ObjectId(),
+          status: "status",
+          notes: "notes",
+          polygon: GeoJsonMultiPolygon(),
+          photoLocations: [
+            PhotoLocation(
+                id: ObjectId(),
+                photo: new File("assets/placeholder.png"),
+                location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
+                image_filename: 'placeholder.png'
+            )
+          ],
+          name: "test",
+          species_id: 41
+        )
       )
     ];
     // List<WeedMarker> markers = reports.map((rep) => WeedMarker(report: rep)).toList();
@@ -136,7 +137,7 @@ class _MapsPageState extends State<MapsPage> {
                     // user location marker
                     MarkerLayerOptions(markers: [UserLocationMarker(userPosition)]),
                     // disable clustering and popups for heat map view
-                    if (heatmapMode)
+                    if (communityView)
                       MarkerLayerOptions(markers: markers)
                     // enable clustering and popups for pin view
                     else
@@ -158,12 +159,9 @@ class _MapsPageState extends State<MapsPage> {
                             popupAnimation: PopupAnimation.fade(
                                 duration: Duration(milliseconds: 100)),
                             popupBuilder: (_, Marker marker) {
-                              // this conditional is necessary since popupBuilder must take a Marker
-                              if (marker is WeedMarker) {
-                                return WeedMarkerPopup(
-                                    report: marker.report);
-                              }
-                              return Card(child: Text('Error: Not a weed.'));
+                              if (marker is WeedMarker) return WeedMarkerPopup(report: marker.report);
+                              else if (marker is CommunityMarker) return CommunityMarkerPopup(location: marker.location);
+                              return Card(child: Text('Error: Not a weed marker or community marker.'));
                             }),
                         // widget to represent marker clusters
                         builder: (context, markers) {
@@ -200,19 +198,19 @@ class _MapsPageState extends State<MapsPage> {
                     child: Padding(
                         // add some space between the edge of the button and the inner text
                         padding: EdgeInsets.all(16),
-                        child: Text("Marker View"))),
+                        child: Text("Weed Reports"))),
                 Container(
                     color: Colors.white,
                     child: Padding(
                         padding: EdgeInsets.all(16),
-                        child: Text("Heatmap View")))
+                        child: Text("Community")))
               ],
               // on click, ToggleButtons calls this function with the index of the clicked button
               onPressed: (int index) {
                 // setState() rebuilds the map with the updated view mode
                 setState(() {
                   // the heatmap button is the second button. this variable determines the map UI
-                  heatmapMode = index == 1;
+                  communityView = index == 1;
                   // change the UI of the buttons to highlight which button was clicked
                   for (int i = 0; i < isSelected.length; i++) {
                     isSelected[i] = false;
@@ -237,27 +235,27 @@ class WeedMarker extends Marker {
   // the visual size and hit-box size will be different
   static final double markerSize = 40;
 
-  WeedMarker({required this.report})
-      : super(
-          anchorPos: AnchorPos.align(AnchorAlign.bottom),
-          // the code will be modified soon as heatmap bugs are fixed
-          height: heatmapMode ? markerSize * 2 : markerSize,
-          width: heatmapMode ? markerSize * 2 : markerSize,
-          point: LatLng(report.photoLocations.first.location.geoPoint.latitude,
-              report.photoLocations.first.location.geoPoint.longitude),
-          builder: heatmapMode
-              ? (BuildContext ctx) => Container(
-                    decoration: BoxDecoration(
-                      gradient: RadialGradient(colors: [
-                        Color.fromRGBO(255, 0, 0, 0.5),
-                        Color.fromRGBO(255, 0, 0, 0)
-                      ]),
-                      shape: BoxShape.circle,
-                    ),
-                  )
-              : (BuildContext ctx) =>
-                  Icon(Icons.location_pin, size: markerSize),
-        );
+  WeedMarker(this.report) : super(
+    anchorPos: AnchorPos.align(AnchorAlign.top),
+    height: markerSize,
+    width: markerSize,
+    point: LatLng(report.photoLocations.first.location.geoPoint.latitude,
+        report.photoLocations.first.location.geoPoint.longitude),
+    builder: (BuildContext ctx) => Icon(Icons.location_pin, size: markerSize),
+  );
+}
+
+class CommunityMarker extends Marker {
+  final LatLng location;
+  static final double markerSize = 40;
+
+  CommunityMarker(this.location) : super(
+    anchorPos: AnchorPos.align(AnchorAlign.center),
+    point: location,
+    height: markerSize,
+    width: markerSize,
+    builder: (BuildContext ctx) => Icon(Icons.people, size: markerSize)
+  );
 }
 
 class UserLocationMarker extends Marker {
@@ -267,12 +265,16 @@ class UserLocationMarker extends Marker {
 
   UserLocationMarker(LatLng location)
       : super(
-    anchorPos: AnchorPos.align(AnchorAlign.bottom),
+    anchorPos: AnchorPos.align(AnchorAlign.center),
     // the code will be modified soon as heatmap bugs are fixed
     height: markerSize,
     width: markerSize,
     point: location,
-    builder: (BuildContext ctx) => Icon(Icons.account_circle, size: markerSize)
+    builder: (BuildContext ctx) => Icon(
+      Icons.circle,
+      size: markerSize,
+      color: Colors.blue,
+    )
   );
 }
 
@@ -302,6 +304,25 @@ class WeedMarkerPopup extends StatelessWidget {
             ],
           )
       )
+    );
+  }
+}
+
+class CommunityMarkerPopup extends StatelessWidget {
+  const CommunityMarkerPopup({Key? key, required this.location}) : super(key: key);
+  // contains all the weed information, such as location and species
+  final LatLng location;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        width: 200,
+        child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15), // sexy curves
+            ),
+            child: Text("Community thing at ${location.latitude}, ${location.longitude}")
+        )
     );
   }
 }
