@@ -80,144 +80,195 @@ class _MapsPageState extends State<MapsPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Marker> markers = communityView ? [
-      CommunityMarker(LatLng(-27.4475, 153.0137))
-    ] : [
-      WeedMarker(
-        Report(
-          id: ObjectId(),
-          status: "status",
-          notes: "notes",
-          polygon: GeoJsonMultiPolygon(),
-          photoLocations: [
-            PhotoLocation(
-                id: ObjectId(),
-                photo: new File("assets/placeholder.png"),
-                location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
-                image_filename: 'placeholder.png'
-            )
-          ],
-          name: "test",
-          species_id: 41
-        )
-      )
-    ];
+    List<WeedMarker> reportMarkers = _debugReportMarkers();
+    List<CommunityMarker> communityMarkers = _debugCommunityMarkers();
+
     // List<WeedMarker> markers = reports.map((rep) => WeedMarker(report: rep)).toList();
     return Scaffold(
         body: Stack(children: [
-      // this future builder returns a loading page until its given futures have
-      // completed. built this way, the futures only have to be loaded once per
-      // initState(), so we don't have to (for e.g.) send http requests every
-      // time we rebuild the map. efficiency (taps head)
-      FutureBuilder(
-          future: loaded, // warning: never put a function call here
-          builder: (context, snapshot) {
-            // i.e. "if Future.wait([...]) gave us the all clear..."
-            if (snapshot.connectionState == ConnectionState.done) {
-              // all futures have completed; display the map
-              return FlutterMap(
-                  options: MapOptions(
-                    // the default map location, upon opening the map
-                    center: userPosition,
-                    zoom: 13.0,
-                    // disable map rotation for now
-                    interactiveFlags:
-                        InteractiveFlag.all & ~InteractiveFlag.rotate,
-                    // hide all popups when the map is tapped
-                    onTap: (_) => widget._popupLayerController.hidePopup(),
-                    plugins: [MarkerClusterPlugin()],
-                  ),
-                  layers: [
-                    // the tiles (i.e. appearance) of the map. not affected by view mode
-                    TileLayerOptions(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: <String>['a', 'b', 'c'],
-                    ),
-                    // user location marker
-                    MarkerLayerOptions(markers: [UserLocationMarker(userPosition)]),
-                    MarkerClusterLayerOptions(
-                      // max distance between two markers without clustering
-                      maxClusterRadius: 50,
-                      // cluster icon size
-                      size: Size(40, 40),
-                      // cluster icons are centred on the location
-                      anchor: AnchorPos.align(AnchorAlign.center),
-                      fitBoundsOptions: FitBoundsOptions(
-                        padding: EdgeInsets.all(50),
+          // this future builder returns a loading page until its given futures have
+          // completed. built this way, the futures only have to be loaded once per
+          // initState(), so we don't have to (for e.g.) send http requests every
+          // time we rebuild the map. efficiency (taps head)
+          FutureBuilder(
+              future: loaded, // warning: never put a function call here
+              builder: (context, snapshot) {
+                // i.e. "if Future.wait([...]) gave us the all clear..."
+                if (snapshot.connectionState == ConnectionState.done) {
+                  // all futures have completed; display the map
+                  return FlutterMap(
+                      options: MapOptions(
+                        // the default map location, upon opening the map
+                        center: userPosition,
+                        zoom: 13.0,
+                        // disable map rotation for now
+                        interactiveFlags:
+                            InteractiveFlag.all & ~InteractiveFlag.rotate,
+                        // hide all popups when the map is tapped
+                        onTap: (_) => widget._popupLayerController.hidePopup(),
+                        plugins: [MarkerClusterPlugin()],
                       ),
-                      markers: markers,
-                      // pop-up options are pretty self-explanatory
-                      popupOptions: PopupOptions(
-                          popupSnap: PopupSnap.markerTop,
-                          popupController: widget._popupLayerController,
-                          popupAnimation: PopupAnimation.fade(
-                              duration: Duration(milliseconds: 100)),
-                          popupBuilder: (_, Marker marker) {
-                            if (marker is WeedMarker) return WeedMarkerPopup(report: marker.report);
-                            else if (marker is CommunityMarker) return CommunityMarkerPopup(location: marker.location);
-                            return Card(child: Text('Error: Not a weed marker or community marker.'));
-                          }),
-                      // widget to represent marker clusters
-                      builder: (context, markers) {
-                        return FloatingActionButton(
-                          onPressed: null,
-                          // handled by the MarkerClusterLayer
-                          // display the number of markers clustered in the icon
-                          child: Text(markers.length.toString()), // fixme: this number is the number of markers plus one, not the number of markers
-                        );
-                      },
-                    ),
-                  ]);
-            } else {
-              // the futures have not yet completed; display a loading page
-              return Align(
-                  alignment: Alignment.center,
-                  child: CircularProgressIndicator()
-              );
-            }
-          }),
-      Padding(
-          // space from the top of the screen
-          padding: EdgeInsets.only(top: 50),
-          child: Align(
-            alignment: Alignment.topCenter,
-            // ToggleButtons is the container for all of the buttons
-            child: ToggleButtons(
-              borderWidth: 2,
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              // each child represents a separate button
-              children: <Widget>[
-                Container(
-                    color: Colors.white,
-                    child: Padding(
-                        // add some space between the edge of the button and the inner text
-                        padding: EdgeInsets.all(16),
-                        child: Text("Weed Reports"))),
-                Container(
-                    color: Colors.white,
-                    child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Text("Community")))
+                      layers: [
+                        _tileLayer(),
+                        _userLocationMarker(),
+                        if (communityView) _communityMarkers(communityMarkers)
+                        else _reportMarkers(reportMarkers)
+                      ]
+                  );
+                } else {
+                  // the futures have not yet completed; display a loading page
+                  return Align(
+                      alignment: Alignment.center,
+                      child: CircularProgressIndicator()
+                  );
+                }
+              }),
+          Padding(
+            // space from the top of the screen
+              padding: EdgeInsets.only(top: 50),
+              child: Align(
+                alignment: Alignment.topCenter,
+                // ToggleButtons is the container for all of the buttons
+                child: _toggleButtons(),
+              )
+          )
+        ])
+    );
+  }
+
+  TileLayerOptions _tileLayer() {
+    return TileLayerOptions(
+      urlTemplate:
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      subdomains: <String>['a', 'b', 'c'],
+    );
+  }
+
+  MarkerLayerOptions _userLocationMarker() {
+    return MarkerLayerOptions(markers: [UserLocationMarker(userPosition)]);
+  }
+
+  MarkerClusterLayerOptions _reportMarkers(List<WeedMarker> reportMarkers) {
+    return MarkerClusterLayerOptions(
+      // max distance between two markers without clustering
+      maxClusterRadius: 50,
+      // cluster icon size
+      size: Size(40, 40),
+      // cluster icons are centred on the location
+      anchor: AnchorPos.align(AnchorAlign.center),
+      fitBoundsOptions: FitBoundsOptions(
+        padding: EdgeInsets.all(50),
+      ),
+      markers: reportMarkers,
+      // pop-up options are pretty self-explanatory
+      popupOptions: PopupOptions(
+          popupSnap: PopupSnap.markerTop,
+          popupController: widget._popupLayerController,
+          popupAnimation: PopupAnimation.fade(duration: Duration(milliseconds: 100)),
+          popupBuilder: (_, Marker marker) => WeedMarkerPopup(report: (marker as WeedMarker).report)),
+      // widget to represent marker clusters
+      builder: (context, markers) {
+        return FloatingActionButton(
+          onPressed: null,
+          // handled by the MarkerClusterLayer
+          // display the number of markers clustered in the icon
+          child: Text(markers.length.toString()), // fixme: this number is the number of markers plus one, not the number of markers
+        );
+      },
+    );
+  }
+
+  MarkerClusterLayerOptions _communityMarkers(List<CommunityMarker> communityMarkers) {
+    return MarkerClusterLayerOptions(
+      // max distance between two markers without clustering
+      maxClusterRadius: 50,
+      // cluster icon size
+      size: Size(40, 40),
+      // cluster icons are centred on the location
+      anchor: AnchorPos.align(AnchorAlign.center),
+      fitBoundsOptions: FitBoundsOptions(
+        padding: EdgeInsets.all(50),
+      ),
+      markers: communityMarkers,
+      // pop-up options are pretty self-explanatory
+      popupOptions: PopupOptions(
+          popupSnap: PopupSnap.markerTop,
+          popupController: widget._popupLayerController,
+          popupAnimation: PopupAnimation.fade(duration: Duration(milliseconds: 100)),
+          popupBuilder: (_, Marker marker) => CommunityMarkerPopup(location: (marker as CommunityMarker).location)),
+      // widget to represent marker clusters
+      builder: (context, markers) {
+        return FloatingActionButton(
+          onPressed: null,
+          // handled by the MarkerClusterLayer
+          // display the number of markers clustered in the icon
+          child: Text(markers.length.toString()), // fixme: this number is the number of markers plus one, not the number of markers
+        );
+      },
+    );
+  }
+
+  ToggleButtons _toggleButtons() {
+    return ToggleButtons(
+      borderWidth: 2,
+      borderRadius: BorderRadius.all(Radius.circular(10)),
+      // each child represents a separate button
+      children: <Widget>[
+        Container(
+            color: Colors.white,
+            child: Padding(
+              // add some space between the edge of the button and the inner text
+                padding: EdgeInsets.all(16),
+                child: Text("Weed Reports"))),
+        Container(
+            color: Colors.white,
+            child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Text("Community")))
+      ],
+      // on click, ToggleButtons calls this function with the index of the clicked button
+      onPressed: (int index) {
+        // setState() rebuilds the map with the updated view mode
+        setState(() {
+          // the heatmap button is the second button. this variable determines the map UI
+          communityView = index == 1;
+          // change the UI of the buttons to highlight which button was clicked
+          for (int i = 0; i < isSelected.length; i++) {
+            isSelected[i] = false;
+          }
+          isSelected[index] = true;
+        });
+      },
+      // [true, false] or [false, true] depending on the selected button
+      isSelected: isSelected,
+    );
+  }
+
+  List<WeedMarker> _debugReportMarkers() {
+    return [
+      WeedMarker(
+          Report(
+              id: ObjectId(),
+              status: "status",
+              notes: "notes",
+              polygon: GeoJsonMultiPolygon(),
+              photoLocations: [
+                PhotoLocation(
+                    id: ObjectId(),
+                    photo: new File("assets/placeholder.png"),
+                    location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
+                    image_filename: 'placeholder.png'
+                )
               ],
-              // on click, ToggleButtons calls this function with the index of the clicked button
-              onPressed: (int index) {
-                // setState() rebuilds the map with the updated view mode
-                setState(() {
-                  // the heatmap button is the second button. this variable determines the map UI
-                  communityView = index == 1;
-                  // change the UI of the buttons to highlight which button was clicked
-                  for (int i = 0; i < isSelected.length; i++) {
-                    isSelected[i] = false;
-                  }
-                  isSelected[index] = true;
-                });
-              },
-              // [true, false] or [false, true] depending on the selected button
-              isSelected: isSelected,
-            ),
-          ))
-    ]));
+              name: "test",
+              species_id: 41
+          )
+      )
+    ];
+  }
+
+  List<CommunityMarker> _debugCommunityMarkers() {
+    return [CommunityMarker(LatLng(-27.4475, 153.0137))];
   }
 }
 
