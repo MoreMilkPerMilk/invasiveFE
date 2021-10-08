@@ -1,11 +1,9 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:geojson/geojson.dart';
 import 'package:geopoint/geopoint.dart';
-import 'package:invasive_fe/models/Geometry.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
@@ -84,7 +82,7 @@ class _MapsPageState extends State<MapsPage> {
   @override
   Widget build(BuildContext context) {
     // todo: add marker for user location, test whether reopening the map updates the center
-    List<Marker> markers = [
+    List<WeedMarker> markers = [
       WeedMarker(
           report: Report(
               id: ObjectId(),
@@ -104,7 +102,6 @@ class _MapsPageState extends State<MapsPage> {
           )
       )
     ];
-    markers.add(UserLocationMarker(userPosition));
     // List<WeedMarker> markers = reports.map((rep) => WeedMarker(report: rep)).toList();
     return Scaffold(
         body: Stack(children: [
@@ -137,6 +134,8 @@ class _MapsPageState extends State<MapsPage> {
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: <String>['a', 'b', 'c'],
                     ),
+                    // user location marker
+                    MarkerLayerOptions(markers: [UserLocationMarker(userPosition)]),
                     // disable clustering and popups for heat map view
                     if (heatmapMode)
                       MarkerLayerOptions(markers: markers)
@@ -165,7 +164,6 @@ class _MapsPageState extends State<MapsPage> {
                                 return WeedMarkerPopup(
                                     report: marker.report);
                               }
-                              // this code should never run as we only ever make WeedMarkers
                               return Card(child: Text('Error: Not a weed.'));
                             }),
                         // widget to represent marker clusters
