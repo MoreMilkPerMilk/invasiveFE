@@ -42,7 +42,6 @@ class _MapsPageState extends State<MapsPage> {
   LatLng userPosition = LatLng(-27.4975, 153.0137);
   // the state of this future determines whether to display a loading screen
   late Future loaded;
-  late Timer _everyXSeconds;
 
   /// information that should be refreshed each time maps opens goes here
   @override
@@ -68,7 +67,7 @@ class _MapsPageState extends State<MapsPage> {
       userPosition = LatLng(position.latitude, position.longitude);
     }));
 
-    _everyXSeconds = Timer.periodic(Duration(seconds: 15), (timer) {
+    Timer.periodic(Duration(seconds: 15), (timer) {
       if (this.mounted) {
         determinePosition().then((position) => setState(() {
           userPosition = LatLng(position.latitude, position.longitude);
