@@ -44,7 +44,6 @@ class _MapsPageState extends State<MapsPage> {
   LatLng userPosition = LatLng(-27.4975, 153.0137);
   // the state of this future determines whether to display a loading screen
   late Future loaded;
-  late String _now;
   late Timer _everyXSeconds;
 
   /// information that should be refreshed each time maps opens goes here
@@ -71,23 +70,21 @@ class _MapsPageState extends State<MapsPage> {
       userPosition = LatLng(position.latitude, position.longitude);
     }));
 
-    var _now = DateTime.now().second.toString();
-    _everyXSeconds = Timer.periodic(Duration(seconds: 1), (timer) {
+    _everyXSeconds = Timer.periodic(Duration(seconds: 15), (timer) {
       if (this.mounted) {
         determinePosition().then((position) => setState(() {
           userPosition = LatLng(position.latitude, position.longitude);
-          print(userPosition);
         }));
       }
     });
-
 
     loaded = Future.wait([reportsFuture, speciesFuture, positionFuture]);
   }
 
   @override
   Widget build(BuildContext context) {
-    List<WeedMarker> markers = [
+    // todo: add marker for user location, test whether reopening the map updates the center
+    List<Marker> markers = [
       WeedMarker(
           report: Report(
               id: ObjectId(),
@@ -107,6 +104,7 @@ class _MapsPageState extends State<MapsPage> {
           )
       )
     ];
+    markers.add(UserLocationMarker(userPosition));
     // List<WeedMarker> markers = reports.map((rep) => WeedMarker(report: rep)).toList();
     return Scaffold(
         body: Stack(children: [
@@ -263,6 +261,22 @@ class WeedMarker extends Marker {
               : (BuildContext ctx) =>
                   Icon(Icons.location_pin, size: markerSize),
         );
+}
+
+class UserLocationMarker extends Marker {
+  // size of this marker. must be the same as its widget's internal size, or
+  // the visual size and hit-box size will be different
+  static final double markerSize = 40;
+
+  UserLocationMarker(LatLng location)
+      : super(
+    anchorPos: AnchorPos.align(AnchorAlign.bottom),
+    // the code will be modified soon as heatmap bugs are fixed
+    height: markerSize,
+    width: markerSize,
+    point: location,
+    builder: (BuildContext ctx) => Icon(Icons.account_circle, size: markerSize)
+  );
 }
 
 /// the on-click popup for a weed marker. built by the popupcontroller when a
