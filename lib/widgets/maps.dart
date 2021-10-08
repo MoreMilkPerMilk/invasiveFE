@@ -80,10 +80,10 @@ class _MapsPageState extends State<MapsPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<WeedMarker> reportMarkers = _debugReportMarkers();
+    List<ReportMarker> reportMarkers = _debugReportMarkers();
     List<CommunityMarker> communityMarkers = _debugCommunityMarkers();
 
-    // List<WeedMarker> markers = reports.map((rep) => WeedMarker(report: rep)).toList();
+    // List<ReportMarker> markers = reports.map((rep) => ReportMarker(report: rep)).toList();
     return Scaffold(
         body: Stack(children: [
           // this future builder returns a loading page until its given futures have
@@ -148,7 +148,7 @@ class _MapsPageState extends State<MapsPage> {
     return MarkerLayerOptions(markers: [UserLocationMarker(userPosition)]);
   }
 
-  MarkerClusterLayerOptions _reportMarkers(List<WeedMarker> reportMarkers) {
+  MarkerClusterLayerOptions _reportMarkers(List<ReportMarker> reportMarkers) {
     return MarkerClusterLayerOptions(
       // max distance between two markers without clustering
       maxClusterRadius: 50,
@@ -165,7 +165,7 @@ class _MapsPageState extends State<MapsPage> {
           popupSnap: PopupSnap.markerTop,
           popupController: widget._popupLayerController,
           popupAnimation: PopupAnimation.fade(duration: Duration(milliseconds: 100)),
-          popupBuilder: (_, Marker marker) => WeedMarkerPopup(report: (marker as WeedMarker).report)),
+          popupBuilder: (_, Marker marker) => ReportMarkerPopup(report: (marker as ReportMarker).report)),
       // widget to represent marker clusters
       builder: (context, markers) {
         return FloatingActionButton(
@@ -244,9 +244,9 @@ class _MapsPageState extends State<MapsPage> {
     );
   }
 
-  List<WeedMarker> _debugReportMarkers() {
+  List<ReportMarker> _debugReportMarkers() {
     return [
-      WeedMarker(
+      ReportMarker(
           Report(
               id: ObjectId(),
               status: "status",
@@ -272,16 +272,15 @@ class _MapsPageState extends State<MapsPage> {
   }
 }
 
-/// a WeedMarker is a type of Marker which additionally stores information about
-/// weeds captured at a Location
-class WeedMarker extends Marker {
-  // represents weed data
+/// a type of Marker which additionally stores information about a report
+class ReportMarker extends Marker {
+  // represents report data
   final Report report;
   // size of this marker. must be the same as its widget's internal size, or
   // the visual size and hit-box size will be different
   static final double markerSize = 40;
 
-  WeedMarker(this.report) : super(
+  ReportMarker(this.report) : super(
     anchorPos: AnchorPos.align(AnchorAlign.top),
     height: markerSize,
     width: markerSize,
@@ -324,11 +323,10 @@ class UserLocationMarker extends Marker {
   );
 }
 
-/// the on-click popup for a weed marker. built by the popupcontroller when a
-/// weedmarker is clicked.
-class WeedMarkerPopup extends StatelessWidget {
-  const WeedMarkerPopup({Key? key, required this.report}) : super(key: key);
-  // contains all the weed information, such as location and species
+/// the on-click popup for a report marker. built by the popupcontroller when a reportmarker is clicked.
+class ReportMarkerPopup extends StatelessWidget {
+  const ReportMarkerPopup({Key? key, required this.report}) : super(key: key);
+  // contains all the report information, such as location and species
   final Report report;
 
   @override
@@ -340,10 +338,10 @@ class WeedMarkerPopup extends StatelessWidget {
             borderRadius: BorderRadius.circular(15), // sexy curves
           ),
           child: Column(
-            // a single weed information block, which is a column of weed information
+            // a single report information block, which is a column of report information
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              // present basic weed information
+              // present basic report information
               Image.network(report.photoLocations.first.image_filename, width: 200),
               Text(species[report.species_id]!.name),
               Text('${report.photoLocations.first.location.geoPoint.latitude}-${report.photoLocations.first.location.geoPoint.longitude}'),
@@ -356,7 +354,7 @@ class WeedMarkerPopup extends StatelessWidget {
 
 class CommunityMarkerPopup extends StatelessWidget {
   const CommunityMarkerPopup({Key? key, required this.location}) : super(key: key);
-  // contains all the weed information, such as location and species
+  // contains all the report information, such as location and species
   final LatLng location;
 
   @override
