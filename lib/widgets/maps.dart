@@ -136,43 +136,38 @@ class _MapsPageState extends State<MapsPage> {
                     ),
                     // user location marker
                     MarkerLayerOptions(markers: [UserLocationMarker(userPosition)]),
-                    // disable clustering and popups for heat map view
-                    if (communityView)
-                      MarkerLayerOptions(markers: markers)
-                    // enable clustering and popups for pin view
-                    else
-                      MarkerClusterLayerOptions(
-                        // max distance between two markers without clustering
-                        maxClusterRadius: 50,
-                        // cluster icon size
-                        size: Size(40, 40),
-                        // cluster icons are centred on the location
-                        anchor: AnchorPos.align(AnchorAlign.center),
-                        fitBoundsOptions: FitBoundsOptions(
-                          padding: EdgeInsets.all(50),
-                        ),
-                        markers: markers,
-                        // pop-up options are pretty self-explanatory
-                        popupOptions: PopupOptions(
-                            popupSnap: PopupSnap.markerTop,
-                            popupController: widget._popupLayerController,
-                            popupAnimation: PopupAnimation.fade(
-                                duration: Duration(milliseconds: 100)),
-                            popupBuilder: (_, Marker marker) {
-                              if (marker is WeedMarker) return WeedMarkerPopup(report: marker.report);
-                              else if (marker is CommunityMarker) return CommunityMarkerPopup(location: marker.location);
-                              return Card(child: Text('Error: Not a weed marker or community marker.'));
-                            }),
-                        // widget to represent marker clusters
-                        builder: (context, markers) {
-                          return FloatingActionButton(
-                            onPressed: null,
-                            // handled by the MarkerClusterLayer
-                            // display the number of markers clustered in the icon
-                            child: Text(markers.length.toString()), // fixme: this number is the number of markers plus one, not the number of markers
-                          );
-                        },
+                    MarkerClusterLayerOptions(
+                      // max distance between two markers without clustering
+                      maxClusterRadius: 50,
+                      // cluster icon size
+                      size: Size(40, 40),
+                      // cluster icons are centred on the location
+                      anchor: AnchorPos.align(AnchorAlign.center),
+                      fitBoundsOptions: FitBoundsOptions(
+                        padding: EdgeInsets.all(50),
                       ),
+                      markers: markers,
+                      // pop-up options are pretty self-explanatory
+                      popupOptions: PopupOptions(
+                          popupSnap: PopupSnap.markerTop,
+                          popupController: widget._popupLayerController,
+                          popupAnimation: PopupAnimation.fade(
+                              duration: Duration(milliseconds: 100)),
+                          popupBuilder: (_, Marker marker) {
+                            if (marker is WeedMarker) return WeedMarkerPopup(report: marker.report);
+                            else if (marker is CommunityMarker) return CommunityMarkerPopup(location: marker.location);
+                            return Card(child: Text('Error: Not a weed marker or community marker.'));
+                          }),
+                      // widget to represent marker clusters
+                      builder: (context, markers) {
+                        return FloatingActionButton(
+                          onPressed: null,
+                          // handled by the MarkerClusterLayer
+                          // display the number of markers clustered in the icon
+                          child: Text(markers.length.toString()), // fixme: this number is the number of markers plus one, not the number of markers
+                        );
+                      },
+                    ),
                   ]);
             } else {
               // the futures have not yet completed; display a loading page
@@ -315,6 +310,7 @@ class CommunityMarkerPopup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("building community popup");
     return Container(
         width: 200,
         child: Card(
