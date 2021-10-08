@@ -35,6 +35,7 @@ dependencies:
   sliding_up_panel: ^2.0.0+1
   fluttertoast: ^8.0.8
 
+
   # leaflet things
   flutter_map: ^0.13.1  # leaflet for flutter
   latlong2: ^0.8.0
@@ -54,6 +55,7 @@ dependencies:
   google_fonts: ^2.1.0
   html_unescape: ^2.0.0
   string_extensions: ^0.3.2
+  file_picker: ^4.1.1
 
 
 dev_dependencies:

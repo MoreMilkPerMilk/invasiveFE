@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:invasive_fe/services/httpService.dart';
@@ -17,21 +18,21 @@ final double externalPadding = 10;
 
 // ignore: must_be_immutable
 class ReportPage extends StatelessWidget {
-  WeedInstance weed;
+  Report report;
   Species? species;
   late Future<List<Species>> speciesFuture;
 
-  ReportPage({required this.weed}) : super() {
+  ReportPage({required this.report}) : super() {
     speciesFuture = getAllSpecies();
     speciesFuture.then((List<Species> speciesList) {
       for (Species species in speciesList) {
-        if (species.species_id == weed.species_id) {
+        if (species.species_id == report.species_id) {
           this.species = species;
           break;
         }
       }
       if (species == null) {
-        throw Exception("Failed to find species with ID: ${weed.species_id}");
+        throw Exception("Failed to find species with ID: ${report.species_id}");
       }
     });
   }
@@ -48,7 +49,7 @@ class ReportPage extends StatelessWidget {
                 return Column(children: [
                   CardWithHeader(
                       header: "Species Info",
-                      body: PlantInfoBox(species: species!, weed: weed)),
+                      body: PlantInfoBox(species: species!, report: report)),
                   CardWithHeader(
                       header: "Reporting", body: WeedsReportingBox()),
                   //CardWithHeader(header: "RESOURCES", body: ResourcesBox())
@@ -113,7 +114,7 @@ class CardWithHeader extends StatelessWidget {
 
 class PlantInfoBox extends StatelessWidget {
   final Species species;
-  final WeedInstance weed;
+  final Report report;
   final TextStyle headingStyle = GoogleFonts.openSans(
       fontSize: 11,
       fontWeight: FontWeight.bold,
@@ -124,7 +125,7 @@ class PlantInfoBox extends StatelessWidget {
       color: Colors.black
   );
 
-  PlantInfoBox({required this.species, required this.weed}) : super();
+  PlantInfoBox({required this.species, required this.report}) : super();
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +160,7 @@ class PlantInfoBox extends StatelessWidget {
               child: FittedBox(
                 fit: BoxFit.cover,
                 clipBehavior: Clip.hardEdge,
-                child: Image.network(weed.image_filename!)
+                child: Image.network(report.photoLocations.first.image_filename)
               )
             )
         )

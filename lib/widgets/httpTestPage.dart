@@ -1,9 +1,11 @@
 import 'dart:developer';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
+import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:invasive_fe/widgets/reportPage.dart';
@@ -11,6 +13,7 @@ import 'package:objectid/objectid.dart';
 import 'package:uuid/uuid.dart';
 import 'package:geojson/geojson.dart';
 import 'package:geopoint/geopoint.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../services/httpService.dart';
 
@@ -24,21 +27,6 @@ class HttpTestPage extends StatelessWidget {
         child: Column(
           children: [
             Spacer(),
-            ElevatedButton(
-              onPressed: () {
-                var weed = WeedInstance(
-                    species_id: 41,
-                    discovery_date: "2000/03/02",
-                    speciesName: "weedy weed",
-                    info: "some info",
-                    image_filename: "image_url");
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ReportPage(weed: weed)
-                ));
-              },
-              child: Text('Report Page'),
-            ),
             Spacer(),
             ElevatedButton(
               onPressed: () {
@@ -47,50 +35,64 @@ class HttpTestPage extends StatelessWidget {
               },
               child: Text('/Locations'),
             ),
+            Spacer(),
+            ElevatedButton(
+              child: Text("Hello!"),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ReportPage(
+                  report: Report(
+                      id: ObjectId(),
+                      status: "status",
+                      notes: "notes",
+                      polygon: GeoJsonMultiPolygon(),
+                      photoLocations: [
+                        PhotoLocation(
+                            id: ObjectId(),
+                            photo: new File("assets/placeholder.png"),
+                            location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
+                            image_filename: 'placeholder.png'
+                        )
+                      ],
+                      name: "test",
+                      species_id: 41
+                  ),
+                ))
+              ),
+            ),
+            Spacer(),
             ElevatedButton(
               onPressed: () async {
-                log("/Add Location w/o Weeds");
+                File file = new File("");
+                log("/Add PhotoLocation");
+                String path = 'assets/placeholder.png';
                 ByteData imgBytes = await rootBundle.load('assets/placeholder.png');
                 print(imgBytes);
                 Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
                 XFile xFile = XFile.fromData(imgUint8List, path: 'assets/placeholder.png'); // fixme: this has no path set...
+                xFile.saveTo("/storage/emulated/0/Download/image.png");
                 var loc = PhotoLocation(
                     id: ObjectId(),
-                    photo: xFile,
-                    location: GeoPoint(latitude: 4, longitude: 4),
-                    weeds_present: []
+                    photo: new File("/storage/emulated/0/Download/image.png"),
+                    location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: 4, longitude: 4)),
+                    image_filename: 'placeholder.png' //BAD
                 );
                 addPhotoLocation(loc);
               },
-              child: Text('/Add Location w/o Weeds'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                log("/Add PhotoLocation");
-                ByteData imgBytes = await rootBundle.load('assets/placeholder.png');
-                Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
-                XFile xFile = XFile.fromData(imgUint8List);
-                var loc = PhotoLocation(
-                    id: ObjectId(),
-                    photo: xFile,
-                    location: GeoPoint(latitude: 4, longitude: 4),
-                    weeds_present: []
-                );
-                addPhotoLocation(loc);
-              },
-              child: Text('/Add Location w/ Weeds'),
+              child: Text('/Add PhotoLocation'),
             ),
             ElevatedButton(
               onPressed: () async {
                 log("/Delete Location");
+                String path = 'assets/placeholder.png';
                 ByteData imgBytes = await rootBundle.load('assets/placeholder.png');
                 Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
                 XFile xFile = XFile.fromData(imgUint8List);
                 var loc = PhotoLocation(
                     id: ObjectId(),
-                    photo: xFile,
-                    location: GeoPoint(latitude: 4, longitude: 4),
-                    weeds_present: []
+                    photo: new File(""),
+                    location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: 4, longitude: 4)),
+                    image_filename: 'placeholder.png' //BAD
                 );
                 deleteLocation(loc);
               },
@@ -108,7 +110,7 @@ class HttpTestPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 log("/Add User");
-                var user = User(person_id: 999, first_name: "test user", last_name: "last", date_joined: "1999-01-01", count_identified: 0, previous_tags: []);
+                var user = User(id: ObjectId(), first_name: "test user", last_name: "last", date_joined: "1999-01-01", reports: []);
                 addUser(user);
               },
               child: Text('/Add User'),
@@ -130,6 +132,79 @@ class HttpTestPage extends StatelessWidget {
               child: Text('/Species'),
             ),
             Spacer(),
+            ElevatedButton(
+              onPressed: () {
+                log("add photoplocation");
+                addPhotoLocation(new PhotoLocation(id: new ObjectId(), photo: new File(''), image_filename: 'file.txt', location: new GeoJsonPoint(geoPoint: new GeoPoint(latitude: 1, longitude: 1))));
+                // getUserById(1);
+              },
+              child: Text('add photolocation'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                log("/councils/peek");
+                getAllCouncils();
+                // getUserById(1);
+              },
+              child: Text('/councils/peek'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                log("/councils/613ef4c84ed77d2294042db6");
+                getCouncilById(ObjectId.fromHexString("613ef4c84ed77d2294042db6"));
+                // getUserById(1);
+              },
+              child: Text('/councils/bundaberg'),
+            ),
+            TextField(
+              decoration: const InputDecoration(
+                  hintText: 'Search for a council by name',
+                  labelText: 'Council search'
+              ),
+              onSubmitted: (String? value) {
+                print("field has value " + value.toString());
+                log("SAVEDDDD");
+                String search_term = "";
+                if (value != null) {
+                  search_term = value;
+                }
+                log("SAVED");
+                searchForCouncilBySearchTerm(search_term);
+              },
+            ),
+            ElevatedButton(
+              onPressed: () {
+                log("/councils/search/location");
+                searchForCouncilByLocation(new PhotoLocation(id: ObjectId(), photo: File(""), image_filename: "", location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: 27.4975, longitude: 153.0137))));
+              },
+              child: Text('/councils/search/location (using uni lat long)'),
+            ),
+            Spacer(),
+            ElevatedButton(
+              onPressed: () {
+                log("/communities/peek");
+                peekCommmunities();
+                // getUserById(1);
+              },
+              child: Text('/communities/peek'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                log("/communities/weedwackers");
+                getCommunity(ObjectId.fromHexString("612ef1285412b4a4e946adff"));
+                // getUserById(1);
+              },
+              child: Text('/communities/weedwackers'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                log("/communities/locations/weedwackers");
+                getCommunityLocations(ObjectId.fromHexString("612ef1285412b4a4e946adff"));
+                // getUserById(1);
+              },
+              child: Text('/communities/locations/weedwackers'),
+            ),
+
           ],
         ),
       ),

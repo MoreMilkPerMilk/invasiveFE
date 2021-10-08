@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:geojson/geojson.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geopoint/geopoint.dart';
 import 'package:image/image.dart' as img;
@@ -18,7 +20,8 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 class Panel extends StatefulWidget {
   String foundSpecies;
   PanelController _pc;
-  XFile photo;
+  File photo;
+  //String photoPath;
   bool negative;
 
   Panel(this.foundSpecies, this.photo, this._pc, this.negative);
@@ -34,12 +37,17 @@ class _PanelState extends State<Panel> {
 
   // String foundSpecies;
   // PanelController _pc;
-  // XFile photo;
+
 
   bool _reportButtonDisabled = false;
 
   @override
   Widget build(BuildContext context) {
+    // XFile testPhoto = XFile(widget.photoPath);
+    // photo.readAsBytes().then((value){
+    //   imgBytes = value;
+    // });
+    // Image img = Image.memory(imgBytes);
     if (widget.negative) {
       return Center(
           child: Padding(
@@ -124,7 +132,7 @@ class _PanelState extends State<Panel> {
                     child: FittedBox(
                       fit: BoxFit.fitWidth,
                       child: Image.file(
-                        File(widget.photo.path),
+                        widget.photo,
                       ),
                     ),
                   ),
@@ -185,6 +193,8 @@ class _PanelState extends State<Panel> {
                                 primary: Colors.green,
                               ),
                               onPressed: () {
+                                print("PRESSED DONE");
+                                report();
                                 widget._pc.close();
                               },
                               icon: Icon(Icons.done, size: 18),
@@ -202,31 +212,37 @@ class _PanelState extends State<Panel> {
     );
   }
 
-  Future<void> callback() async {
+  Future<void> report() async {
     setState(() {
       _reportButtonDisabled = true;
     });
     var pos = await determinePosition();
-    compute(sendReportToBackend, PhotoLocationData(pos, widget.photo, widget.foundSpecies));
+    print(pos);
+    //compute(sendReportToBackend, PhotoLocationData(pos, widget.photo));
+    sendReportToBackend(PhotoLocationData(pos, widget.photo));
   }
 }
 
 class PhotoLocationData{
   // Helper class to pass multiple parameters to compute
   final Position pos;
-  final XFile photoImage;
-  final String speciesName;
-  PhotoLocationData(this.pos, this.photoImage, this.speciesName);
+  final File photoImage;
+  //final String photoPath;
+  //final String speciesName;
+  PhotoLocationData(this.pos, this.photoImage);
 }
 
 Future<void> sendReportToBackend(PhotoLocationData data) async {
 
+  print("SENDING LOCATION DATA TO BACKEND");
   var photoLocation = new PhotoLocation(
     id: ObjectId(),
+    // photo: data.photoImage,
     photo: data.photoImage,
-    location: GeoPoint(latitude: data.pos.latitude, longitude: data.pos.longitude),
-    weeds_present: [],
+    location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: data.pos.latitude, longitude: data.pos.longitude)),
+    image_filename: 'cameraboyyy.png',//data.photoImage.path.split("/")[-1] // good?
   );
+  print(photoLocation.toString());
 
   // add report to backend also
   // var report = new Report(
@@ -239,5 +255,5 @@ Future<void> sendReportToBackend(PhotoLocationData data) async {
   //     polygon: polygon)
 
   //await addReport(report);
-  await addPhotoLocation(photoLocation);
+  addPhotoLocation(photoLocation);
 }
