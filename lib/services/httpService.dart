@@ -73,7 +73,7 @@ Future<PhotoLocation> createLocation(PhotoLocation location) async {
   );
   print("create location response: ");
   print(response.body);
-  print(photoLocation.toJson());
+  print(location.toJson());
 
   if (response.statusCode == 200) {
     return PhotoLocation.fromJson(jsonDecode(response.body));
@@ -512,20 +512,17 @@ Future<Community> addEventToCommunity(ObjectId communityId, Event event) async {
 Future<List<Report>> getAllReports() async {
   final response = await http.get(Uri.parse(API_URL + "/reports"));
 
-Future<List<WeedInstance>> getAllWeeds() async {
-  final response = await http.get(Uri.parse(API_URL + "/weeds"));
   if (response.statusCode == 200) {
-    var result = WeedInstance.parseWeedInstanceList(response.body);
     var result = Report.parseReportList(response.body);
     result.forEach((element) {
       log(element.toString());
     });
     return result;
-
   }
 
   throw "HTTP Error Code: ${response.statusCode}";
 }
+
 
 // --------------------------------
 //  WEEDS
