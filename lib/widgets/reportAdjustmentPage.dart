@@ -52,7 +52,7 @@ class ReportAdjustmentPage extends StatelessWidget {
               if (snapshot.connectionState == ConnectionState.done) {
                 return Padding(
                   padding: const EdgeInsets.all(16),
-                  child: ReportUpdateForm()
+                  child: ReportUpdateForm(report)
                 );
               } else {
                 return Align(
@@ -66,14 +66,19 @@ class ReportAdjustmentPage extends StatelessWidget {
 
 class ReportUpdateForm extends StatefulWidget {
 
+  final Report report;
+
+  ReportUpdateForm(this.report);
+
   @override
-  State<StatefulWidget> createState() => _ReportUpdateFormState();
+  createState() => _ReportUpdateFormState();
 }
 
-class _ReportUpdateFormState extends State {
+class _ReportUpdateFormState extends State<ReportUpdateForm> {
   bool wrongAutomatedInformation = false;
   bool contactedByWeedsOfficer = false;
   String additionalComments = "";
+  List<String> additionalPhotos = ['assets/placeholder.png', 'assets/placeholder.png'];
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +91,9 @@ class _ReportUpdateFormState extends State {
         Text("Additional comments:", style: bodyStyle),
         additionalCommentsField(),
         Text("Current photos:"),
-        CarouselSlider,
+        photosTakenSlider(),
+        takeMorePhotosButton(),
+        Spacer(),
         submitButton()
       ],
     );
@@ -149,7 +156,26 @@ class _ReportUpdateFormState extends State {
     );
   }
 
+  CarouselSlider photosTakenSlider() {
+    return CarouselSlider(
+      options: CarouselOptions(
+          height: 400.0,
+          enableInfiniteScroll: false,
+          viewportFraction: 0.85
+      ),
+      items: List.from((widget.report.photoLocations.map((i) => i.image_filename).toList())..addAll(additionalPhotos)).map((i) => Image.asset(i)).toList(),
+    );
+  }
 
+  Align takeMorePhotosButton() {
+    return Align(
+        alignment: Alignment.center,
+        child: ElevatedButton(
+          onPressed: () {},
+          child: Text("Add More Photos"),
+        )
+    );
+  }
 
   Align submitButton() {
     return Align(
