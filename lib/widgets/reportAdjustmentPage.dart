@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/services/httpService.dart';
-import 'package:html_unescape/html_unescape.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 final TextStyle headingStyle = GoogleFonts.openSans(
