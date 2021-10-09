@@ -159,7 +159,7 @@ class PlantInfoBox extends StatelessWidget {
               child: FittedBox(
                 fit: BoxFit.cover,
                 clipBehavior: Clip.hardEdge,
-                child: Image.network(report.photoLocations.first.image_filename)
+                child: Image.asset(report.photoLocations.first.image_filename)
               )
             )
         )
