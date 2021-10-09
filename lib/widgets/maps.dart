@@ -103,6 +103,10 @@ class _MapsPageState extends State<MapsPage> {
                         // the default map location, upon opening the map
                         center: userPosition,
                         zoom: 13.0,
+                        // todo: prone to further testing, this is the max zoom before the simulator for iphone 13 pro max wigs out
+                        maxZoom: 18.4,
+                        // fits australia nicely into one portrait-oriented screen, whilst not being so zoomed out that the countries turn white
+                        minZoom: 3.5,
                         // disable map rotation for now
                         interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
                         // hide all popups when the map is tapped
@@ -326,7 +330,7 @@ class UserLocationMarker extends Marker {
     width: markerSize,
     point: location,
     builder: (BuildContext ctx) => Stack(
-      alignment: Alignment.center,
+     alignment: Alignment.center,
       children: [
         Icon(
           Icons.circle,
@@ -335,11 +339,10 @@ class UserLocationMarker extends Marker {
         ),
         Icon(
           Icons.circle,
-          size: markerSize * 0.75,
+          size: markerSize * 0.7,
           color: Colors.blue
         )
       ]
-
     )
   );
 }
