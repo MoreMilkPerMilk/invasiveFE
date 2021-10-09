@@ -37,31 +37,6 @@ class HttpTestPage extends StatelessWidget {
             ),
             Spacer(),
             ElevatedButton(
-              child: Text("Hello!"),
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ReportPage(
-                  report: Report(
-                      id: ObjectId(),
-                      status: "status",
-                      notes: "notes",
-                      polygon: GeoJsonMultiPolygon(),
-                      photoLocations: [
-                        PhotoLocation(
-                            id: ObjectId(),
-                            photo: new File("assets/placeholder.png"),
-                            location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
-                            image_filename: 'placeholder.png'
-                        )
-                      ],
-                      name: "test",
-                      species_id: 41
-                  ),
-                ))
-              ),
-            ),
-            Spacer(),
-            ElevatedButton(
               onPressed: () async {
                 File file = new File("");
                 log("/Add PhotoLocation");
