@@ -141,9 +141,8 @@ class _MapsPageState extends State<MapsPage> {
 
   TileLayerOptions _tileLayer() {
     return TileLayerOptions(
-      urlTemplate:
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      subdomains: <String>['a', 'b', 'c'],
+      urlTemplate: 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+      subdomains: <String>['a', 'b'],
     );
   }
 
