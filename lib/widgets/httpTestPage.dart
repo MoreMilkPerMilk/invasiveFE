@@ -100,6 +100,40 @@ class HttpTestPage extends StatelessWidget {
             ),
             Spacer(),
             ElevatedButton(
+              onPressed: () async {
+                log("/Add Report");
+
+                // create photolocation for report
+                File file = new File("");
+                String path = 'assets/placeholder.png';
+                ByteData imgBytes = await rootBundle.load('assets/placeholder.png');
+                print(imgBytes);
+                Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
+                XFile xFile = XFile.fromData(imgUint8List, path: 'assets/placeholder.png'); // fixme: this has no path set...
+                xFile.saveTo("/storage/emulated/0/Download/image.png");
+                var loc = PhotoLocation(
+                    id: ObjectId(),
+                    photo: new File("/storage/emulated/0/Download/image.png"),
+                    location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: 4, longitude: 4)),
+                    image_filename: 'placeholder.png' //BAD
+                );
+
+                // create report
+                var report = new Report(
+                    id: ObjectId(),
+                    species_id: 1,
+                    name: 'test report',
+                    status: 'closed',
+                    photoLocations: [],  // currently backend requires that we add photolocation after creating report
+                    notes: '',
+                    polygon: new GeoJsonMultiPolygon()
+                );
+                addReport(report);
+              },
+              child: Text('/Add Report'),
+            ),
+            Spacer(),
+            ElevatedButton(
               onPressed: () {
                 log("/Users");
                 getAllUsers();

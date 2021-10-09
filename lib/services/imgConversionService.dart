@@ -39,6 +39,8 @@ Future<Image?> convertYUV420toImageColor(CameraImage image) async {
     List<int> png = pngEncoder.encodeImage(img);
     var muteYUVProcessing = false;
     return Image.fromBytes(width, height, png);
+    //return copyRotate(png_img, 90);
+
   } catch (e) {
     print(">>>>>>>>>>>> ERROR:" + e.toString());
   }

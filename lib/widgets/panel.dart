@@ -10,6 +10,7 @@ import 'package:geopoint/geopoint.dart';
 import 'package:image/image.dart' as img;
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/Report.dart';
+import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
@@ -21,7 +22,6 @@ class Panel extends StatefulWidget {
   String foundSpecies;
   PanelController _pc;
   File photo;
-  //String photoPath;
   bool negative;
 
   Panel(this.foundSpecies, this.photo, this._pc, this.negative);
@@ -33,11 +33,6 @@ class Panel extends StatefulWidget {
 }
 
 class _PanelState extends State<Panel> {
-  // _PanelState(this.foundSpecies, this._pc, this.photo);
-
-  // String foundSpecies;
-  // PanelController _pc;
-
 
   bool _reportButtonDisabled = false;
 
@@ -219,7 +214,7 @@ class _PanelState extends State<Panel> {
     var pos = await determinePosition();
     print(pos);
     //compute(sendReportToBackend, PhotoLocationData(pos, widget.photo));
-    sendReportToBackend(PhotoLocationData(pos, widget.photo));
+    sendReportToBackend(PhotoLocationData(pos, widget.photo, widget.foundSpecies));
   }
 }
 
@@ -227,9 +222,8 @@ class PhotoLocationData{
   // Helper class to pass multiple parameters to compute
   final Position pos;
   final File photoImage;
-  //final String photoPath;
-  //final String speciesName;
-  PhotoLocationData(this.pos, this.photoImage);
+  final String speciesName;
+  PhotoLocationData(this.pos, this.photoImage, this.speciesName);
 }
 
 Future<void> sendReportToBackend(PhotoLocationData data) async {
@@ -240,20 +234,24 @@ Future<void> sendReportToBackend(PhotoLocationData data) async {
     // photo: data.photoImage,
     photo: data.photoImage,
     location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: data.pos.latitude, longitude: data.pos.longitude)),
-    image_filename: 'cameraboyyy.png',//data.photoImage.path.split("/")[-1] // good?
+    image_filename: 'cameraboyyy.png',
   );
   print(photoLocation.toString());
 
-  // add report to backend also
-  // var report = new Report(
-  //     report_id: report_id,
-  //     species: species,
-  //     name: name,
-  //     status: status,
-  //     photoLocations: photoLocations,
-  //     notes: notes,
-  //     polygon: polygon)
+  // will need to check if report already exists
+  Species species = await getSpeciesByName(data.speciesName);
+  print(species);
+  var report = new Report(
+      id: ObjectId(),
+      species_id: species.species_id,
+      name: data.speciesName + DateTime.now().millisecondsSinceEpoch.toString(),
+      status: 'active',
+      photoLocations: [photoLocation],
+      notes: '',
+      polygon: new GeoJsonMultiPolygon()
+  );
 
-  //await addReport(report);
+  // add photolocation and report to backend
   addPhotoLocation(photoLocation);
+  addReport(report);
 }

@@ -63,7 +63,6 @@ Future<List<PhotoLocation>> getAllPhotoLocations() async {
 
 /// create location
 Future<PhotoLocation> createLocation(PhotoLocation location) async {
-  print("creating location");
   final response = await http.post(
     Uri.parse(API_URL + "/photolocations/create"),
     headers: <String, String>{
@@ -97,7 +96,7 @@ Future<bool> uploadPhotoToPhotoLocation(String filename, Stream<List<int>> strea
       stream, //bytes
       streamLength, //length
       filename: filename, // filename
-      contentType: MediaType('image','jpeg'),
+      contentType: MediaType('image','png'),
     ),
   );
   request.headers.addAll(headers);
@@ -122,38 +121,12 @@ Future<bool> addPhotoLocation(PhotoLocation photoLocation) async {
     // print("placejo " + placeholder);
     //var f = XFile("/storage/emulated/0/Download/image.png");
     var f = XFile(photoLocation.photo.path);
+    print("Photo path: " + f.path);
+    print("Photo" + f.toString());
     int length = await f.length();
     return uploadPhotoToPhotoLocation(photoLocation.photo.path, f.readAsBytes().asStream(), length, loc.id.toString());
   });
   return false;
-
-  // // String image = photoLocation.photo == null ? "" : photoLocation.photo!;
-  // // ByteData bytes = await rootBundle.load(image); // fixme: incomplete
-  // print(photoLocation.photo);
-  // print("PATH");
-  // print(photoLocation.photo.path); // fixme: appears to be null path?
-  // // convert Xfile photo to Image
-  // final imageBytes = await File(photoLocation.photo.path).readAsBytes();
-  // //final Image photoImage = img.decodeImage(bytes) as Image;
-  //
-  //
-  // final response = await http.post(
-  //     Uri.parse(API_URL + "/photolocations/add?"
-  //         "_id=${ObjectId()}&"
-  //         "location=${photoLocation.toString()}&"),
-  //     headers: <String, String>{
-  //       'Content-Type': 'multipart/form-data; boundary="&"',
-  //     },
-  //     body: "&" + base64Encode(imageBytes) + "&"
-  // );
-  //
-  // print(response.body);
-  // print(photoLocation.toJson());
-  //
-  // if (response.statusCode == 200) {
-  //   return true;
-  // }
-  // throw "HTTP Error Code: ${response.statusCode}";
 }
 
 /// delete location
@@ -168,6 +141,54 @@ Future<bool> deleteLocation(PhotoLocation location) async {
 
   print(response.body);
   print(location.toJson());
+
+  if (response.statusCode == 200) {
+    return true;
+  }
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+// --------------------------------
+//  REPORTS
+// --------------------------------
+
+/// add Report
+Future<bool> addReport(Report report) async {
+  log("addReport");
+  log(API_URL + "/reports/add");
+  final response = await http.post(
+    Uri.parse(API_URL + "/reports/add"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: report.toJson(),
+  ).timeout(const Duration(seconds: 4)); //timeout for testing
+  log("after res");
+
+  log("add report response = " + response.statusCode.toString() + " " + response.body.toString());
+  log("response = " + response.toString());
+
+  if (response.statusCode == 200) {
+    return true;
+  }
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+/// add photo location to report (NEEDS TO BE FIXED ALONG WITH BACKEND ENDPOINT)
+Future<bool> addPhotoLocationToReport(Report report, PhotoLocation photoLocation) async {
+  log("addPhotoLocationToReport");
+  log(API_URL + "/reports/addphotolocation");
+  final response = await http.post(
+    Uri.parse(API_URL + "/reports/addphotolocation"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: report.toJson(),
+  ).timeout(const Duration(seconds: 4)); //timeout for testing
+  log("after res");
+
+  log("add photolocation to report response = " + response.statusCode.toString() + " " + response.body.toString());
+  log("response = " + response.toString());
 
   if (response.statusCode == 200) {
     return true;
@@ -298,6 +319,27 @@ Future<Species> getSpeciesById(int speciesID) async {
     return result;
     // return compute(WeedInstance.parseWeedInstanceList, response.body);
   }
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+
+Future<Species> getSpeciesByName(String speciesName) async {
+  print("Searching for species named " + speciesName);
+  final response = await http.get(
+      Uri.parse(API_URL + "/species/search/species_name=$speciesName"));
+
+  if (response.statusCode == 200) {
+    //log(response.body);
+    var decodedJson = jsonDecode(response.body);
+    log(decodedJson.toString());
+    var result = Species.fromJson(decodedJson[0]);
+    log(result.toString());
+    return result;
+  }
+
+  log("get species by name response = " + response.statusCode.toString() + " " + response.body.toString());
+  log("response = " + response.toString());
+
   throw "HTTP Error Code: ${response.statusCode}";
 }
 

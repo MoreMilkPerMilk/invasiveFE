@@ -28,7 +28,7 @@ class User {
     });
 
     return jsonEncode(<String, dynamic>{
-      '_id': id,
+      '_id': id.toString(),
       'first_name': first_name,
       'last_name': last_name,
       'date_joined': date_joined,

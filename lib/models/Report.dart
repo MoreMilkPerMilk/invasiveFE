@@ -13,7 +13,7 @@ class Report {
   ObjectId id;
   String name;
   int species_id;
-  String status;
+  String status;  // open vs closed
   List<PhotoLocation> photoLocations;
   String notes;
   GeoJsonMultiPolygon polygon;
@@ -35,15 +35,15 @@ class Report {
     photoLocations.forEach((element) {
       photoLocationsJSON.add(element.toJson());
     });
+    print(photoLocationsJSON);
 
     return jsonEncode(<String, dynamic>{
-      '_id': id,
-      'species_id': species_id,
+      '_id': id.toString(),
+      'species_id': species_id.toString(),
       'name': name,
       'status': status,
-      'photo_locations': photoLocationsJSON,
+      'locations': photoLocationsJSON,
       'notes': notes,
-      'polygon': polygon,
     });
   }
 
