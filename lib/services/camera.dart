@@ -94,7 +94,7 @@ class _CameraState extends State<Camera> {
       }
       controller = new CameraController(
         widget.cameras![0],
-        ResolutionPreset.max,
+        ResolutionPreset.high,
       );
 
       controller!.initialize().then((_) {

@@ -189,7 +189,7 @@ class _PanelState extends State<Panel> {
                               ),
                               onPressed: () {
                                 print("PRESSED DONE");
-                                report();
+                                report(widget.foundSpecies, widget.photo);
                                 widget._pc.close();
                               },
                               icon: Icon(Icons.done, size: 18),
@@ -207,14 +207,15 @@ class _PanelState extends State<Panel> {
     );
   }
 
-  Future<void> report() async {
+  Future<void> report(String foundSpecies, File photo) async {
     setState(() {
       _reportButtonDisabled = true;
     });
     var pos = await determinePosition();
     print(pos);
     //compute(sendReportToBackend, PhotoLocationData(pos, widget.photo));
-    sendReportToBackend(PhotoLocationData(pos, widget.photo, widget.foundSpecies));
+    print(foundSpecies);
+    sendReportToBackend(PhotoLocationData(pos, photo, foundSpecies));
   }
 }
 
@@ -245,7 +246,7 @@ Future<void> sendReportToBackend(PhotoLocationData data) async {
       id: ObjectId(),
       species_id: species.species_id,
       name: data.speciesName + DateTime.now().millisecondsSinceEpoch.toString(),
-      status: 'active',
+      status: 'closed',
       photoLocations: [photoLocation],
       notes: '',
       polygon: new GeoJsonMultiPolygon()
