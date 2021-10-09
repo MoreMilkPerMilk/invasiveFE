@@ -98,6 +98,14 @@ flutter:
     - assets/badges/none.jpg
     - assets/badges/medal.jpg
     - assets/badges/location_1.jpg
+    - assets/weeds/lantana.jpg
+    - assets/weeds/snakeweed.jpg
+    - assets/weeds/rubbervine.jpg
+    - assets/weeds/parthenium.jpg
+    - assets/weeds/parkinsonia.jpg
+    - assets/weeds/chineeapple.jpg
+    - assets/weeds/siamweed.jpg
+    - assets/weeds/pricklyacacia.jpg
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

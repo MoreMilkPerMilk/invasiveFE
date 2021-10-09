@@ -12,15 +12,15 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  late List<Report> reports;
+  List<Report> reports = [];
   late Future loaded;
 
   @override
   void initState() {
     super.initState();
-    Future reports = getAllReports();
-    reports.then((value) => print(value));
-    loaded = Future.wait([reports]);
+    Future reportsFuture = getAllReports();
+    reportsFuture.then((value) => reports = value);
+    loaded = Future.wait([reportsFuture]);
   }
 
   @override
@@ -66,18 +66,37 @@ class _UserPageState extends State<UserPage> {
               ),
             ),
           ),
-          Container(
-            height: 100,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: <Widget>[
-                Achievement("Find 10 Low Severity", "7/10/2021", "lowsev_1"),
-                Achievement("Find 20 Low Severity", "20/10/2021", "lowsev_2"),
-                Achievement("Find 10 Medium Severity", "10/10/2021", "medsev_1"),
-                Achievement("Find 10 Medium Severity", "7/10", "none"),
-                Achievement("Find Plants in 5 Unique Councils", "1/11/2021", "location_1"),
-                Achievement("Find Plants in 10 Unique Councils", "6/10", "none"),
-              ],
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              'Achievements',
+              style: TextStyle(fontSize: 23, color: Colors.black),
+              textAlign: TextAlign.start,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Container(
+              height: 100,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: <Widget>[
+                  Achievement("Find 10 Low Severity", "7/10/2021", "lowsev_1"),
+                  Achievement("Find 20 Low Severity", "20/10/2021", "lowsev_2"),
+                  Achievement("Find 10 Medium Severity", "10/10/2021", "medsev_1"),
+                  Achievement("Find 10 Medium Severity", "7/10", "none"),
+                  Achievement("Find Plants in 5 Unique Councils", "1/11/2021", "location_1"),
+                  Achievement("Find Plants in 10 Unique Councils", "6/10", "none"),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              'Reports',
+              style: TextStyle(fontSize: 23, color: Colors.black),
+              textAlign: TextAlign.start,
             ),
           ),
           Expanded(
@@ -87,37 +106,61 @@ class _UserPageState extends State<UserPage> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
                     return Container(
-                      child: ListView(
-                        children: <Widget>[
-                          Container(
-                            height: 50,
-                            color: Colors.amber[600],
-                            child: const Center(child: Text('Entry A')),
-                          ),
-                          Container(
-                            height: 50,
-                            color: Colors.amber[500],
-                            child: const Center(child: Text('Entry B')),
-                          ),
-                          Container(
-                            height: 1000,
-                            color: Colors.amber[100],
-                            child: const Center(child: Text('Entry C')),
-                          ),
-                        ],
-                      ),
-                    );
+                        child: new ListView.builder(
+                            itemCount: reports.length,
+                            itemBuilder: (BuildContext ctxt, int index) {
+                              return ReportCard(report: reports[index]);
+                            }));
                   } else {
-                    return Align(
-                        alignment: Alignment.center,
-                        child: CircularProgressIndicator()
-                    );
+                    return Align(alignment: Alignment.center, child: CircularProgressIndicator());
                   }
                 }),
           )
         ],
       ),
     );
+  }
+}
+
+class ReportCard extends StatelessWidget {
+  const ReportCard({
+    Key? key,
+    required this.report,
+  }) : super(key: key);
+
+  final Report report;
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+        height: 150,
+        child: Card(
+          elevation: 5,
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.asset(
+                  "assets/weeds/lantana.jpg",
+                  height: 75,
+                ),
+              ),
+              Column(
+                children: [
+                  Text(report.name),
+                  Text(report.id.toString()),
+                  Text(report.notes),
+                  Text(report.photoLocations.toString()),
+                ],
+              ),
+              Flexible(
+                child: Image.asset(
+                  "assets/badges/none.jpg",
+                ),
+              )
+            ],
+          ),
+        ));
   }
 }
 
