@@ -174,12 +174,15 @@ Future<bool> addReport(Report report) async {
   throw "HTTP Error Code: ${response.statusCode}";
 }
 
-/// add photo location to report (NEEDS TO BE FIXED ALONG WITH BACKEND ENDPOINT)
+/// add a PhotoLocation to a Report
 Future<bool> addPhotoLocationToReport(Report report, PhotoLocation photoLocation) async {
   log("addPhotoLocationToReport");
-  log(API_URL + "/reports/addphotolocation");
+
+  //build query string
+  String url = API_URL + "/reports/addphotolocationbyid?report_id=${report.id},location_id=${photoLocation.id}";
+  log(url);
   final response = await http.post(
-    Uri.parse(API_URL + "/reports/addphotolocation"),
+    Uri.parse(url),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -251,6 +254,31 @@ Future<bool> addUser(User user) async {
   log("after res");
 
   log("add user response = " + response.statusCode.toString() + " " + response.body.toString());
+  log("response = " + response.toString());
+
+  if (response.statusCode == 200) {
+    return true;
+  }
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+/// add a Report to a User
+Future<bool> addReportToUser(Report report, User user) async {
+  log("addReportToUser");
+
+  //build query string
+  String url = API_URL + "/users/addreportbyid?report_id=${report.id},user_id=${user.id}";
+  log(url);
+  final response = await http.post(
+    Uri.parse(url),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: report.toJson(),
+  ).timeout(const Duration(seconds: 4)); //timeout for testing
+  log("after res");
+
+  log("add report to user response = " + response.statusCode.toString() + " " + response.body.toString());
   log("response = " + response.toString());
 
   if (response.statusCode == 200) {
