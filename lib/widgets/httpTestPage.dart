@@ -129,6 +129,7 @@ class HttpTestPage extends StatelessWidget {
                     polygon: new GeoJsonMultiPolygon()
                 );
                 addReport(report);
+                getAllReports();
               },
               child: Text('/Add Report'),
             ),
