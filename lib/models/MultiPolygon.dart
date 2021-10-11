@@ -15,8 +15,8 @@ class MultiPolygon extends GeoJsonMultiPolygon {
   factory MultiPolygon.fromJson(Map<String, dynamic> json) {
     List<List<List<List<double>>>> coordinates = [];
 
-    log("coords");
-    log("coords = " + json['coordinates'].toString());
+    // log("coords");
+    // log("coords = " + json['coordinates'].toString());
     coordinates = List<List<List<List<double>>>>.from(json["coordinates"].map(
             (x) => List<List<List<double>>>.from(
             x.map((x) => List<List<double>>.from(

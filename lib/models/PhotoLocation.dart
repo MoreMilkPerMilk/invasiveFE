@@ -40,10 +40,9 @@ class PhotoLocation {
     log(json['_id'].toString());
     return PhotoLocation(
       id: ObjectId.fromHexString(json['_id']),
-      // photo: new XFile("assets/placeholder.png"),
       photo: new File(""), //ignore
       location: json['location'],
-      image_filename: json['image_filenplaceholderame'],
+      image_filename: json['image_filename'],
     );
   }
 

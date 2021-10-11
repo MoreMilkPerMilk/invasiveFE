@@ -47,7 +47,7 @@ class User {
       first_name: json['first_name'],
       last_name: json['last_name'],
       date_joined: json['date_joined'],
-      reports: json['reports']
+      reports: reports
     );
   }
 

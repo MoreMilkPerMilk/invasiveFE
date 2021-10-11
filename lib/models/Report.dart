@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:image/image.dart';
 import 'package:indent/indent.dart';
+import 'package:invasive_fe/models/MultiPolygon.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:geojson/geojson.dart';
 import 'package:invasive_fe/widgets/maps.dart';
@@ -62,7 +63,9 @@ class Report {
       status: json['status'],
       photoLocations: photo_locations,
       notes: json['notes'],
-      polygon: json['polygon']
+      polygon: json['polygon'] == null ?
+        MultiPolygon(polygons: [], name: "polygon") :
+        MultiPolygon.fromJson(json['polygon']),
     );
   }
 
