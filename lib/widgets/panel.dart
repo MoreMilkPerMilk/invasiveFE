@@ -247,12 +247,15 @@ Future<void> sendReportToBackend(PhotoLocationData data) async {
       species_id: species.species_id,
       name: data.speciesName + DateTime.now().millisecondsSinceEpoch.toString(),
       status: 'closed',
-      photoLocations: [photoLocation],
+      photoLocations: [],
       notes: '',
       polygon: new GeoJsonMultiPolygon()
   );
 
-  // add photolocation and report to backend
-  addPhotoLocation(photoLocation);
-  addReport(report);
+  // add photolocation and report to backend (these need to happen in order)
+  await addPhotoLocation(photoLocation);
+  await addReport(report);
+  await addPhotoLocationToReport(report, photoLocation);
+
+  // need to add report to user here too!
 }

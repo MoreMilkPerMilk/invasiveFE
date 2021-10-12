@@ -182,7 +182,7 @@ Future<bool> addPhotoLocationToReport(Report report, PhotoLocation photoLocation
   log("addPhotoLocationToReport");
 
   //build query string
-  String url = API_URL + "/reports/addphotolocationbyid?report_id=${report.id},location_id=${photoLocation.id}";
+  String url = API_URL + "/reports/addphotolocationbyid?location_id=${photoLocation.id}&report_id=${report.id}";
   log(url);
   final response = await http.put(
     Uri.parse(url),
