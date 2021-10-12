@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:geojson/geojson.dart';
 import 'package:geopoint/geopoint.dart';
+import 'package:invasive_fe/models/Council.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
@@ -39,7 +40,7 @@ class _MapsPageState extends State<MapsPage> {
   // list of locations to display as markers on the map
   List<Report> reports = [];
   // utility that specifies which view-mode button is selected
-  List<bool> isSelected = [true, false];
+  List<bool> isSelected = [true, false, false, false];
   // the position of the user. defaults to the location of UQ, St. Lucia
   LatLng userPosition = LatLng(-27.4975, 153.0137);
   // the state of this future determines whether to display a loading screen
@@ -47,6 +48,7 @@ class _MapsPageState extends State<MapsPage> {
   //list of council polygons to draw on the map
   List<Polygon> councilPolygons = [];
   // council
+  MapPosition _lastMapPosition = new MapPosition();
 
 
   /// information that should be refreshed each time maps opens goes here
@@ -58,6 +60,7 @@ class _MapsPageState extends State<MapsPage> {
     Future positionFuture = determinePosition();
     //todo:get councils flutter function
     // Future councilPolygonFuture = get
+    Future<List<Council>> councilPolygonFuture = searchForCouncilByLocation(new PhotoLocation(id: new ObjectId(), photo: File(""), image_filename: "", location: new GeoJsonPoint(geoPoint: new GeoPoint(latitude: _lastMapPosition.center!.latitude, longitude: _lastMapPosition.center!.longitude))));
 
     // rather than here, we generate the markers in build() so they refresh on setState()
     reportsFuture.then((reports) => setState(() {
@@ -71,15 +74,31 @@ class _MapsPageState extends State<MapsPage> {
         value: (e) => e));
 
     // set the user's position every X seconds
-    positionFuture.then((position) => setState(() {
-      userPosition = LatLng(position.latitude, position.longitude);
+    // positionFuture.then((position) => setState(() {
+    //   userPosition = LatLng(position.latitude, position.longitude);
+    // }));
+
+    //get the council for the user's position
+    councilPolygonFuture.then((councils) => setState(() {
+      this.councilPolygons = [];
+      councils.forEach((council) {
+        var polygon = List<LatLng>.from(council.boundary.toGeoJsonMultiPolygon().polygons.first.geoSeries.first.geoPoints.map(
+                (x) => LatLng(x.latitude, x.longitude)
+        ));
+        // this.councilPolygons.add(new Polygon(points: points))
+        this.councilPolygons.add(new Polygon(points: polygon, color: Color.fromRGBO(255, 0, 0, 0.2), borderColor: Color.fromRGBO(255, 0, 0, 1)));
+      });
     }));
+
 
     Timer.periodic(Duration(seconds: 15), (timer) {
       if (this.mounted) {
-        determinePosition().then((position) => setState(() {
-          userPosition = LatLng(position.latitude, position.longitude);
-        }));
+        // determinePosition().then((position) => setState(() {
+        //   userPosition = LatLng(position.latitude, position.longitude);
+        // }));
+
+        print("USING MAP CENTER");
+        councilPolygonFuture = searchForCouncilByLocation(new PhotoLocation(id: new ObjectId(), photo: File(""), image_filename: "", location: new GeoJsonPoint(geoPoint: new GeoPoint(latitude: _lastMapPosition.center!.latitude, longitude: _lastMapPosition.center!.longitude))));
       }
     });
 
@@ -132,6 +151,12 @@ class _MapsPageState extends State<MapsPage> {
                         InteractiveFlag.all & ~InteractiveFlag.rotate,
                     // hide all popups when the map is tapped
                     onTap: (_) => widget._popupLayerController.hidePopup(),
+                    // onPositionChanged: (),
+                    onPositionChanged: (MapPosition position, _) {
+                      _lastMapPosition = position;
+                      print("position changed");
+                      print(position.center);
+                    },
                     plugins: [MarkerClusterPlugin()],
                   ),
                   layers: [
@@ -183,7 +208,7 @@ class _MapsPageState extends State<MapsPage> {
                           );
                         },
                       ),
-                    if (councilMode) PolygonLayerOptions(polygons: ),
+                    if (councilMode) PolygonLayerOptions(polygons: councilPolygons),
                   ]);
             } else {
               // the futures have not yet completed; display a loading page
@@ -238,6 +263,8 @@ class _MapsPageState extends State<MapsPage> {
                   isSelected[1] = heatmapMode;
                   isSelected[2] = councilMode;
                   isSelected[3] = communityMode;
+                  print("selected length = " + isSelected.length.toString());
+                  // print("")
                   // change the UI of the buttons to highlight which button was clicked
                   // for (int i = 0; i < isSelected.length && i < 2; i++) { // don't do councils etc
                   //   isSelected[i] = false;

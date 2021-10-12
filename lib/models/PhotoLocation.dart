@@ -27,7 +27,7 @@ class PhotoLocation {
     return jsonEncode(<String, dynamic>{
       '_id': id.toString(),
       // 'point': '{"type":"Point","coordinates":' + location.geoPoint.toGeoJsonCoordinatesString() + '}',
-      'point': {"type":"Point", "coordinates": [location.geoPoint.latitude, location.geoPoint.longitude]},
+      'point': {"type":"Point", "coordinates": [location.geoPoint.longitude, location.geoPoint.latitude]},
       'image_filename': image_filename
     });
   }
