@@ -38,10 +38,16 @@ class PhotoLocation {
     // XFile xFile = XFile.fromData(imgUint8List);
     log("photolocation fromJson "   + json.toString());
     log(json['_id'].toString());
+
+    GeoJsonPoint loc = json['location'] != null ?
+      new GeoJsonPoint(geoPoint: new GeoPoint(latitude: json['location'][1], longitude: json['location'][0])) :
+            new GeoJsonPoint(geoPoint:
+                new GeoPoint(latitude: 0, longitude: 0));
+    print("loc = " + loc.toString());
     return PhotoLocation(
       id: ObjectId.fromHexString(json['_id']),
       photo: new File(""), //ignore
-      location: json['location'],
+      location: loc,
       image_filename: json['image_filename'],
     );
   }
