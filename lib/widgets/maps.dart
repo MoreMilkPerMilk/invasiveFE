@@ -24,6 +24,8 @@ const String MAPBOX_ACCESS_TOKEN =
 Map<int, Species> species = {};
 // whether the map view mode is heat mode
 bool heatmapMode = false;
+bool councilMode = false;
+bool communityMode = false;
 
 class MapsPage extends StatefulWidget {
   // controls showing and hiding map marker popups
@@ -42,6 +44,10 @@ class _MapsPageState extends State<MapsPage> {
   LatLng userPosition = LatLng(-27.4975, 153.0137);
   // the state of this future determines whether to display a loading screen
   late Future loaded;
+  //list of council polygons to draw on the map
+  List<Polygon> councilPolygons = [];
+  // council
+
 
   /// information that should be refreshed each time maps opens goes here
   @override
@@ -50,6 +56,8 @@ class _MapsPageState extends State<MapsPage> {
     Future reportsFuture = getAllReports();
     Future speciesFuture = getAllSpecies();
     Future positionFuture = determinePosition();
+    //todo:get councils flutter function
+    // Future councilPolygonFuture = get
 
     // rather than here, we generate the markers in build() so they refresh on setState()
     reportsFuture.then((reports) => setState(() {
@@ -175,6 +183,7 @@ class _MapsPageState extends State<MapsPage> {
                           );
                         },
                       ),
+                    if (councilMode) PolygonLayerOptions(polygons: ),
                   ]);
             } else {
               // the futures have not yet completed; display a loading page
@@ -205,7 +214,17 @@ class _MapsPageState extends State<MapsPage> {
                     color: Colors.white,
                     child: Padding(
                         padding: EdgeInsets.all(16),
-                        child: Text("Heatmap View")))
+                        child: Text("Heatmap Mode"))),
+                Container(
+                    color: Colors.white,
+                    child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text("Councils"))),
+                Container(
+                    color: Colors.white,
+                    child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text("Communities")))
               ],
               // on click, ToggleButtons calls this function with the index of the clicked button
               onPressed: (int index) {
@@ -213,11 +232,17 @@ class _MapsPageState extends State<MapsPage> {
                 setState(() {
                   // the heatmap button is the second button. this variable determines the map UI
                   heatmapMode = index == 1;
+                  councilMode = (index == 2) ^ councilMode;
+                  communityMode = (index == 3) ^ communityMode;
+                  isSelected[0] = !heatmapMode;
+                  isSelected[1] = heatmapMode;
+                  isSelected[2] = councilMode;
+                  isSelected[3] = communityMode;
                   // change the UI of the buttons to highlight which button was clicked
-                  for (int i = 0; i < isSelected.length; i++) {
-                    isSelected[i] = false;
-                  }
-                  isSelected[index] = true;
+                  // for (int i = 0; i < isSelected.length && i < 2; i++) { // don't do councils etc
+                  //   isSelected[i] = false;
+                  // }
+                  // isSelected[index] = true;
                 });
               },
               // [true, false] or [false, true] depending on the selected button
