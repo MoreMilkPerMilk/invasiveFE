@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:core';
 import 'dart:developer';
 import 'package:geojson/geojson.dart';
 
@@ -41,5 +43,31 @@ class MultiPolygon extends GeoJsonMultiPolygon {
 
   GeoJsonMultiPolygon toGeoJsonMultiPolygon() {
     return new GeoJsonMultiPolygon(polygons: this.polygons, name: this.name);
+  }
+
+  String toJson() {
+    var coords = List<List<List<double>>>.from(this.polygons.first.geoSeries.map((geoSerie) {
+        print("geoserie");
+        print(geoSerie);
+        List<List<double>> pts = [];
+        geoSerie.geoPoints.forEach((geoPoint) {
+          pts.add([geoPoint.longitude, geoPoint.latitude]);
+        });
+        return pts;
+        // var x = List<double>.from(geoSerie.geoPoints.map((GeoPoint geoPoint) {
+        //   print("geopoint");
+        //   print(geoPoint);
+        //   return [geoPoint.longitude, geoPoint.latitude];
+        // }));
+        // print(x);
+      }));
+
+    print("coords = ");
+    print(coords);
+
+      return jsonEncode(<String, dynamic>{
+        'type': "MultiPolygon",
+        'coordinates': coords
+      });
   }
 }
