@@ -139,6 +139,11 @@ Future<bool> deleteLocation(PhotoLocation location) async {
   throw "HTTP Error Code: ${response.statusCode} http response = ${response.body}";
 }
 
+/// get image from a photolocation
+Uri getImageURL(PhotoLocation location) {
+  return Uri.parse(API_URL + "/files/${location.image_filename}");
+}
+
 // --------------------------------
 //  REPORTS
 // --------------------------------

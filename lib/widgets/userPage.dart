@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/services/httpService.dart';
+import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:line_icons/line_icon.dart';
 
 // todo change to reports by user.
@@ -35,7 +36,7 @@ class _UserPageState extends State<UserPage> {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Card(
-              elevation: 15,
+              elevation: 0,
               child: Row(
                 children: [
                   Padding(
@@ -109,7 +110,7 @@ class _UserPageState extends State<UserPage> {
                         child: new ListView.builder(
                             itemCount: reports.length,
                             itemBuilder: (BuildContext ctxt, int index) {
-                              return ReportCard(report: reports[index]);
+                              return ReportCard(reports[index]);
                             }));
                   } else {
                     return Align(alignment: Alignment.center, child: CircularProgressIndicator());
@@ -122,45 +123,81 @@ class _UserPageState extends State<UserPage> {
   }
 }
 
-class ReportCard extends StatelessWidget {
-  const ReportCard({
-    Key? key,
-    required this.report,
-  }) : super(key: key);
+class ReportCard extends StatefulWidget {
+  Report report;
 
-  final Report report;
+  ReportCard(this.report);
+
+  @override
+  _ReportCardState createState() => new _ReportCardState();
+}
+
+class _ReportCardState extends State<ReportCard> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
-        height: 150,
-        child: Card(
-          elevation: 5,
-          child: Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.asset(
-                  "assets/weeds/lantana.jpg",
-                  height: 75,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ReportPage(report: widget.report)),
+        );
+      },
+      child: new Container(
+          height: 150,
+          child: Card(
+            elevation: 5,
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.asset(
+                    "assets/weeds/lantana.jpg",
+                    height: 75,
+                  ),
                 ),
-              ),
-              Column(
-                children: [
-                  Text(report.name),
-                  Text(report.id.toString()),
-                  Text(report.notes),
-                  Text(report.photoLocations.toString()),
-                ],
-              ),
-              Flexible(
-                child: Image.asset(
-                  "assets/badges/none.jpg",
+                Expanded(
+                  child: Container(
+                    child: Column(
+                      children: [
+                        Text(widget.report.name),
+                        Text(widget.report.status),
+                        // Text(report.id.toString()),
+                        // Text(report.notes),
+                        // Text(report.photoLocations.toString()),
+                      ],
+                    ),
+                  ),
                 ),
-              )
-            ],
-          ),
-        ));
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                          minWidth: 50,
+                        maxWidth: 100
+                      ),
+                      child: ClipRRect(child: renderImage(), borderRadius: BorderRadius.all(Radius.circular(10.0)))
+                  ),
+                ),
+                Icon(
+                    Icons.arrow_forward_ios_rounded
+                ),
+              ],
+            ),
+          )),
+    );
+  }
+
+  Widget renderImage() {
+    if (widget.report.photoLocations.isNotEmpty) {
+      return Image.network(getImageURL(widget.report.photoLocations.first).toString());
+    } else {
+      return Image.asset("assets/badges/none.jpg");
+    }
   }
 }
 
