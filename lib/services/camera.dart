@@ -185,20 +185,26 @@ class _CameraState extends State<Camera> {
               //photoPath = img_path;
               print("BIG DOGGY FILE PATH");
               print(photo.path);
+              _pc.open();
+              HapticFeedback.heavyImpact();
+              stopTfliteDetection();
+              Fluttertoast.cancel();
             });
           } else {
             // show the slide over widget
             controller!.takePicture().then((value) {
-              photo = new File(value.path);
+              print(value.path);
+              photo = File(value.path);
+              // photo = value.;
+              _pc.open();
+              HapticFeedback.heavyImpact();
+              stopTfliteDetection();
+              Fluttertoast.cancel();
             });
           }
 
           // show the slide over widget
           print(photo.path);
-          _pc.open();
-          HapticFeedback.heavyImpact();
-          stopTfliteDetection();
-          Fluttertoast.cancel(); // hide all toasts
           break;
       }
     }

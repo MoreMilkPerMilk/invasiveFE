@@ -6,13 +6,16 @@ import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geojson/geojson.dart';
+import 'package:geopoint/geopoint.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/src/media_type.dart';
 
 import 'package:invasive_fe/models/Community.dart';
 import 'package:invasive_fe/models/Council.dart';
 import 'package:invasive_fe/models/Event.dart';
+import 'package:invasive_fe/models/MultiPolygon.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/User.dart';
@@ -438,6 +441,44 @@ Future<List<Council>> searchForCouncilByLocation(PhotoLocation location) async {
   log(location.location.geoPoint.toGeoJsonFeatureString());
 
   log(location.toJson());
+
+  throw "HTTP Error Code: ${response.statusCode}";
+}
+
+Future<List<Council>> getCouncilsInMapBounds(MapPosition position) async {
+  //create polygon
+  List<GeoPoint> geoPoints = [
+    new GeoPoint(latitude: position.bounds!.northWest!.latitude, longitude: position.bounds!.northWest!.longitude),
+    new GeoPoint(latitude: position.bounds!.northEast!.latitude, longitude: position.bounds!.northEast!.longitude),
+    new GeoPoint(latitude: position.bounds!.southEast!.latitude, longitude: position.bounds!.southEast!.longitude),
+    new GeoPoint(latitude: position.bounds!.southWest!.latitude, longitude: position.bounds!.southWest!.longitude),
+    new GeoPoint(latitude: position.bounds!.northWest!.latitude, longitude: position.bounds!.northWest!.longitude), //LinearRing must have same first and last point
+  ];
+
+  List<GeoSerie> geoSeries = [new GeoSerie(name: "name", type: GeoSerieType.polygon, geoPoints: geoPoints)];
+  // geoPoints.add()
+  GeoJsonPolygon polygon = new GeoJsonPolygon(geoSeries: geoSeries);
+
+  MultiPolygon searchPolygon = new MultiPolygon(polygons: [polygon], name: "polygon");
+
+  var json = searchPolygon.toJson();
+
+  final response = await http.post(
+    Uri.parse(API_URL + "/councils/search/polygon"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: json,
+  );
+  if (response.statusCode == 200) {
+    var result = Council.parseCouncilList(response.body);
+    result.forEach((element) {
+      log(element.toString());
+    });
+    return result;
+  }
+  log(response.body.toString());
+  log(json);
 
   throw "HTTP Error Code: ${response.statusCode}";
 }
