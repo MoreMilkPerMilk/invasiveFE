@@ -22,7 +22,6 @@ class PhotoLocation {
     required this.location
   });
 
-
   String toJson() { // may be redundant with api call structure
     return jsonEncode(<String, dynamic>{
       '_id': id.toString(),
@@ -33,17 +32,17 @@ class PhotoLocation {
   }
 
   factory PhotoLocation.fromJson(Map<String, dynamic> json) { //removed second arg - photo
-    // ByteData imgBytes = rootBundle.load(json['image_filename']) as ByteData;
-    // Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
-    // XFile xFile = XFile.fromData(imgUint8List);
-    log("photolocation fromJson "   + json.toString());
-    log(json['_id'].toString());
+    if (json['_id'] == null) {
+      json['_id'] = json['id'];
+    }
 
     GeoJsonPoint loc = json['location'] != null ?
-      new GeoJsonPoint(geoPoint: new GeoPoint(latitude: json['location'][1], longitude: json['location'][0])) :
-            new GeoJsonPoint(geoPoint:
-                new GeoPoint(latitude: 0, longitude: 0));
-    print("loc = " + loc.toString());
+      new GeoJsonPoint(geoPoint:
+        new GeoPoint(latitude: json['location'][1],
+            longitude: json['location'][0])) :
+        new GeoJsonPoint(geoPoint:
+            new GeoPoint(latitude: 0, longitude: 0));
+
     return PhotoLocation(
       id: ObjectId.fromHexString(json['_id']),
       photo: new File(""), //ignore
