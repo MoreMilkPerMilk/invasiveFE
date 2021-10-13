@@ -32,8 +32,7 @@ class _UserPageState extends State<UserPage> {
 
     speciesFuture.then((speciesList) {
       // create the {species id => species} map
-      species = Map.fromIterable(
-          speciesList, // convert species list to map for quick id lookup
+      species = Map.fromIterable(speciesList, // convert species list to map for quick id lookup
           key: (e) => e.species_id,
           value: (e) => e);
 
@@ -53,7 +52,6 @@ class _UserPageState extends State<UserPage> {
       return value;
     });
     // loaded = Future.wait([reportsFuture, speciesFuture]);
-
   }
 
   @override
@@ -140,9 +138,20 @@ class _UserPageState extends State<UserPage> {
                   if (snapshot.connectionState == ConnectionState.done) {
                     return Container(
                         child: new ListView.builder(
-                            itemCount: reports.length,
+                            itemCount: organisedReports.keys.length,
                             itemBuilder: (BuildContext ctxt, int index) {
-                              return ReportCard(reports[index]);
+                              return Card(
+                                  child: Column(
+                                    children: [
+                                      Text(organisedReports.keys.elementAt(index)),
+                                      Column(
+                                        children: organisedReports[organisedReports.keys.elementAt(index)]!.map<Widget>((item) {
+                                          return ReportCard(item);
+                                        }).toList(),
+                                      ),
+                                    ],
+                                  )
+                              );
                             }));
                   } else {
                     return Align(alignment: Alignment.center, child: CircularProgressIndicator());
@@ -209,16 +218,10 @@ class _ReportCardState extends State<ReportCard> {
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0),
                   child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                          minWidth: 50,
-                        maxWidth: 100
-                      ),
-                      child: ClipRRect(child: renderImage(), borderRadius: BorderRadius.all(Radius.circular(10.0)))
-                  ),
+                      constraints: BoxConstraints(minWidth: 50, maxWidth: 100),
+                      child: ClipRRect(child: renderImage(), borderRadius: BorderRadius.all(Radius.circular(10.0)))),
                 ),
-                Icon(
-                    Icons.arrow_forward_ios_rounded
-                ),
+                Icon(Icons.arrow_forward_ios_rounded),
               ],
             ),
           )),
