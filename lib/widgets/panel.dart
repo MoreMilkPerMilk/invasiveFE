@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -212,9 +213,6 @@ class _PanelState extends State<Panel> {
       _reportButtonDisabled = true;
     });
     var pos = await determinePosition();
-    print(pos);
-    //compute(sendReportToBackend, PhotoLocationData(pos, widget.photo));
-    print(foundSpecies);
     sendReportToBackend(PhotoLocationData(pos, photo, foundSpecies));
   }
 }
@@ -228,16 +226,13 @@ class PhotoLocationData{
 }
 
 Future<void> sendReportToBackend(PhotoLocationData data) async {
-
-  print("SENDING LOCATION DATA TO BACKEND");
   var photoLocation = new PhotoLocation(
     id: ObjectId(),
     // photo: data.photoImage,
     photo: data.photoImage,
     location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: data.pos.latitude, longitude: data.pos.longitude)),
-    image_filename: 'cameraboyyy.png',
+    image_filename: 'placeholder.png',
   );
-  print(photoLocation.toString());
 
   // will need to check if report already exists
   Species species = await getSpeciesByName(data.speciesName);
@@ -246,13 +241,15 @@ Future<void> sendReportToBackend(PhotoLocationData data) async {
       id: ObjectId(),
       species_id: species.species_id,
       name: data.speciesName + DateTime.now().millisecondsSinceEpoch.toString(),
-      status: 'closed',
-      photoLocations: [photoLocation],
+      status: 'open',
+      photoLocations: [],
       notes: '',
       polygon: new GeoJsonMultiPolygon()
   );
 
-  // add photolocation and report to backend
-  addPhotoLocation(photoLocation);
-  addReport(report);
+  //in order, need the photoLocation after add to get the filename on server.
+  photoLocation = await addPhotoLocation(photoLocation);
+  await addReport(report);
+  await addPhotoLocationToReport(report, photoLocation);
+  // need to add report to user here too!
 }

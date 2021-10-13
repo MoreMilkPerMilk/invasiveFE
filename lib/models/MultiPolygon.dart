@@ -26,8 +26,10 @@ class MultiPolygon extends GeoJsonMultiPolygon {
                   x.map((x) =>
                   List<double>.from(x.map((x) => x.toDouble()))))))));
     } catch (e) {
-      log("caught exception in parsing coordinates");
-      // log(e);
+      log("exception occured");
+      log(e.toString());
+      log(json.toString());
+      log(json['coordinates'].toString());
     }
 
     //construct MuliPolygon from coordinates
