@@ -141,12 +141,45 @@ class _UserPageState extends State<UserPage> {
                             itemCount: organisedReports.keys.length,
                             itemBuilder: (BuildContext ctxt, int index) {
                               return Card(
+                                elevation: 0,
+                                shape: new RoundedRectangleBorder(
+                                    side: new BorderSide(color: Colors.black, width: 2.0),
+                                    borderRadius: BorderRadius.circular(4.0)),
                                   child: Column(
                                     children: [
-                                      Text(organisedReports.keys.elementAt(index)),
+                                      Row(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Image.asset(
+                                              "assets/weeds/lantana.jpg",
+                                              height: 75,
+                                            ),
+                                          ),
+                                          Text(
+                                            organisedReports.keys.elementAt(index),
+                                            style: TextStyle(fontSize: 18, color: Colors.black, fontStyle: FontStyle
+                                                .italic),
+                                            textAlign: TextAlign.start,
+                                          ),
+                                          Spacer(),
+                                          Padding(
+                                            padding: const EdgeInsets.all(20.0),
+                                            child: Text(
+                                              organisedReports[organisedReports.keys.elementAt(index)]!
+                                                  .length.toString(),
+                                              style: TextStyle(fontSize: 20, color: Colors.black, fontFamily: "mono"),
+                                              textAlign: TextAlign.start,
+                                            ),
+                                          )
+                                        ]
+                                      ),
                                       Column(
                                         children: organisedReports[organisedReports.keys.elementAt(index)]!.map<Widget>((item) {
-                                          return ReportCard(item);
+                                          return Padding(
+                                            padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
+                                            child: ReportCard(item),
+                                          );
                                         }).toList(),
                                       ),
                                     ],
@@ -192,37 +225,33 @@ class _ReportCardState extends State<ReportCard> {
           height: 150,
           child: Card(
             elevation: 5,
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Image.asset(
-                    "assets/weeds/lantana.jpg",
-                    height: 75,
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    child: Column(
-                      children: [
-                        Text(species[widget.report.species_id]!.name),
-                        Text(widget.report.name),
-                        Text(widget.report.status),
-                        // Text(report.id.toString()),
-                        // Text(report.notes),
-                        // Text(report.photoLocations.toString()),
-                      ],
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(15.0, 15.0, 0, 15.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Text(widget.report.name),
+                          Text(widget.report.status),
+                          Text(widget.report.notes),
+                          // Text(report.id.toString()),
+                          // Text(report.notes),
+                          // Text(report.photoLocations.toString()),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: ConstrainedBox(
-                      constraints: BoxConstraints(minWidth: 50, maxWidth: 100),
-                      child: ClipRRect(child: renderImage(), borderRadius: BorderRadius.all(Radius.circular(10.0)))),
-                ),
-                Icon(Icons.arrow_forward_ios_rounded),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: ConstrainedBox(
+                        constraints: BoxConstraints(minWidth: 50, maxWidth: 100),
+                        child: ClipRRect(child: renderImage(), borderRadius: BorderRadius.all(Radius.circular(10.0)))),
+                  ),
+                  Icon(Icons.arrow_forward_ios_rounded),
+                ],
+              ),
             ),
           )),
     );
