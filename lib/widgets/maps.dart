@@ -37,7 +37,7 @@ class _MapsPageState extends State<MapsPage> {
   // list of locations to display as markers on the map
   List<Report> reports = [];
   // utility that specifies which view-mode button is selected
-  List<bool> isSelected = [true, false, false, false];
+  List<bool> isSelected = [true, false];
   // the position of the user. defaults to the location of UQ, St. Lucia
   LatLng userPosition = LatLng(-27.4975, 153.0137);
   // the state of this future determines whether to display a loading screen
@@ -217,7 +217,7 @@ class _MapsPageState extends State<MapsPage> {
                   // the heatmap button is the second button. this variable determines the map UI
                   heatmapMode = index == 1;
                   // change the UI of the buttons to highlight which button was clicked
-                  for (int i = 0; i < isSelected.length && i < 2; i++) {
+                  for (int i = 0; i < isSelected.length; i++) {
                     isSelected[i] = false;
                   }
                   isSelected[index] = true;
