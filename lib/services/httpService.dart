@@ -369,7 +369,7 @@ Future<List<Council>> getCouncilsInMapBounds(MapPosition position) async {
   var json = searchPolygon.toJson();
 
   final response = await http.post(
-    Uri.parse(API_URL + "/councils/search/polygon"),
+    Uri.parse(API_URL + "/councils/search/polygon?simplify_tolerance=0.001"),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },

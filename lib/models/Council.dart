@@ -74,4 +74,8 @@ class Council {
     final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
     return parsed.map<Council>((json) => Council.fromJson(json)).toList();
   }
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode => this.id.toString().hashCode;
 }

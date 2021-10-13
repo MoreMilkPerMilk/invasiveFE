@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:collection';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
@@ -14,6 +16,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:objectid/objectid.dart';
+import 'package:random_color/random_color.dart';
 import 'dart:io';
 
 // openstreetmap tile servers: https://wiki.openstreetmap.org/wiki/Tile_servers
@@ -47,8 +50,10 @@ class _MapsPageState extends State<MapsPage> {
   late Future loaded;
   //list of council polygons to draw on the map
   List<Polygon> councilPolygons = [];
-  // council
+  // map position bounds for council fetching
   MapPosition _lastMapPosition = new MapPosition();
+  //council colors for displaying polygons
+  HashMap<String, Color> councilColors = new HashMap();
 
 
   /// information that should be refreshed each time maps opens goes here
@@ -59,12 +64,7 @@ class _MapsPageState extends State<MapsPage> {
     Future speciesFuture = getAllSpecies();
     Future positionFuture = determinePosition();
     //todo:get councils flutter function
-    // Future councilPolygonFuture = get
-    Future<List<Council>> councilPolygonFuture = searchForCouncilByLocation(
-        new PhotoLocation(id: new ObjectId(), photo: File(""), image_filename: "",
-            location: new GeoJsonPoint(geoPoint:
-            new GeoPoint(latitude: 0,
-                longitude: 0))));
+    Future<List<Council>> councilPolygonFuture = getCouncilsInMapBounds(_lastMapPosition);
 
     // rather than here, we generate the markers in build() so they refresh on setState()
     reportsFuture.then((reports) => setState(() {
@@ -77,45 +77,59 @@ class _MapsPageState extends State<MapsPage> {
         key: (e) => e.species_id,
         value: (e) => e));
 
-    // set the user's position every X seconds
+    // set the user's position every X seconds - commented out for emulator
     // positionFuture.then((position) => setState(() {
     //   userPosition = LatLng(position.latitude, position.longitude);
     // }));
 
-    //get the council for the user's position
-    councilPolygonFuture.then((councils) => setState(() {
-      this.councilPolygons = [];
-      councils.forEach((council) {
-        var polygon = List<LatLng>.from(council.boundary.toGeoJsonMultiPolygon().polygons.first.geoSeries.first.geoPoints.map(
-                (x) => LatLng(x.latitude, x.longitude)
-        ));
-        // this.councilPolygons.add(new Polygon(points: points))
-        this.councilPolygons.add(new Polygon(points: polygon, color: Color.fromRGBO(255, 0, 0, 0.2), borderColor: Color.fromRGBO(255, 0, 0, 1)));
-      });
-    }));
+    Timer.periodic(Duration(seconds: 5), (timer) {
+      Future<List<Council>> councilPolygonFuture = getCouncilsInMapBounds(_lastMapPosition);
+      //get the council for the user's position
+      councilPolygonFuture.then((councils) => setState(() {
+        this.councilPolygons = [];
+        councils.forEach((council) {
+          var polygon;
+          if (council.boundary.toGeoJsonMultiPolygon().polygons.length > 0) {
+            polygon = List<LatLng>.from(council.boundary
+                .toGeoJsonMultiPolygon()
+                .polygons
+                .first
+                .geoSeries
+                .first
+                .geoPoints
+                .map(
+                    (x) => LatLng(x.latitude, x.longitude)
+            ));
+          } else {
+            return;
+          }
+          // this.councilPolygons.add(new Polygon(points: points))
+          Color _color = new Color.fromRGBO(255, 0, 0, 0.1);
+          if (this.councilColors[council.id.toString()] != null) {
+            Color? tmp = this.councilColors[council.id.toString()];
+            if (tmp != null) {
+              _color = tmp;
+            }
+          } else {
+            RandomColor _randomColor = RandomColor();
+            _color = _randomColor.randomColor();
+            this.councilColors[council.id.toString()] = _color;
+          }
+          //add a polygon per council
+          this.councilPolygons.add(new Polygon(points: polygon,
+              color: Color.fromRGBO(_color.red, _color.green, _color.blue, 0.4),
+              borderColor: Color.fromRGBO(0, 0, 0, 1),
+              borderStrokeWidth: 1));
+        });
+      }));
+    });
 
-
-    Timer.periodic(Duration(seconds: 1), (timer) {
+    Timer.periodic(Duration(seconds: 15), (timer) {
       if (this.mounted) {
+        //commented out for emulator
         // determinePosition().then((position) => setState(() {
         //   userPosition = LatLng(position.latitude, position.longitude);
         // }));
-
-        print("USING MAP CENTER");
-        print(_lastMapPosition.bounds);
-        print(_lastMapPosition.zoom);
-        // councilPolygonFuture = searchForCouncilByLocation(new PhotoLocation(id: new ObjectId(), photo: File(""), image_filename: "", location: new GeoJsonPoint(geoPoint: new GeoPoint(latitude: _lastMapPosition.center!.latitude, longitude: _lastMapPosition.center!.longitude))));
-        //get the council for the user's position
-        councilPolygonFuture.then((councils) => setState(() {
-          this.councilPolygons = [];
-          councils.forEach((council) {
-            var polygon = List<LatLng>.from(council.boundary.toGeoJsonMultiPolygon().polygons.first.geoSeries.first.geoPoints.map(
-                    (x) => LatLng(x.latitude, x.longitude)
-            ));
-            // this.councilPolygons.add(new Polygon(points: points))
-            this.councilPolygons.add(new Polygon(points: polygon, color: Color.fromRGBO(255, 0, 0, 0.2), borderColor: Color.fromRGBO(255, 0, 0, 1)));
-          });
-        }));
       }
     });
 
@@ -171,8 +185,8 @@ class _MapsPageState extends State<MapsPage> {
                     // onPositionChanged: (),
                     onPositionChanged: (MapPosition position, _) {
                       _lastMapPosition = position;
-                      print("position changed");
-                      print(position.center);
+                      // print("position changed");
+                      // print(position.center);
                     },
                     plugins: [MarkerClusterPlugin()],
                   ),
@@ -183,6 +197,8 @@ class _MapsPageState extends State<MapsPage> {
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: <String>['a', 'b', 'c'],
                     ),
+                    //has to show below markers
+                    if (councilMode) PolygonLayerOptions(polygons: councilPolygons),
                     // user location marker
                     MarkerLayerOptions(markers: [UserLocationMarker(userPosition)]),
                     // disable clustering and popups for heat map view
@@ -225,7 +241,6 @@ class _MapsPageState extends State<MapsPage> {
                           );
                         },
                       ),
-                    if (councilMode) PolygonLayerOptions(polygons: councilPolygons),
                   ]);
             } else {
               // the futures have not yet completed; display a loading page

@@ -34,6 +34,7 @@ dependencies:
   uuid: ^3.0.4
   sliding_up_panel: ^2.0.0+1
   fluttertoast: ^8.0.8
+  random_color:
 
 
   # leaflet things
