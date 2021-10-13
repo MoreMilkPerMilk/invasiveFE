@@ -46,7 +46,6 @@ class Council {
 
   factory Council.fromJson(Map<String, dynamic> json) {
     // log(json.toString());
-
     return Council(
         id: ObjectId.fromHexString(json['_id']),
         name: json['name'],

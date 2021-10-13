@@ -354,6 +354,9 @@ double fixLatLong(double latlong) {
 Future<List<Council>> getCouncilsInMapBounds(MapPosition position) async {
 
   //create polygon
+  if (position.bounds == null) {
+    return [];
+  }
   List<GeoPoint> geoPoints = [
     new GeoPoint(latitude: fixLatLong(position.bounds!.northWest!.latitude), longitude: fixLatLong(position.bounds!.northWest!.longitude)),
     new GeoPoint(latitude: fixLatLong(position.bounds!.northEast!.latitude), longitude: fixLatLong(position.bounds!.northEast!.longitude)),
