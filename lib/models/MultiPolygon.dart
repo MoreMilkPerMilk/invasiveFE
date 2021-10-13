@@ -15,7 +15,9 @@ class MultiPolygon extends GeoJsonMultiPolygon {
       super(polygons: polygons, name: name);
 
   factory MultiPolygon.fromJson(Map<String, dynamic> json) {
-    List<List<List<List<double>>>> coordinates = [];
+    // List<List<List<List<double>>>> coordinates = [];
+    var coordinates;
+    int size = 4; // four lists
 
     // log(json['coordinates'].toString());
     try {
@@ -24,20 +26,46 @@ class MultiPolygon extends GeoJsonMultiPolygon {
           List<List<List<double>>>.from(
               x.map((x) =>
               List<List<double>>.from(
-                  x.map((x) =>
-                  List<double>.from(x.map((x) => x.toDouble()))))))));
+                  x.map((x) {
+                    return List<double>.from(x.map((x) => x.toDouble()));
+                  }))))));
     } catch (e) {
-      log("exception occured");
-      log(e.toString());
-      log(json.toString());
-      log(json['coordinates'].toString());
+      try {
+        size = 3;
+        coordinates = List<List<List<double>>>.from(json["coordinates"].map(
+                (x) =>
+            List<List<double>>.from(
+                x.map((x) {
+                  return List<double>.from(x.map((x) => x.toDouble()));
+                }))));
+      } catch (e) {
+        log("exception occured");
+        log(e.toString());
+        log(json.toString());
+        size = 0;
+      }
+      // log(json['coordinates'].toString());
     }
 
     //construct MuliPolygon from coordinates
     List<GeoJsonPolygon> polygons = [];
-    coordinates.forEach((coordinatesPolygon) {
-      coordinatesPolygon.forEach((element) {
-        GeoSerie geoSerie = new GeoSerie(name: "MultiPolygon GeoSeries", type: GeoSerieType.polygon,
+    if (size == 4) {
+      coordinates.forEach((coordinatesPolygon) {
+        coordinatesPolygon.forEach((element) {
+          GeoSerie geoSerie = new GeoSerie(
+              name: "MultiPolygon GeoSeries", type: GeoSerieType.polygon,
+              geoPoints: List<GeoPoint>.from(element.map(
+                      (x) => GeoPoint(latitude: x.last, longitude: x.first)
+              )));
+
+          List<GeoSerie> geoSeries = [geoSerie];
+          polygons.add(new GeoJsonPolygon(geoSeries: geoSeries));
+        });
+      });
+    } else if (size == 3) {
+      coordinates.forEach((element) {
+        GeoSerie geoSerie = new GeoSerie(
+            name: "MultiPolygon GeoSeries", type: GeoSerieType.polygon,
             geoPoints: List<GeoPoint>.from(element.map(
                     (x) => GeoPoint(latitude: x.last, longitude: x.first)
             )));
@@ -45,9 +73,7 @@ class MultiPolygon extends GeoJsonMultiPolygon {
         List<GeoSerie> geoSeries = [geoSerie];
         polygons.add(new GeoJsonPolygon(geoSeries: geoSeries));
       });
-    });
-
-    log(polygons.toString());
+    }
 
     return new MultiPolygon(polygons: polygons, name: "MultiPolygon");
   }
@@ -58,23 +84,12 @@ class MultiPolygon extends GeoJsonMultiPolygon {
 
   String toJson() {
     var coords = List<List<List<double>>>.from(this.polygons.first.geoSeries.map((geoSerie) {
-        print("geoserie");
-        print(geoSerie);
         List<List<double>> pts = [];
         geoSerie.geoPoints.forEach((geoPoint) {
           pts.add([geoPoint.longitude, geoPoint.latitude]);
         });
         return pts;
-        // var x = List<double>.from(geoSerie.geoPoints.map((GeoPoint geoPoint) {
-        //   print("geopoint");
-        //   print(geoPoint);
-        //   return [geoPoint.longitude, geoPoint.latitude];
-        // }));
-        // print(x);
       }));
-
-    print("coords = ");
-    print(coords);
 
       return jsonEncode(<String, dynamic>{
         'type': "MultiPolygon",
