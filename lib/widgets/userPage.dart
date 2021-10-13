@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/services/httpService.dart';
@@ -17,6 +20,7 @@ class UserPage extends StatefulWidget {
 
 class _UserPageState extends State<UserPage> {
   List<Report> reports = [];
+  Map<String, List<Report>> organisedReports = {};
   late Future loaded;
 
   @override
@@ -25,14 +29,31 @@ class _UserPageState extends State<UserPage> {
     Future reportsFuture = getAllReports();
     Future speciesFuture = getAllSpecies();
     reportsFuture.then((value) => reports = value);
-    loaded = Future.wait([reportsFuture, speciesFuture]);
 
-    // create the {species id => species} map
-    speciesFuture.then((speciesList) => species = Map.fromIterable(
-        speciesList, // convert species list to map for quick id lookup
-        key: (e) => e.species_id,
-        value: (e) => e)
-    );
+    speciesFuture.then((speciesList) {
+      // create the {species id => species} map
+      species = Map.fromIterable(
+          speciesList, // convert species list to map for quick id lookup
+          key: (e) => e.species_id,
+          value: (e) => e);
+
+      // organise the species into groups
+    });
+
+    // group the notifications
+    loaded = Future.wait([reportsFuture, speciesFuture]).then((value) {
+      reports.forEach((report) {
+        var speciesName = species[report.species_id]!.name;
+        if (organisedReports.containsKey(speciesName)) {
+          organisedReports[speciesName]!.add(report);
+        } else {
+          organisedReports[speciesName] = [report];
+        }
+      });
+      return value;
+    });
+    // loaded = Future.wait([reportsFuture, speciesFuture]);
+
   }
 
   @override
