@@ -343,15 +343,23 @@ Future<List<Council>> searchForCouncilByLocation(PhotoLocation location) async {
   throw "HTTP Error Code: ${response.statusCode} http response = ${response.body}";
 }
 
+double fixLatLong(double latlong) {
+  if (latlong == null)
+    return 0;
+
+  return latlong;
+}
+
 //get councils in boundas of the FlutterMap
 Future<List<Council>> getCouncilsInMapBounds(MapPosition position) async {
+
   //create polygon
   List<GeoPoint> geoPoints = [
-    new GeoPoint(latitude: position.bounds!.northWest!.latitude, longitude: position.bounds!.northWest!.longitude),
-    new GeoPoint(latitude: position.bounds!.northEast!.latitude, longitude: position.bounds!.northEast!.longitude),
-    new GeoPoint(latitude: position.bounds!.southEast!.latitude, longitude: position.bounds!.southEast!.longitude),
-    new GeoPoint(latitude: position.bounds!.southWest!.latitude, longitude: position.bounds!.southWest!.longitude),
-    new GeoPoint(latitude: position.bounds!.northWest!.latitude, longitude: position.bounds!.northWest!.longitude), //LinearRing must have same first and last point
+    new GeoPoint(latitude: fixLatLong(position.bounds!.northWest!.latitude), longitude: fixLatLong(position.bounds!.northWest!.longitude)),
+    new GeoPoint(latitude: fixLatLong(position.bounds!.northEast!.latitude), longitude: fixLatLong(position.bounds!.northEast!.longitude)),
+    new GeoPoint(latitude: fixLatLong(position.bounds!.southEast!.latitude), longitude: fixLatLong(position.bounds!.southEast!.longitude)),
+    new GeoPoint(latitude: fixLatLong(position.bounds!.southWest!.latitude), longitude: fixLatLong(position.bounds!.southWest!.longitude)),
+    new GeoPoint(latitude: fixLatLong(position.bounds!.northWest!.latitude), longitude: fixLatLong(position.bounds!.northWest!.longitude)), //LinearRing must have same first and last point
   ];
 
   List<GeoSerie> geoSeries = [new GeoSerie(name: "name", type: GeoSerieType.polygon, geoPoints: geoPoints)];
