@@ -17,10 +17,18 @@ class MultiPolygon extends GeoJsonMultiPolygon {
   factory MultiPolygon.fromJson(Map<String, dynamic> json) {
     List<List<List<List<double>>>> coordinates = [];
 
-    coordinates = List<List<List<List<double>>>>.from(json["coordinates"].map(
-        (x) => List<List<List<double>>>.from(
-        x.map((x) => List<List<double>>.from(
-        x.map((x) => List<double>.from(x.map((x) => x.toDouble()))))))));
+    try {
+      coordinates = List<List<List<List<double>>>>.from(json["coordinates"].map(
+              (x) =>
+          List<List<List<double>>>.from(
+              x.map((x) =>
+              List<List<double>>.from(
+                  x.map((x) =>
+                  List<double>.from(x.map((x) => x.toDouble()))))))));
+    } catch (e) {
+      log("caught exception in parsing coordinates");
+      // log(e);
+    }
 
     //construct MuliPolygon from coordinates
     List<GeoJsonPolygon> polygons = [];

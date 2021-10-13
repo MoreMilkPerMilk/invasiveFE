@@ -104,7 +104,7 @@ class _MapsPageState extends State<MapsPage> {
         print("USING MAP CENTER");
         print(_lastMapPosition.bounds);
         print(_lastMapPosition.zoom);
-        councilPolygonFuture = searchForCouncilByLocation(new PhotoLocation(id: new ObjectId(), photo: File(""), image_filename: "", location: new GeoJsonPoint(geoPoint: new GeoPoint(latitude: _lastMapPosition.center!.latitude, longitude: _lastMapPosition.center!.longitude))));
+        // councilPolygonFuture = searchForCouncilByLocation(new PhotoLocation(id: new ObjectId(), photo: File(""), image_filename: "", location: new GeoJsonPoint(geoPoint: new GeoPoint(latitude: _lastMapPosition.center!.latitude, longitude: _lastMapPosition.center!.longitude))));
         //get the council for the user's position
         councilPolygonFuture.then((councils) => setState(() {
           this.councilPolygons = [];
