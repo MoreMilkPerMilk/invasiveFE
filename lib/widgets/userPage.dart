@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:invasive_fe/models/Report.dart';
+import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/services/httpService.dart';
 import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:line_icons/line_icon.dart';
+
+Map<int, Species> species = {};
 
 // todo change to reports by user.
 class UserPage extends StatefulWidget {
@@ -20,8 +23,16 @@ class _UserPageState extends State<UserPage> {
   void initState() {
     super.initState();
     Future reportsFuture = getAllReports();
+    Future speciesFuture = getAllSpecies();
     reportsFuture.then((value) => reports = value);
-    loaded = Future.wait([reportsFuture]);
+    loaded = Future.wait([reportsFuture, speciesFuture]);
+
+    // create the {species id => species} map
+    speciesFuture.then((speciesList) => species = Map.fromIterable(
+        speciesList, // convert species list to map for quick id lookup
+        key: (e) => e.species_id,
+        value: (e) => e)
+    );
   }
 
   @override
@@ -164,6 +175,7 @@ class _ReportCardState extends State<ReportCard> {
                   child: Container(
                     child: Column(
                       children: [
+                        Text(species[widget.report.species_id]!.name),
                         Text(widget.report.name),
                         Text(widget.report.status),
                         // Text(report.id.toString()),
