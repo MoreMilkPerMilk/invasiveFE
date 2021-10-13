@@ -110,14 +110,17 @@ Future<PhotoLocation> uploadPhotoToPhotoLocation(String filename,
 /// add PhotoLocation, creates a PhotoLocation, then uploads the photo to it
 Future<PhotoLocation> addPhotoLocation(PhotoLocation photoLocation) async {
   //create
-  return createLocation(photoLocation).then((PhotoLocation loc) async {
-    //load the image
-    var f = XFile(photoLocation.photo.path);
-    int length = await f.length();
-    //upload the image, will update filename from placeholder
-    return uploadPhotoToPhotoLocation(photoLocation.photo.path,
-        f.readAsBytes().asStream(), length, loc.id.toString());
-  });
+  PhotoLocation loc = await createLocation(photoLocation);
+
+  var f = XFile(photoLocation.photo.path);
+  int length = await f.length();
+
+  loc = await uploadPhotoToPhotoLocation(photoLocation.photo.path,
+      f.readAsBytes().asStream(), length, loc.id.toString());
+
+  photoLocation.image_filename = loc.image_filename;
+
+  return photoLocation;
 }
 
 /// delete location
@@ -168,10 +171,6 @@ Future<bool> addPhotoLocationToReport(Report report, PhotoLocation photoLocation
     },
     body: report.toJson(),
   ).timeout(const Duration(seconds: 4)); //timeout for testing
-  log("after res");
-
-  log("add photolocation to report response = " + response.statusCode.toString() + " " + response.body.toString());
-  log("response = " + response.toString());
 
   if (response.statusCode == 200) {
     return true;
