@@ -52,19 +52,23 @@ class Report {
     List<PhotoLocation> photo_locations = [];
 
     //double pad -> so [[[[152, 25], []]]]
-    if (json['polygon'] != null) {
-      List<List<List<dynamic>>> tmp1 = [];
-      tmp1.add(new List.from(json['polygon']['coordinates']));
-      List<List<List<List<dynamic>>>> tmp2 = [];
-      tmp2.add(new List.from(tmp1));
-
-      json['polygon']['coordinates'] = tmp2;
-    }
-
-    // log(json.toString());
-    json['locations'].forEach((element) {
-      photo_locations.add(PhotoLocation.fromJson(element));
-    });
+    // if (json['polygon'] != null) {
+    //   List<List<List<dynamic>>> tmp1 = [];
+    //   tmp1.add(new List.from(json['polygon']['coordinates']));
+    //   List<List<List<List<dynamic>>>> tmp2 = [];
+    //   tmp2.add(new List.from(tmp1));
+    //
+    //   json['polygon']['coordinates'] = tmp2;
+    // }
+    //
+    // // log(json.toString());
+    // json['locations'].forEach((element) {
+    //   photo_locations.add(PhotoLocation.fromJson(element));
+    // });
+    //
+    // log("multipolygon");
+    // log(json['polygon'].toString());
+    // log("multipolygon");
 
     return Report(
       id: ObjectId.fromHexString(json['_id']),
