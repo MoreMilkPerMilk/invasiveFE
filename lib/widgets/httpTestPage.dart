@@ -129,9 +129,8 @@ class HttpTestPage extends StatelessWidget {
                     polygon: new GeoJsonMultiPolygon()
                 );
                 addReport(report);
-                addPhotoLocation(loc);
-                addPhotoLocationToReport(report, loc);
-                //getAllReports();
+                loc = await addPhotoLocation(loc);
+                getAllReports();
               },
               child: Text('/Add Report'),
             ),
@@ -172,7 +171,7 @@ class HttpTestPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 log("add photoplocation");
-                addPhotoLocation(new PhotoLocation(id: new ObjectId(), photo: new File(''), image_filename: 'file.txt', location: new GeoJsonPoint(geoPoint: new GeoPoint(latitude: 1, longitude: 1))));
+                addPhotoLocation(new PhotoLocation(id: new ObjectId(), photo: new File(''), image_filename: 'assets/placeholder.png', location: new GeoJsonPoint(geoPoint: new GeoPoint(latitude: 1, longitude: 1))));
                 // getUserById(1);
               },
               child: Text('add photolocation'),
