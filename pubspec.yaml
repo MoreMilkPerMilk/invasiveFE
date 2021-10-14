@@ -36,6 +36,8 @@ dependencies:
   fluttertoast: ^8.0.8
   random_color:
   geodesy:
+  pull_to_refresh: ^2.0.0
+
 
 
   # leaflet things

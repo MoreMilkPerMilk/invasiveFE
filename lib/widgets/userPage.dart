@@ -7,8 +7,10 @@ import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/services/httpService.dart';
 import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:line_icons/line_icon.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 Map<int, Species> species = {};
+RefreshController _refreshController = RefreshController(initialRefresh: false);
 
 // todo change to reports by user.
 class UserPage extends StatefulWidget {
@@ -22,6 +24,33 @@ class _UserPageState extends State<UserPage> {
   List<Report> reports = [];
   Map<String, List<Report>> organisedReports = {};
   late Future loaded;
+
+  void _onRefresh() async {
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    print("done refreshing");
+    List<Report> newReports = await getAllReports();
+    organisedReports = {};
+    newReports.forEach((report) {
+      var speciesName = species[report.species_id]!.name;
+      if (organisedReports.containsKey(speciesName)) {
+        organisedReports[speciesName]!.add(report);
+      } else {
+        organisedReports[speciesName] = [report];
+      }
+    });
+    // if failed,use refreshFailed()
+    _refreshController.refreshCompleted();
+  }
+
+  void _onLoading() async {
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    print("done loading");
+    // if failed,use loadFailed(),if no data return,use LoadNodata()
+    if (mounted) setState(() {});
+    _refreshController.loadComplete();
+  }
 
   @override
   void initState() {
@@ -137,18 +166,22 @@ class _UserPageState extends State<UserPage> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
                     return Container(
-                        child: new ListView.builder(
-                            itemCount: organisedReports.keys.length,
-                            itemBuilder: (BuildContext ctxt, int index) {
-                              return Card(
-                                elevation: 0,
-                                shape: new RoundedRectangleBorder(
-                                    side: new BorderSide(color: Colors.black, width: 2.0),
-                                    borderRadius: BorderRadius.circular(4.0)),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        children: [
+                        child: SmartRefresher(
+                          enablePullDown: true,
+                          controller: _refreshController,
+                          onRefresh: _onRefresh,
+                          onLoading: _onLoading,
+                          child: new ListView.builder(
+                              itemCount: organisedReports.keys.length,
+                              itemBuilder: (BuildContext ctxt, int index) {
+                                return Card(
+                                    elevation: 0,
+                                    shape: new RoundedRectangleBorder(
+                                        side: new BorderSide(color: Colors.black, width: 2.0),
+                                        borderRadius: BorderRadius.circular(4.0)),
+                                    child: Column(
+                                      children: [
+                                        Row(children: [
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: Image.asset(
@@ -158,34 +191,33 @@ class _UserPageState extends State<UserPage> {
                                           ),
                                           Text(
                                             organisedReports.keys.elementAt(index),
-                                            style: TextStyle(fontSize: 18, color: Colors.black, fontStyle: FontStyle
-                                                .italic),
+                                            style:
+                                                TextStyle(fontSize: 18, color: Colors.black, fontStyle: FontStyle.italic),
                                             textAlign: TextAlign.start,
                                           ),
                                           Spacer(),
                                           Padding(
                                             padding: const EdgeInsets.all(20.0),
                                             child: Text(
-                                              organisedReports[organisedReports.keys.elementAt(index)]!
-                                                  .length.toString(),
+                                              organisedReports[organisedReports.keys.elementAt(index)]!.length.toString(),
                                               style: TextStyle(fontSize: 20, color: Colors.black, fontFamily: "mono"),
                                               textAlign: TextAlign.start,
                                             ),
                                           )
-                                        ]
-                                      ),
-                                      Column(
-                                        children: organisedReports[organisedReports.keys.elementAt(index)]!.map<Widget>((item) {
-                                          return Padding(
-                                            padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
-                                            child: ReportCard(item),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ],
-                                  )
-                              );
-                            }));
+                                        ]),
+                                        Column(
+                                          children: organisedReports[organisedReports.keys.elementAt(index)]!
+                                              .map<Widget>((item) {
+                                            return Padding(
+                                              padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
+                                              child: ReportCard(item),
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ],
+                                    ));
+                              }),
+                        ));
                   } else {
                     return Align(alignment: Alignment.center, child: CircularProgressIndicator());
                   }
