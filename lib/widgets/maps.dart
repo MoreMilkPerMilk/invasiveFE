@@ -28,7 +28,7 @@ Map<int, Species> species = {};
 // whether the map view mode is heat mode
 bool heatmapMode = false;
 bool councilMode = false;
-bool communityMode = false;
+bool communityView = false;
 
 class MapsPage extends StatefulWidget {
   // controls showing and hiding map marker popups
@@ -58,16 +58,16 @@ class _MapsPageState extends State<MapsPage> {
   @override
   void initState() {
     super.initState();
-    Future reportsFuture = getAllReports();
+    Future<List<Report>> reportsFuture = getAllReports();
     Future speciesFuture = getAllSpecies();
     Future positionFuture = determinePosition();
 
     // rather than here, we generate the markers in build() so they refresh on setState()
-    reportsFuture.then((reports) => setState(() {
+    reportsFuture.then((reports) {
       this.reports = reports;
-      print(reports);
+      print(reports.first.photoLocations.first.location.geoPoint);
       reportMarkers = reports.map<ReportMarker>((Report r) => ReportMarker(r)).toList();
-    }));
+    });
 
     // create the {species id => species} map
     speciesFuture.then((speciesList) => species = Map.fromIterable(
@@ -398,7 +398,7 @@ class ReportMarkerPopup extends StatelessWidget {
                             child: FittedBox(
                                 fit: BoxFit.cover,
                                 clipBehavior: Clip.hardEdge, // to clip the image into a square
-                                child: Image.asset(report.photoLocations.first.image_filename)
+                                child: Image.network(getImageURL(report.photoLocations.first).toString())
                             )
                         )
                     )

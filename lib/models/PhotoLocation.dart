@@ -36,10 +36,11 @@ class PhotoLocation {
       json['_id'] = json['id'];
     }
 
-    GeoJsonPoint loc = json['location'] != null ?
+
+    GeoJsonPoint loc = json['point'] != null ?
       new GeoJsonPoint(geoPoint:
-        new GeoPoint(latitude: json['location'][1],
-            longitude: json['location'][0])) :
+        new GeoPoint(latitude: json['point']['coordinates'][1],
+            longitude: json['point']['coordinates'][0])) :
         new GeoJsonPoint(geoPoint:
             new GeoPoint(latitude: 0, longitude: 0));
 
