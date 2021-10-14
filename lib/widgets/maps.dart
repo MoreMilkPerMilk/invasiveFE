@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:collection';
+import 'dart:io';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
@@ -15,6 +18,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:objectid/objectid.dart';
+import 'package:random_color/random_color.dart';
+import 'package:geodesy/geodesy.dart';
 import 'dart:io';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -29,6 +34,7 @@ Map<int, Species> species = {};
 bool heatmapMode = false;
 bool councilMode = false;
 bool communityView = false;
+bool communityMode = false;
 
 class MapsPage extends StatefulWidget {
   // controls showing and hiding map marker popups
@@ -49,8 +55,14 @@ class _MapsPageState extends State<MapsPage> {
   late Future loaded;
   //list of council polygons to draw on the map
   List<Polygon> councilPolygons = [];
-  // council
+  //list of councils
+  List<Council> councils = [];
+  // map position bounds for council fetching
   MapPosition _lastMapPosition = new MapPosition();
+  //council colors for displaying polygons
+  HashMap<String, Color> councilColors = new HashMap();
+  //drop down value
+  late String? dropDownValue = null;
 
   late List<ReportMarker> reportMarkers = [];
 
@@ -61,6 +73,8 @@ class _MapsPageState extends State<MapsPage> {
     Future<List<Report>> reportsFuture = getAllReports();
     Future speciesFuture = getAllSpecies();
     Future positionFuture = determinePosition();
+    //todo:get councils flutter function
+    Future<List<Council>> councilPolygonFuture = getCouncilsInMapBounds(_lastMapPosition);
 
     // rather than here, we generate the markers in build() so they refresh on setState()
     reportsFuture.then((reports) {
@@ -75,10 +89,55 @@ class _MapsPageState extends State<MapsPage> {
         key: (e) => e.species_id,
         value: (e) => e));
 
-    // set the user's position every X seconds
-    positionFuture.then((position) => setState(() {
-      userPosition = LatLng(position.latitude, position.longitude);
-    }));
+    // set the user's position every X seconds - commented out for emulator
+    // positionFuture.then((position) => setState(() {
+    //   userPosition = LatLng(position.latitude, position.longitude);
+    // }));
+
+    Timer.periodic(Duration(seconds: 5), (timer) {
+      if (!councilMode) return;
+      Future<List<Council>> councilPolygonFuture = getCouncilsInMapBounds(_lastMapPosition);
+      //get the council for the user's position
+      councilPolygonFuture.then((councils) => setState(() {
+        this.councilPolygons = [];
+        this.councils = [];
+        this.councils = councils;
+        councils.forEach((council) {
+          var polygon;
+          if (council.boundary.toGeoJsonMultiPolygon().polygons.length > 0) {
+            polygon = List<LatLng>.from(council.boundary
+                .toGeoJsonMultiPolygon()
+                .polygons
+                .first
+                .geoSeries
+                .first
+                .geoPoints
+                .map(
+                    (x) => LatLng(x.latitude, x.longitude)
+            ));
+          } else {
+            return;
+          }
+          // this.councilPolygons.add(new Polygon(points: points))
+          Color _color = new Color.fromRGBO(255, 0, 0, 0.1);
+          if (this.councilColors[council.id.toString()] != null) {
+            Color? tmp = this.councilColors[council.id.toString()];
+            if (tmp != null) {
+              _color = tmp;
+            }
+          } else {
+            RandomColor _randomColor = RandomColor();
+            _color = _randomColor.randomColor();
+            this.councilColors[council.id.toString()] = _color;
+          }
+          //add a polygon per council
+          this.councilPolygons.add(new Polygon(points: polygon,
+              color: Color.fromRGBO(_color.red, _color.green, _color.blue, 0.4),
+              borderColor: Color.fromRGBO(0, 0, 0, 1),
+              borderStrokeWidth: 1));
+        });
+      }));
+    });
 
     Timer.periodic(Duration(seconds: 15), (timer) {
       if (this.mounted) {
@@ -121,13 +180,26 @@ class _MapsPageState extends State<MapsPage> {
                         // disable map rotation for now
                         interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
                         // hide all popups when the map is tapped
-                        onTap: (_) {
+                        onTap: (LatLng posTapped) {
                           widget._popupLayerController.hidePopup();
+                          this.councilPolygons.forEach((Polygon poly) {
+                            Geodesy geodesy = Geodesy();
+                            if (geodesy.isGeoPointInPolygon(posTapped, poly.points)) {
+                              print("TAPPED COUNCIL");
+                              // markers.add(new WeedMarker(report: new Report(id: ObjectId(), species_id: 21, name: "Council", status: "", photoLocations: [], notes: "", polygon: new GeoJsonMultiPolygon())));
+                            }
+                          });
+                        },
+                        // update the bounds for drawing polygons
+                        onPositionChanged: (MapPosition position, _) {
+                          _lastMapPosition = position;
                         },
                         plugins: [MarkerClusterPlugin()],
                       ),
                       layers: [
                         _tileLayer(),
+                        //has to show below markers
+                        if (councilMode) PolygonLayerOptions(polygons: councilPolygons),
                         _userLocationMarker(),
                         if (communityView) _communityMarkers(communityMarkers)
                         else _reportMarkers(reportMarkers)
@@ -149,7 +221,74 @@ class _MapsPageState extends State<MapsPage> {
                 // ToggleButtons is the container for all of the buttons
                 child: _toggleButtons(),
               )
-          )
+          ),
+          Padding(
+            // space from the top of the screen
+              padding: EdgeInsets.only(bottom:30, right: 10),
+              child: Align(
+                  alignment: Alignment.bottomRight,
+                  // DropdownButton for different polygon layers
+                  child: Container(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: EdgeInsets.all(5),
+                        child: DropdownButton<String>(
+                          value: dropDownValue,
+                          //elevation: 5,
+                          style: TextStyle(color: Colors.black),
+                          iconEnabledColor: Colors.black,
+                          dropdownColor: Colors.white,
+                          iconDisabledColor: Colors.white,
+                          // iconEnabledColor: Colors.white,
+                          items: <String>[
+                            'None',
+                            'Council',
+                            'Community',
+                            'Landcare'
+                          ].map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          hint:
+                          // Text("choose a layer", ),
+                          Text(
+                            "Polygon layers",
+                            // style: TextStyle(
+                            //     color: Colors.black,
+                            //     fontSize: 16,
+                            //     fontWeight: FontWeight.w600),
+                          ),
+                          onChanged: (String? value) {
+                            setState(() {
+                              print("value = ${value}");
+                              switch (value) {
+                                case "Council":
+                                  councilMode = true;
+                                  communityMode = false;
+                                  dropDownValue = "Council";
+                                  break;
+                                case "Community":
+                                  communityMode = true;
+                                  councilMode = false;
+                                  dropDownValue = "Community";
+                                  break;
+                                default:
+                                  dropDownValue = null;
+                                  councilMode = false;
+                                  communityMode = false;
+                                  break;
+                              }
+                            });
+                          },
+                          onTap: () {
+                            print("TAPPED");
+                          },
+                        ),
+                      )
+                  )
+              ))
         ])
     );
   }

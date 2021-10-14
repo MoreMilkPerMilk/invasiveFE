@@ -35,6 +35,7 @@ dependencies:
   sliding_up_panel: ^2.0.0+1
   fluttertoast: ^8.0.8
   random_color:
+  geodesy:
 
 
   # leaflet things
