@@ -44,6 +44,7 @@ class _MapsPageState extends State<MapsPage> {
   LatLng userPosition = LatLng(-27.4975, 153.0137);
   // the state of this future determines whether to display a loading screen
   late Future loaded;
+  late List<ReportMarker> reportMarkers = [];
 
   /// information that should be refreshed each time maps opens goes here
   @override
@@ -56,6 +57,8 @@ class _MapsPageState extends State<MapsPage> {
     // rather than here, we generate the markers in build() so they refresh on setState()
     reportsFuture.then((reports) => setState(() {
       this.reports = reports;
+      print(reports);
+      reportMarkers = reports.map<ReportMarker>((Report r) => ReportMarker(r)).toList();
     }));
 
     // create the {species id => species} map
@@ -82,7 +85,7 @@ class _MapsPageState extends State<MapsPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<ReportMarker> reportMarkers = _debugReportMarkers();
+    // List<ReportMarker> reportMarkers = _debugReportMarkers();
     List<CommunityMarker> communityMarkers = _debugCommunityMarkers();
 
     // List<ReportMarker> markers = reports.map((rep) => ReportMarker(report: rep)).toList();
