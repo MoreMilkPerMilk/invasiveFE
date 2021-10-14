@@ -53,7 +53,7 @@ dependencies:
   plugin_platform_interface: ^2.0.0
   indent: ^2.0.0
   objectid: ^2.0.0
-  geolocator: ^7.6.0
+  geolocator: 7.6.2 # DO NOT CHANGE -- ANYTHING ABOVE THIS VERSION BREAKS THE ENTIRE PROJECT AHHHH
   google_fonts: ^2.1.0
   html_unescape: ^2.0.0
   string_extensions: ^0.3.2
