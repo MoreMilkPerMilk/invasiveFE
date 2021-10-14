@@ -8,6 +8,7 @@ import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
+import 'package:invasive_fe/widgets/reportAdjustmentPage.dart';
 import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:objectid/objectid.dart';
 import 'package:uuid/uuid.dart';
@@ -37,27 +38,27 @@ class HttpTestPage extends StatelessWidget {
             ),
             Spacer(),
             ElevatedButton(
-              child: Text("Hello!"),
+              child: Text("Report Adjustment Page"),
               onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ReportPage(
-                  report: Report(
-                      id: ObjectId(),
-                      status: "status",
-                      notes: "notes",
-                      polygon: GeoJsonMultiPolygon(),
-                      photoLocations: [
-                        PhotoLocation(
-                            id: ObjectId(),
-                            photo: new File("assets/placeholder.png"),
-                            location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
-                            image_filename: 'placeholder.png'
-                        )
-                      ],
-                      name: "test",
-                      species_id: 41
-                  ),
-                ))
+                  context,
+                  MaterialPageRoute(builder: (context) => ReportAdjustmentPage(
+                    report: Report(
+                        id: ObjectId(),
+                        status: "status",
+                        notes: "notes",
+                        polygon: GeoJsonMultiPolygon(),
+                        photoLocations: [
+                          PhotoLocation(
+                              id: ObjectId(),
+                              photo: new File("assets/placeholder.png"),
+                              location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
+                              image_filename: 'placeholder.png'
+                          )
+                        ],
+                        name: "test",
+                        species_id: 41
+                    ),
+                  ))
               ),
             ),
             Spacer(),
