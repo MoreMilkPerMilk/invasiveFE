@@ -58,13 +58,6 @@ class _MapsPageState extends State<MapsPage> {
     Future reportsFuture = getAllReports();
     Future speciesFuture = getAllSpecies();
     Future positionFuture = determinePosition();
-    //todo:get councils flutter function
-    // Future councilPolygonFuture = get
-    Future<List<Council>> councilPolygonFuture = searchForCouncilByLocation(
-        new PhotoLocation(id: new ObjectId(), photo: File(""), image_filename: "",
-            location: new GeoJsonPoint(geoPoint:
-            new GeoPoint(latitude: 0,
-                longitude: 0))));
 
     // rather than here, we generate the markers in build() so they refresh on setState()
     reportsFuture.then((reports) => setState(() {
@@ -78,43 +71,15 @@ class _MapsPageState extends State<MapsPage> {
         value: (e) => e));
 
     // set the user's position every X seconds
-    // positionFuture.then((position) => setState(() {
-    //   userPosition = LatLng(position.latitude, position.longitude);
-    // }));
-
-    //get the council for the user's position
-    councilPolygonFuture.then((councils) => setState(() {
-      this.councilPolygons = [];
-      councils.forEach((council) {
-        var polygon = List<LatLng>.from(council.boundary.toGeoJsonMultiPolygon().polygons.first.geoSeries.first.geoPoints.map(
-                (x) => LatLng(x.latitude, x.longitude)
-        ));
-        // this.councilPolygons.add(new Polygon(points: points))
-        this.councilPolygons.add(new Polygon(points: polygon, color: Color.fromRGBO(255, 0, 0, 0.2), borderColor: Color.fromRGBO(255, 0, 0, 1)));
-      });
+    positionFuture.then((position) => setState(() {
+      userPosition = LatLng(position.latitude, position.longitude);
     }));
 
 
     Timer.periodic(Duration(seconds: 1), (timer) {
       if (this.mounted) {
-        // determinePosition().then((position) => setState(() {
-        //   userPosition = LatLng(position.latitude, position.longitude);
-        // }));
-
-        print("USING MAP CENTER");
-        print(_lastMapPosition.bounds);
-        print(_lastMapPosition.zoom);
-        // councilPolygonFuture = searchForCouncilByLocation(new PhotoLocation(id: new ObjectId(), photo: File(""), image_filename: "", location: new GeoJsonPoint(geoPoint: new GeoPoint(latitude: _lastMapPosition.center!.latitude, longitude: _lastMapPosition.center!.longitude))));
-        //get the council for the user's position
-        councilPolygonFuture.then((councils) => setState(() {
-          this.councilPolygons = [];
-          councils.forEach((council) {
-            var polygon = List<LatLng>.from(council.boundary.toGeoJsonMultiPolygon().polygons.first.geoSeries.first.geoPoints.map(
-                    (x) => LatLng(x.latitude, x.longitude)
-            ));
-            // this.councilPolygons.add(new Polygon(points: points))
-            this.councilPolygons.add(new Polygon(points: polygon, color: Color.fromRGBO(255, 0, 0, 0.2), borderColor: Color.fromRGBO(255, 0, 0, 1)));
-          });
+        determinePosition().then((position) => setState(() {
+          userPosition = LatLng(position.latitude, position.longitude);
         }));
       }
     });
@@ -169,11 +134,6 @@ class _MapsPageState extends State<MapsPage> {
                     // hide all popups when the map is tapped
                     onTap: (_) => widget._popupLayerController.hidePopup(),
                     // onPositionChanged: (),
-                    onPositionChanged: (MapPosition position, _) {
-                      _lastMapPosition = position;
-                      print("position changed");
-                      print(position.center);
-                    },
                     plugins: [MarkerClusterPlugin()],
                   ),
                   layers: [
@@ -225,7 +185,6 @@ class _MapsPageState extends State<MapsPage> {
                           );
                         },
                       ),
-                    if (councilMode) PolygonLayerOptions(polygons: councilPolygons),
                   ]);
             } else {
               // the futures have not yet completed; display a loading page
@@ -257,16 +216,6 @@ class _MapsPageState extends State<MapsPage> {
                     child: Padding(
                         padding: EdgeInsets.all(16),
                         child: Text("Heatmap Mode"))),
-                Container(
-                    color: Colors.white,
-                    child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Text("Councils"))),
-                Container(
-                    color: Colors.white,
-                    child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Text("Communities")))
               ],
               // on click, ToggleButtons calls this function with the index of the clicked button
               onPressed: (int index) {
@@ -274,19 +223,11 @@ class _MapsPageState extends State<MapsPage> {
                 setState(() {
                   // the heatmap button is the second button. this variable determines the map UI
                   heatmapMode = index == 1;
-                  councilMode = (index == 2) ^ councilMode;
-                  communityMode = (index == 3) ^ communityMode;
-                  isSelected[0] = !heatmapMode;
-                  isSelected[1] = heatmapMode;
-                  isSelected[2] = councilMode;
-                  isSelected[3] = communityMode;
-                  print("selected length = " + isSelected.length.toString());
-                  // print("")
                   // change the UI of the buttons to highlight which button was clicked
-                  // for (int i = 0; i < isSelected.length && i < 2; i++) { // don't do councils etc
-                  //   isSelected[i] = false;
-                  // }
-                  // isSelected[index] = true;
+                  for (int i = 0; i < isSelected.length; i++) {
+                    isSelected[i] = false;
+                  }
+                  isSelected[index] = true;
                 });
               },
               // [true, false] or [false, true] depending on the selected button

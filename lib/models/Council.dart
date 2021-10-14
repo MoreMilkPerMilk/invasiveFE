@@ -46,7 +46,6 @@ class Council {
 
   factory Council.fromJson(Map<String, dynamic> json) {
     // log(json.toString());
-
     return Council(
         id: ObjectId.fromHexString(json['_id']),
         name: json['name'],
@@ -74,4 +73,8 @@ class Council {
     final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
     return parsed.map<Council>((json) => Council.fromJson(json)).toList();
   }
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode => this.id.toString().hashCode;
 }
