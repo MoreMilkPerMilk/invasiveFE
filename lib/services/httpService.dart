@@ -364,11 +364,12 @@ Future<List<Council>> getCouncilsInMapBounds(MapPosition position) async {
     return [];
   }
   List<GeoPoint> geoPoints = [
-    new GeoPoint(latitude: fixLatLong(position.bounds!.northWest!.latitude), longitude: fixLatLong(position.bounds!.northWest!.longitude)),
+    //don't change any "!"
+    new GeoPoint(latitude: fixLatLong(position.bounds!.northWest.latitude), longitude: fixLatLong(position.bounds!.northWest.longitude)),
     new GeoPoint(latitude: fixLatLong(position.bounds!.northEast!.latitude), longitude: fixLatLong(position.bounds!.northEast!.longitude)),
-    new GeoPoint(latitude: fixLatLong(position.bounds!.southEast!.latitude), longitude: fixLatLong(position.bounds!.southEast!.longitude)),
+    new GeoPoint(latitude: fixLatLong(position.bounds!.southEast.latitude), longitude: fixLatLong(position.bounds!.southEast.longitude)),
     new GeoPoint(latitude: fixLatLong(position.bounds!.southWest!.latitude), longitude: fixLatLong(position.bounds!.southWest!.longitude)),
-    new GeoPoint(latitude: fixLatLong(position.bounds!.northWest!.latitude), longitude: fixLatLong(position.bounds!.northWest!.longitude)), //LinearRing must have same first and last point
+    new GeoPoint(latitude: fixLatLong(position.bounds!.northWest.latitude), longitude: fixLatLong(position.bounds!.northWest.longitude)), //LinearRing must have same first and last point
   ];
 
   List<GeoSerie> geoSeries = [new GeoSerie(name: "name", type: GeoSerieType.polygon, geoPoints: geoPoints)];
