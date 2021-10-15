@@ -95,7 +95,7 @@ class _MapsPageState extends State<MapsPage> {
     // }));
 
     Timer.periodic(Duration(seconds: 5), (timer) {
-      if (!councilMode) return;
+      if (!councilMode || !this.mounted) return;
       Future<List<Council>> councilPolygonFuture = getCouncilsInMapBounds(_lastMapPosition);
       //get the council for the user's position
       councilPolygonFuture.then((councils) => setState(() {
@@ -199,7 +199,7 @@ class _MapsPageState extends State<MapsPage> {
                       layers: [
                         _tileLayer(),
                         //has to show below markers
-                        if (councilMode) PolygonLayerOptions(polygons: councilPolygons),
+                        _councilPolygonLayer(),
                         _userLocationMarker(),
                         if (communityView) _communityMarkers(communityMarkers)
                         else _reportMarkers(reportMarkers)
@@ -222,73 +222,7 @@ class _MapsPageState extends State<MapsPage> {
                 child: _toggleButtons(),
               )
           ),
-          Padding(
-            // space from the top of the screen
-              padding: EdgeInsets.only(bottom:30, right: 10),
-              child: Align(
-                  alignment: Alignment.bottomRight,
-                  // DropdownButton for different polygon layers
-                  child: Container(
-                      color: Colors.white,
-                      child: Padding(
-                        padding: EdgeInsets.all(5),
-                        child: DropdownButton<String>(
-                          value: dropDownValue,
-                          //elevation: 5,
-                          style: TextStyle(color: Colors.black),
-                          iconEnabledColor: Colors.black,
-                          dropdownColor: Colors.white,
-                          iconDisabledColor: Colors.white,
-                          // iconEnabledColor: Colors.white,
-                          items: <String>[
-                            'None',
-                            'Council',
-                            'Community',
-                            'Landcare'
-                          ].map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          hint:
-                          // Text("choose a layer", ),
-                          Text(
-                            "Polygon layers",
-                            // style: TextStyle(
-                            //     color: Colors.black,
-                            //     fontSize: 16,
-                            //     fontWeight: FontWeight.w600),
-                          ),
-                          onChanged: (String? value) {
-                            setState(() {
-                              print("value = ${value}");
-                              switch (value) {
-                                case "Council":
-                                  councilMode = true;
-                                  communityMode = false;
-                                  dropDownValue = "Council";
-                                  break;
-                                case "Community":
-                                  communityMode = true;
-                                  councilMode = false;
-                                  dropDownValue = "Community";
-                                  break;
-                                default:
-                                  dropDownValue = null;
-                                  councilMode = false;
-                                  communityMode = false;
-                                  break;
-                              }
-                            });
-                          },
-                          onTap: () {
-                            print("TAPPED");
-                          },
-                        ),
-                      )
-                  )
-              ))
+          _layerDropDownPadding(),
         ])
     );
   }
@@ -335,6 +269,13 @@ class _MapsPageState extends State<MapsPage> {
         );
       },
     );
+  }
+
+  PolygonLayerOptions _councilPolygonLayer() {
+    //only draw when enabled.
+    if (councilMode) return PolygonLayerOptions(polygons: councilPolygons);
+
+    return PolygonLayerOptions(polygons:[]);
   }
 
   MarkerClusterLayerOptions _communityMarkers(List<CommunityMarker> communityMarkers) {
@@ -405,6 +346,68 @@ class _MapsPageState extends State<MapsPage> {
       },
       // [true, false] or [false, true] depending on the selected button
       isSelected: isSelected,
+    );
+  }
+
+  Padding _layerDropDownPadding() {
+    return Padding(
+      // space from the top of the screen
+        padding: EdgeInsets.only(bottom:30, right: 10),
+        child: Align(
+            alignment: Alignment.bottomRight,
+            // DropdownButton for different polygon layers
+            child: Container(
+                color: Colors.white,
+                child: Padding(
+                  padding: EdgeInsets.all(5),
+                  child: DropdownButton<String>(
+                    value: dropDownValue,
+                    //elevation: 5,
+                    style: TextStyle(color: Colors.black),
+                    iconEnabledColor: Colors.black,
+                    dropdownColor: Colors.white,
+                    iconDisabledColor: Colors.white,
+                    // iconEnabledColor: Colors.white,
+                    items: <String>[
+                      'None',
+                      'Council',
+                      'Community',
+                      'Landcare'
+                    ].map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    hint:
+                    // Text("choose a layer", ),
+                    Text("Polygon layers"),
+                    onChanged: (String? value) {
+                      setState(() {
+                        print("value = ${value}");
+                        switch (value) {
+                          case "Council":
+                            councilMode = true;
+                            communityMode = false;
+                            dropDownValue = "Council";
+                            break;
+                          case "Community":
+                            communityMode = true;
+                            councilMode = false;
+                            dropDownValue = "Community";
+                            break;
+                          default:
+                            dropDownValue = null;
+                            councilMode = false;
+                            communityMode = false;
+                            break;
+                        }
+                      });
+                    },
+                  ),
+                )
+            )
+        )
     );
   }
 

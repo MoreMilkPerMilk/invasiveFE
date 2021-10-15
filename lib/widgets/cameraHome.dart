@@ -72,11 +72,13 @@ class _CameraHomePageState extends State<CameraHomePage> {
   }
 
   setRecognitions(recognitions, imageHeight, imageWidth) {
-    setState(() {
-      _recognitions = recognitions;
-      _imageHeight = imageHeight;
-      _imageWidth = imageWidth;
-    });
+    if (this.mounted) {
+      setState(() {
+        _recognitions = recognitions;
+        _imageHeight = imageHeight;
+        _imageWidth = imageWidth;
+      });
+    }
   }
 
   @override
