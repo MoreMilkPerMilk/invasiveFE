@@ -399,14 +399,21 @@ Future<List<Council>> getCouncilsInMapBounds(MapPosition position) async {
   var json = searchPolygon.toJson();
 
   double minTolerance = 0.001;
-  double maxTolerance = 0.1;
+  double maxTolerance = 0.01;
+  // double minZoom = 3.5;
   double minZoom = 3.5;
-  double maxZoom = 18.4;
+  // double maxZoom = 18.4;
+  double maxZoom = 12;
+
   double zoom = position.zoom == null ? 3.5 : position.zoom!;
   //zoom between 3.5 and 18.4
-  double tolerance = exp(((zoom - minZoom) / (maxZoom - minZoom)))* (-1) * (maxTolerance - minTolerance) + maxTolerance;
+  double tolerance = (((zoom - minZoom) / (maxZoom - minZoom)));
+  tolerance = tolerance * tolerance *  (-1) * (maxTolerance - minTolerance) + maxTolerance;
+
+  if (zoom > maxZoom) tolerance = minTolerance;
 
   print("tolerance = " + tolerance.toString());
+  print("zoom = " + zoom.toString());
 
 
   final response = await http.post(
