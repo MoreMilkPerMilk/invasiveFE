@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:camera/camera.dart';
-import 'package:flutter/services.dart' show ByteData, rootBundle;
+import 'package:flutter/services.dart' show ByteData, PlatformException, rootBundle;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geojson/geojson.dart';
@@ -24,9 +25,9 @@ import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:objectid/objectid.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:get_mac/get_mac.dart';
 
-const API_URL = 'http://invasivesys.uqcloud.net:80';
-// const API_URL = "http://localhost:8080";
+const API_URL = 'http://35.244.125.224';
 
 // --------------------------------
 //  PROGRESS
@@ -150,7 +151,7 @@ Uri getImageURL(PhotoLocation location) {
 // --------------------------------
 
 /// add Report
-Future<bool> addReport(Report report) async {
+Future<Report> addReport(Report report) async {
   final response = await http.post(
     Uri.parse(API_URL + "/reports/add"),
     headers: <String, String>{
@@ -160,14 +161,14 @@ Future<bool> addReport(Report report) async {
   ).timeout(const Duration(seconds: 4)); //timeout for testing
 
   if (response.statusCode == 200) {
-    return true;
+    return Report.fromJson(jsonDecode(response.body));
   }
 
   throw "HTTP Error Code: ${response.statusCode} http response = ${response.body.toString()}";
 }
 
 /// add a PhotoLocation to a Report
-Future<bool> addPhotoLocationToReport(Report report, PhotoLocation photoLocation) async {
+Future<Report> addPhotoLocationToReport(Report report, PhotoLocation photoLocation) async {
   //build query string
   String url = API_URL + "/reports/addphotolocationbyid?location_id=${photoLocation.id}&report_id=${report.id}";
   final response = await http.put(
@@ -179,7 +180,7 @@ Future<bool> addPhotoLocationToReport(Report report, PhotoLocation photoLocation
   ).timeout(const Duration(seconds: 4)); //timeout for testing
 
   if (response.statusCode == 200) {
-    return true;
+    return Report.fromJson(jsonDecode(response.body));
   }
   throw "HTTP Error Code: ${response.statusCode} http response = ${response.body.toString()}";
 }
@@ -194,6 +195,25 @@ Future<List<User>> getAllUsers() async {
 
   if (response.statusCode == 200) {
     var result = User.parseUserList(response.body);
+    return result;
+  }
+
+  throw "HTTP Error Code: ${response.statusCode} http response = ${response.body}";
+}
+
+//creates user if doesn't exist
+Future<User> getCurrentUser() async {
+  String macAddress = "unkown_mac";
+  try {
+    macAddress = await GetMac.macAddress;
+  } on PlatformException {
+    macAddress = 'unkown_mac';
+  }
+
+  final response = await http.get(Uri.parse(API_URL + "/users/createbymacaddress/${macAddress}"));
+
+  if (response.statusCode == 200) {
+    var result = User.fromJson(jsonDecode(response.body));
     return result;
   }
 
@@ -356,7 +376,7 @@ double fixLatLong(double latlong) {
   return latlong;
 }
 
-//get councils in boundas of the FlutterMap
+//get councils in bounds of the FlutterMap
 Future<List<Council>> getCouncilsInMapBounds(MapPosition position) async {
 
   //create polygon
@@ -378,8 +398,19 @@ Future<List<Council>> getCouncilsInMapBounds(MapPosition position) async {
 
   var json = searchPolygon.toJson();
 
+  double minTolerance = 0.001;
+  double maxTolerance = 0.1;
+  double minZoom = 3.5;
+  double maxZoom = 18.4;
+  double zoom = position.zoom == null ? 3.5 : position.zoom!;
+  //zoom between 3.5 and 18.4
+  double tolerance = exp(((zoom - minZoom) / (maxZoom - minZoom)))* (-1) * (maxTolerance - minTolerance) + maxTolerance;
+
+  print("tolerance = " + tolerance.toString());
+
+
   final response = await http.post(
-    Uri.parse(API_URL + "/councils/search/polygon?simplify_tolerance=0.001"),
+    Uri.parse(API_URL + "/councils/search/polygon?simplify_tolerance=${tolerance}"),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
