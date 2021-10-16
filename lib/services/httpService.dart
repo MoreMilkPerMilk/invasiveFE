@@ -25,8 +25,8 @@ import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:objectid/objectid.dart';
 import 'package:path_provider/path_provider.dart';
 
-const API_URL = 'http://invasivesys.uqcloud.net:80';
-// const API_URL = "http://localhost:8080";
+//GCP URL
+const API_URL = 'http://35.244.125.224';
 
 // --------------------------------
 //  PROGRESS
