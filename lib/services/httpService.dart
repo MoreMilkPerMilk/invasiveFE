@@ -211,6 +211,7 @@ Future<User> getCurrentUser() async {
   }
 
   if (macAddress == '') {
+    //likely on emulator?
     macAddress = "DEVMODE";
   }
 
@@ -264,8 +265,8 @@ Future<User> addUser(User user) async {
 /// add a Report to a User
 Future<User> addReportToUser(Report report, User user) async {
   //build query string
-  String url = API_URL + "/users/addreportbyid?report_id=${report.id},user_id=${user.id}";
-  final response = await http.post(
+  String url = API_URL + "/users/addreportbyid?report_id=${report.id}&user_id=${user.id}";
+  final response = await http.put(
     Uri.parse(url),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -274,6 +275,7 @@ Future<User> addReportToUser(Report report, User user) async {
   ).timeout(const Duration(seconds: 4)); //timeout for testing
 
   if (response.statusCode == 200) {
+    print("got user" + response.body);
     return User.fromJson(jsonDecode(response.body));
   }
   throw "HTTP Error Code: ${response.statusCode} http response = ${response.body}";

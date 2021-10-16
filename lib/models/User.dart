@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:indent/indent.dart';
+import 'package:intl/intl.dart';
 import 'package:objectid/objectid.dart';
 
 //models
@@ -48,11 +49,15 @@ class User {
       });
     }
 
+    var date = new DateTime.fromMicrosecondsSinceEpoch(json['date_joined']);
+    var format = new DateFormat("d/m/y");
+    var dateString = format.format(date);
+
     return User(
       id: ObjectId.fromHexString(json['_id']),
       first_name: json['first_name'],
       last_name: json['last_name'],
-      date_joined: json['date_joined'],
+      date_joined: dateString,
       reports: reports
     );
   }

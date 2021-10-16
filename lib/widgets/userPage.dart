@@ -8,6 +8,7 @@ import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/services/httpService.dart';
 import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:line_icons/line_icon.dart';
+import 'package:objectid/objectid.dart';
 
 Map<int, Species> species = {};
 
@@ -23,6 +24,8 @@ class _UserPageState extends State<UserPage> {
   List<Report> reports = [];
   Map<String, List<Report>> organisedReports = {};
   late Future loaded;
+  // late User currentUser = new User(id: ObjectId(), first_name: "Hamish", last_name: "Bultidue", date_joined: "0/0/0", reports: []);
+  late User currentUser;
 
   @override
   void initState() {
@@ -30,7 +33,12 @@ class _UserPageState extends State<UserPage> {
     // Future reportsFuture = getAllReports();
     Future<User> userFuture = getCurrentUser();
     //use current user reports
-    userFuture.then((User u) => reports = u.reports);
+    userFuture.then((User u) {
+      setState(() {
+        currentUser = u;
+        reports = u.reports;
+      });
+    });
 
     Future speciesFuture = getAllSpecies();
     // reportsFuture.then((value) => reports = value);
@@ -86,12 +94,12 @@ class _UserPageState extends State<UserPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Text(
-                        'Hamish Bultitude',
+                        "${currentUser.first_name} ${currentUser.last_name}",
                         style: TextStyle(fontSize: 25, color: Colors.black, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       ),
                       Text(
-                        '4/10/2021',
+                        currentUser.date_joined,
                         style: TextStyle(fontSize: 25, color: Colors.black),
                         textAlign: TextAlign.center,
                       ),
