@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
+import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/services/httpService.dart';
 import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:line_icons/line_icon.dart';
@@ -26,9 +27,13 @@ class _UserPageState extends State<UserPage> {
   @override
   void initState() {
     super.initState();
-    Future reportsFuture = getAllReports();
+    // Future reportsFuture = getAllReports();
+    Future<User> userFuture = getCurrentUser();
+    //use current user reports
+    userFuture.then((User u) => reports = u.reports);
+
     Future speciesFuture = getAllSpecies();
-    reportsFuture.then((value) => reports = value);
+    // reportsFuture.then((value) => reports = value);
 
     speciesFuture.then((speciesList) {
       // create the {species id => species} map
@@ -40,7 +45,7 @@ class _UserPageState extends State<UserPage> {
     });
 
     // group the notifications
-    loaded = Future.wait([reportsFuture, speciesFuture]).then((value) {
+    loaded = Future.wait([userFuture, speciesFuture]).then((value) {
       reports.forEach((report) {
         var speciesName = species[report.species_id]!.name;
         if (organisedReports.containsKey(speciesName)) {
