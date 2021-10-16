@@ -73,8 +73,6 @@ class _MapsPageState extends State<MapsPage> {
     Future<List<Report>> reportsFuture = getAllReports();
     Future speciesFuture = getAllSpecies();
     Future positionFuture = determinePosition();
-    //todo:get councils flutter function
-    Future<List<Council>> councilPolygonFuture = getCouncilsInMapBounds(_lastMapPosition);
 
     // rather than here, we generate the markers in build() so they refresh on setState()
     reportsFuture.then((reports) {
