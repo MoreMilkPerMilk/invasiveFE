@@ -12,6 +12,7 @@ import 'package:image/image.dart' as img;
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
+import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
@@ -249,7 +250,9 @@ Future<void> sendReportToBackend(PhotoLocationData data) async {
 
   //in order, need the photoLocation after add to get the filename on server.
   photoLocation = await addPhotoLocation(photoLocation);
-  await addReport(report);
-  await addPhotoLocationToReport(report, photoLocation);
+  report = await addReport(report);
+  report = await addPhotoLocationToReport(report, photoLocation);
   // need to add report to user here too!
+  User user = await getCurrentUser();
+  await addReportToUser(report, user);
 }
