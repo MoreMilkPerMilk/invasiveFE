@@ -203,17 +203,28 @@ Future<List<User>> getAllUsers() async {
 
 //creates user if doesn't exist
 Future<User> getCurrentUser() async {
-  String macAddress = "unkown_mac";
+  String macAddress = "unknown_mac";
   try {
     macAddress = await GetMac.macAddress;
   } on PlatformException {
-    macAddress = 'unkown_mac';
+    macAddress = 'unknown_mac';
   }
 
-  final response = await http.get(Uri.parse(API_URL + "/users/createbymacaddress/${macAddress}"));
+  if (macAddress == '') {
+    macAddress = "DEVMODE";
+  }
+
+  print("mac address = " + macAddress);
+
+  final response = await http.post(Uri.parse(API_URL + "/users/createbymacaddress/${macAddress}"));
+
+  print(API_URL + "/users/createbymacaddress/${macAddress}");
+
+  print(response.body);
 
   if (response.statusCode == 200) {
     var result = User.fromJson(jsonDecode(response.body));
+    print(response.body);
     return result;
   }
 
@@ -312,6 +323,7 @@ Future<Species> getSpeciesByName(String speciesName) async {
 
   if (response.statusCode == 200) {
     var decodedJson = jsonDecode(response.body);
+    print(decodedJson);
     return Species.fromJson(decodedJson[0]);
   }
 

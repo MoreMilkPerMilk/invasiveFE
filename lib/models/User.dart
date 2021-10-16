@@ -37,10 +37,16 @@ class User {
   }
 
   factory User.fromJson(Map<String, dynamic> json) {
+    if (json == null) {
+      throw "json is null";
+    }
     List<Report> reports = [];
-    json['reports'].forEach((element) {
-      reports.add(Report.fromJson(element));
-    });
+
+    if (json.containsKey('reports')) {
+      json['reports'].forEach((element) {
+        reports.add(Report.fromJson(element));
+      });
+    }
 
     return User(
       id: ObjectId.fromHexString(json['_id']),

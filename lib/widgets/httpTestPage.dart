@@ -138,11 +138,11 @@ class HttpTestPage extends StatelessWidget {
             Spacer(),
             ElevatedButton(
               onPressed: () {
-                log("/Users");
-                getAllUsers();
+                log("getCurrentUsser");
+                getCurrentUser();
                 // getUserById(1);
               },
-              child: Text('/Users'),
+              child: Text('getCurrentUsser'),
             ),
             ElevatedButton(
               onPressed: () {
