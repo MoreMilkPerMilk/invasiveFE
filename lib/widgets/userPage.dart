@@ -27,13 +27,13 @@ class _UserPageState extends State<UserPage> {
   @override
   void initState() {
     super.initState();
-    // Future reportsFuture = getAllReports();
+    Future reportsFuture = getAllReports();
     Future<User> userFuture = getCurrentUser();
     //use current user reports
-    userFuture.then((User u) => reports = u.reports);
+    // userFuture.then((User u) => reports = u.reports);
 
     Future speciesFuture = getAllSpecies();
-    // reportsFuture.then((value) => reports = value);
+    reportsFuture.then((value) => reports = value);
 
     speciesFuture.then((speciesList) {
       // create the {species id => species} map
@@ -45,7 +45,7 @@ class _UserPageState extends State<UserPage> {
     });
 
     // group the notifications
-    loaded = Future.wait([userFuture, speciesFuture]).then((value) {
+    loaded = Future.wait([reportsFuture, speciesFuture]).then((value) {
       reports.forEach((report) {
         var speciesName = species[report.species_id]!.name;
         if (organisedReports.containsKey(speciesName)) {
