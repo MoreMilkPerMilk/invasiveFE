@@ -59,7 +59,7 @@ class Community {
     List<Event> events = [];
     List<User> members = [];
 
-    log(json.toString());
+    // log(json.toString());
     json['events'].forEach((element) {
       events.add(Event.fromJson(element));
     });
@@ -105,7 +105,7 @@ class Community {
 
   /// Parse a list of communities in JSON format
   static List<Community> parseCommunityList(String responseBody) {
-    log(responseBody);
+    // log(responseBody);
     final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
     return parsed.map<Community>((json) => Community.fromJson(json)).toList();
   }
