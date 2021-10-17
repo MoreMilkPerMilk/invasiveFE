@@ -41,6 +41,8 @@ PODS:
     - Toast
   - geolocator_apple (1.2.0):
     - Flutter
+  - get_mac (0.0.1):
+    - Flutter
   - path_provider (0.0.1):
     - Flutter
   - SDWebImage (5.12.0):
@@ -59,6 +61,7 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
+  - get_mac (from `.symlinks/plugins/get_mac/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - tflite (from `.symlinks/plugins/tflite/ios`)
 
@@ -82,6 +85,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/fluttertoast/ios"
   geolocator_apple:
     :path: ".symlinks/plugins/geolocator_apple/ios"
+  get_mac:
+    :path: ".symlinks/plugins/get_mac/ios"
   path_provider:
     :path: ".symlinks/plugins/path_provider/ios"
   tflite:
@@ -95,6 +100,7 @@ SPEC CHECKSUMS:
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
   fluttertoast: 6122fa75143e992b1d3470f61000f591a798cc58
   geolocator_apple: b741765c55dc21950e3e106e8b3584e55cf81ce5
+  get_mac: b90f006186f20adf5b9d1f65b530599d39470b16
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   SDWebImage: 4ea20cca2986adc5aacde07aa686742fd4c67a37
   SwiftyGif: 5d4af95df24caf1c570dbbcb32a3b8a0763bc6d7
