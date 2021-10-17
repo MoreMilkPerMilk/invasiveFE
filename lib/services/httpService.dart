@@ -17,6 +17,7 @@ import 'package:http_parser/src/media_type.dart';
 import 'package:invasive_fe/models/Community.dart';
 import 'package:invasive_fe/models/Council.dart';
 import 'package:invasive_fe/models/Event.dart';
+import 'package:invasive_fe/models/Landcare.dart';
 import 'package:invasive_fe/models/MultiPolygon.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
@@ -412,10 +413,6 @@ Future<List<Council>> getCouncilsInMapBounds(MapPosition position) async {
 
   if (zoom > maxZoom) tolerance = minTolerance;
 
-  print("tolerance = " + tolerance.toString());
-  print("zoom = " + zoom.toString());
-
-
   final response = await http.post(
     Uri.parse(API_URL + "/councils/search/polygon?simplify_tolerance=${tolerance}"),
     headers: <String, String>{
@@ -509,6 +506,57 @@ Future<List<Community>> searchForCommunityByLocation(PhotoLocation photoLocation
   throw "HTTP Error Code: ${response.statusCode} http response = ${response.body}";
 }
 
+//get communties in bounds of the FlutterMap
+Future<List<Community>> getCommunitiesInMapBounds(MapPosition position) async {
+
+  //create polygon
+  if (position.bounds == null) {
+    return [];
+  }
+  List<GeoPoint> geoPoints = [
+    //don't change any "!"
+    new GeoPoint(latitude: fixLatLong(position.bounds!.northWest.latitude), longitude: fixLatLong(position.bounds!.northWest.longitude)),
+    new GeoPoint(latitude: fixLatLong(position.bounds!.northEast!.latitude), longitude: fixLatLong(position.bounds!.northEast!.longitude)),
+    new GeoPoint(latitude: fixLatLong(position.bounds!.southEast.latitude), longitude: fixLatLong(position.bounds!.southEast.longitude)),
+    new GeoPoint(latitude: fixLatLong(position.bounds!.southWest!.latitude), longitude: fixLatLong(position.bounds!.southWest!.longitude)),
+    new GeoPoint(latitude: fixLatLong(position.bounds!.northWest.latitude), longitude: fixLatLong(position.bounds!.northWest.longitude)), //LinearRing must have same first and last point
+  ];
+
+  List<GeoSerie> geoSeries = [new GeoSerie(name: "name", type: GeoSerieType.polygon, geoPoints: geoPoints)];
+  GeoJsonPolygon polygon = new GeoJsonPolygon(geoSeries: geoSeries);
+  MultiPolygon searchPolygon = new MultiPolygon(polygons: [polygon], name: "polygon");
+
+  var json = searchPolygon.toJson();
+
+  double minTolerance = 0.001;
+  double maxTolerance = 0.01;
+  // double minZoom = 3.5;
+  double minZoom = 3.5;
+  // double maxZoom = 18.4;
+  double maxZoom = 12;
+
+  double zoom = position.zoom == null ? 3.5 : position.zoom!;
+  //zoom between 3.5 and 18.4
+  double tolerance = (((zoom - minZoom) / (maxZoom - minZoom)));
+  tolerance = tolerance * tolerance *  (-1) * (maxTolerance - minTolerance) + maxTolerance;
+
+  if (zoom > maxZoom) tolerance = minTolerance;
+
+  final response = await http.post(
+    Uri.parse(API_URL + "/communities/search/polygon?simplify_tolerance=${tolerance}"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: json,
+  );
+
+  if (response.statusCode == 200) {
+    return Community.parseCommunityList(response.body);
+  }
+
+  throw "HTTP Error Code: ${response.statusCode}  http response = ${response.body}";
+}
+
 Future<Community> addUserToCommunity(ObjectId communityId, User user) async {
   final response = await http.put(
     Uri.parse(API_URL + "/communities/users/add?community_id=${communityId.toString()}"),
@@ -551,4 +599,57 @@ Future<List<Report>> getAllReports() async {
   }
 
   throw "HTTP Error Code: ${response.statusCode} http response = ${response.body}";
+}
+
+// --------------------------------
+//  Landcare
+// --------------------------------
+
+//get landcares in bounds of the FlutterMap
+Future<List<Landcare>> getLandcaresInMapBounds(MapPosition position) async {
+
+  //create polygon
+  if (position.bounds == null) {
+    return [];
+  }
+  List<GeoPoint> geoPoints = [
+    //don't change any "!"
+    new GeoPoint(latitude: fixLatLong(position.bounds!.northWest.latitude), longitude: fixLatLong(position.bounds!.northWest.longitude)),
+    new GeoPoint(latitude: fixLatLong(position.bounds!.northEast!.latitude), longitude: fixLatLong(position.bounds!.northEast!.longitude)),
+    new GeoPoint(latitude: fixLatLong(position.bounds!.southEast.latitude), longitude: fixLatLong(position.bounds!.southEast.longitude)),
+    new GeoPoint(latitude: fixLatLong(position.bounds!.southWest!.latitude), longitude: fixLatLong(position.bounds!.southWest!.longitude)),
+    new GeoPoint(latitude: fixLatLong(position.bounds!.northWest.latitude), longitude: fixLatLong(position.bounds!.northWest.longitude)), //LinearRing must have same first and last point
+  ];
+
+  List<GeoSerie> geoSeries = [new GeoSerie(name: "name", type: GeoSerieType.polygon, geoPoints: geoPoints)];
+  GeoJsonPolygon polygon = new GeoJsonPolygon(geoSeries: geoSeries);
+  MultiPolygon searchPolygon = new MultiPolygon(polygons: [polygon], name: "polygon");
+
+  var json = searchPolygon.toJson();
+
+  double minTolerance = 0.001;
+  double maxTolerance = 0.01;
+  double minZoom = 3.5;
+  double maxZoom = 12;
+
+  double zoom = position.zoom == null ? 3.5 : position.zoom!;
+  //zoom between 3.5 and 18.4
+  double tolerance = (((zoom - minZoom) / (maxZoom - minZoom)));
+  tolerance = tolerance * tolerance *  (-1) * (maxTolerance - minTolerance) + maxTolerance;
+
+  if (zoom > maxZoom) tolerance = minTolerance;
+
+  final response = await http.post(
+    Uri.parse(API_URL + "/landcares/search/polygon?simplify_tolerance=${tolerance}"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: json,
+  );
+
+  if (response.statusCode == 200) {
+    return Landcare.parseLandcareList(response.body);
+  }
+
+  throw "HTTP Error Code: ${response.statusCode}  http response = ${response.body}";
 }
