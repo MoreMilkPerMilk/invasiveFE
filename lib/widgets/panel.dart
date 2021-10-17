@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geojson/geojson.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geopoint/geopoint.dart';
@@ -192,6 +193,7 @@ class _PanelState extends State<Panel> {
                                 print("PRESSED DONE");
                                 report(widget.foundSpecies, widget.photo);
                                 widget._pc.close();
+
                               },
                               icon: Icon(Icons.done, size: 18),
                               label: Text("DONE"),
@@ -251,5 +253,14 @@ Future<void> sendReportToBackend(PhotoLocationData data) async {
   photoLocation = await addPhotoLocation(photoLocation);
   await addReport(report);
   await addPhotoLocationToReport(report, photoLocation);
+  Fluttertoast.showToast(
+      msg: "Report Successfully Submitted",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.TOP,
+      timeInSecForIosWeb: 2,
+      backgroundColor: Colors.green,
+      textColor: Colors.white,
+      fontSize: 16.0
+  );
   // need to add report to user here too!
 }
