@@ -288,6 +288,28 @@ class _MapsPageState extends State<MapsPage> {
                         ),
                       )
                   )
+              )),
+          Padding(
+            // space from the top of the screen
+              padding: EdgeInsets.only(bottom:30, left: 10),
+              child: Align(
+                  alignment: Alignment.bottomLeft,
+                  // DropdownButton for different polygon layers
+                  child: FloatingActionButton(
+                    backgroundColor: Colors.green,
+                    onPressed: () {
+                      setState(() {
+                        Future<List<Report>> reportsFuture = getAllReports();
+                        loaded = reportsFuture;
+
+                        reportsFuture.then((reports) {
+                          this.reports = reports;
+                          reportMarkers = reports.map<ReportMarker>((Report r) => ReportMarker(r)).toList();
+                        });
+                      });
+                    },
+                    child: Icon(Icons.refresh),
+                  )
               ))
         ])
     );
