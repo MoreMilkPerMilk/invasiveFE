@@ -42,7 +42,7 @@ class Species {
     String name = json['name']!;
     try {
       // sometimes this conversion throws an error, but most of the time it works
-      name = name.toTitleCase()!;
+      name = name.toTitleCase();
     } catch (error) {}
     return Species(
         species_id: json['species_id'],

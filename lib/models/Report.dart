@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:geopoint/geopoint.dart';
 import 'package:image/image.dart';
 import 'package:indent/indent.dart';
 import 'package:invasive_fe/models/MultiPolygon.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:geojson/geojson.dart';
 import 'package:invasive_fe/widgets/maps.dart';
+// import 'package:latlong2/latlong.dart';
 import 'package:objectid/objectid.dart';
 
 //models
@@ -64,7 +66,7 @@ class Report {
       notes: json['notes'],
       polygon: json['polygon'] == null ?
         MultiPolygon(polygons: [], name: "polygon") :
-        MultiPolygon.fromJson(json['polygon']),
+        MultiPolygon.fromJson(json['polygon'])
     );
   }
 
