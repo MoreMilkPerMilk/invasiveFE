@@ -449,8 +449,8 @@ class ReportMarker extends Marker {
     anchorPos: AnchorPos.align(AnchorAlign.center),
     height: markerSize,
     width: markerSize,
-    point: LatLng(report.photoLocations.first.location.geoPoint.latitude,
-        report.photoLocations.first.location.geoPoint.longitude),
+    point: LatLng(report.photoLocations.length > 0 ? report.photoLocations.first.location.geoPoint.latitude : 0,
+        report.photoLocations.length > 0 ? report.photoLocations.first.location.geoPoint.longitude : 0),
     builder: (BuildContext ctx) => Icon(Icons.grass, size: markerSize),
   );
 }
