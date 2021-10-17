@@ -81,6 +81,7 @@ class _MainState extends State<Main> {
                 ),
                 GButton(
                   icon: LineIcons.retroCamera,
+                  iconSize: 34,
                   text: 'Camera',
                 ),
                 GButton(
