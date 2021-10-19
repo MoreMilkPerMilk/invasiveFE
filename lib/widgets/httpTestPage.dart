@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/User.dart';
@@ -139,7 +140,7 @@ class HttpTestPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 log("/Users");
-                getAllUsers();
+                // getAllUsers();
                 // getUserById(1);
               },
               child: Text('/Users'),
