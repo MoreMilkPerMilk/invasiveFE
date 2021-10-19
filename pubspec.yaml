@@ -67,6 +67,8 @@ dev_dependencies:
   build_runner:
   build_it: ^0.2.5  # easy conversion between JSON <--> Class
   json_serializable: ^4.0.2  # easy conversion between JSON <--> Class
+  flutter_native_splash: 1.2.3
+
   flutter_launcher_icons: "^0.9.2"
   flutter_launcher_name:
     git:
@@ -152,3 +154,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: images/logo.png
+  fullscreen:
+  ios_content_mode: scaleAspectFit
+  web: false
+  android_gravity: clip_horizontal
+
