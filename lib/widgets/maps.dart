@@ -308,6 +308,11 @@ class _MapsPageState extends State<MapsPage> {
     // List<ReportMarker> reportMarkers = _debugReportMarkers();
     List<CommunityMarker> communityMarkers = _debugCommunityMarkers();
 
+    BorderRadiusGeometry radius = BorderRadius.only(
+      topLeft: Radius.circular(24.0),
+      topRight: Radius.circular(24.0),
+    );
+
     // List<ReportMarker> markers = reports.map((rep) => ReportMarker(report: rep)).toList();
     return Scaffold(
         body: Stack(children: [
@@ -327,6 +332,7 @@ class _MapsPageState extends State<MapsPage> {
                       controller: _pc,
                       minHeight: 0,
                       maxHeight: 300,
+                      borderRadius: radius,
                       panel: MapPanel(_pc, selectedCouncil, selectedCommunity,
                           selectedLandcare),
                       body: FlutterMap(
@@ -345,9 +351,7 @@ class _MapsPageState extends State<MapsPage> {
                             onTap: (LatLng posTapped) {
                               widget._popupLayerController.hidePopup();
                               bool found = false;
-                              print("tap");
                               if (communityMode) {
-                                print("community tap");
                                 this.communities.forEach((Community community) {
                                   List<LatLng> pts = [];
                                   if (community.boundary.polygons.length > 0) {
@@ -374,7 +378,6 @@ class _MapsPageState extends State<MapsPage> {
                                 });
                               }
                               if (councilMode && !found) {
-                                print("councils");
                                 this.councils.forEach((Council council) {
                                   List<LatLng> pts = [];
                                   if (council.boundary.polygons.length > 0) {
