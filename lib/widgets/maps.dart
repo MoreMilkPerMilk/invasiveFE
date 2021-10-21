@@ -238,12 +238,12 @@ class _MapsPageState extends State<MapsPage> {
                 }
                 //add a polygon per council
                 this.communityPolygons.add(new Polygon(
-                    points: polygon,
-                    color: Color.fromRGBO(
-                        _color.red, _color.green, _color.blue, 0.4),
-                    borderColor: Color.fromRGBO(0, 0, 0, 1),
-                    borderStrokeWidth: 1,
-                ));
+                      points: polygon,
+                      color: Color.fromRGBO(
+                          _color.red, _color.green, _color.blue, 0.4),
+                      borderColor: Color.fromRGBO(0, 0, 0, 1),
+                      borderStrokeWidth: 1,
+                    ));
               });
             }));
       }
@@ -352,8 +352,8 @@ class _MapsPageState extends State<MapsPage> {
                                   List<LatLng> pts = [];
                                   if (community.boundary.polygons.length > 0) {
                                     community.boundary.polygons.first.geoSeries
-                                        .first.geoPoints.forEach((
-                                        GeoPoint geoPoint) {
+                                        .first.geoPoints
+                                        .forEach((GeoPoint geoPoint) {
                                       pts.add(LatLng(geoPoint.latitude,
                                           geoPoint.longitude));
                                     });
@@ -379,8 +379,8 @@ class _MapsPageState extends State<MapsPage> {
                                   List<LatLng> pts = [];
                                   if (council.boundary.polygons.length > 0) {
                                     council.boundary.polygons.first.geoSeries
-                                        .first.geoPoints.forEach((
-                                        GeoPoint geoPoint) {
+                                        .first.geoPoints
+                                        .forEach((GeoPoint geoPoint) {
                                       pts.add(LatLng(geoPoint.latitude,
                                           geoPoint.longitude));
                                     });
@@ -431,28 +431,29 @@ class _MapsPageState extends State<MapsPage> {
             // ToggleButtons is the container for all of the buttons
             child: _toggleButtons(),
           )),
-          Padding(
-            // space from the top of the screen
-              padding: EdgeInsets.only(bottom:30, left: 10),
-              child: Align(
-                  alignment: Alignment.bottomLeft,
-                  // DropdownButton for different polygon layers
-                  child: FloatingActionButton(
-                    backgroundColor: Colors.green,
-                    onPressed: () {
-                      setState(() {
-                        Future<List<Report>> reportsFuture = getAllReports();
-                        loaded = reportsFuture;
+      Padding(
+          // space from the top of the screen
+          padding: EdgeInsets.only(bottom: 30, left: 10),
+          child: Align(
+              alignment: Alignment.bottomLeft,
+              // DropdownButton for different polygon layers
+              child: FloatingActionButton(
+                backgroundColor: Colors.green,
+                onPressed: () {
+                  setState(() {
+                    Future<List<Report>> reportsFuture = getAllReports();
+                    loaded = reportsFuture;
 
-                        reportsFuture.then((reports) {
-                          this.reports = reports;
-                          reportMarkers = reports.map<ReportMarker>((Report r) => ReportMarker(r)).toList();
-                        });
-                      });
-                    },
-                    child: Icon(Icons.refresh),
-                  )
-              ))
+                    reportsFuture.then((reports) {
+                      this.reports = reports;
+                      reportMarkers = reports
+                          .map<ReportMarker>((Report r) => ReportMarker(r))
+                          .toList();
+                    });
+                  });
+                },
+                child: Icon(Icons.refresh),
+              ))),
       _layerDropDownPadding(),
     ]));
   }
