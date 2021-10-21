@@ -93,7 +93,7 @@ class _PanelState extends State<Panel> {
                               ),
                               onPressed: () {
                                 // Respond to button press
-                                // widget._pc.close();
+                                widget._pc.close();
                               },
                               icon: Icon(Icons.arrow_forward_rounded, size: 18),
                               label: Text("CONTINUE"),
