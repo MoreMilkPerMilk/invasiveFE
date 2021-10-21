@@ -38,6 +38,11 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     List<Report> reports = [];
+
+    if (json == null) {
+      throw "null";
+    }
+
     json['reports'].forEach((element) {
       reports.add(Report.fromJson(element));
     });

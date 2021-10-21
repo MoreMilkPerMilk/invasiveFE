@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
+import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/services/httpService.dart';
 import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:line_icons/line_icon.dart';
@@ -56,6 +57,10 @@ class _UserPageState extends State<UserPage> {
   void initState() {
     super.initState();
     Future reportsFuture = getAllReports();
+    Future<User> userFuture = getCurrentUser();
+    //use current user reports
+    // userFuture.then((User u) => reports = u.reports);
+
     Future speciesFuture = getAllSpecies();
     reportsFuture.then((value) => reports = value);
 

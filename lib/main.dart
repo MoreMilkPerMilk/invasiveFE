@@ -32,9 +32,9 @@ class _MainState extends State<Main> {
     //   'Home',
     //   style: optionStyle,
     // ),
-    HttpTestPage(),
-    CameraHomePage(),
+    // HttpTestPage(),
     MapsPage(),
+    CameraHomePage(),
     UserPage()
   ];
 
@@ -66,27 +66,28 @@ class _MainState extends State<Main> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
             child: GNav(
-              rippleColor: Colors.grey[300]!,
-              hoverColor: Colors.grey[100]!,
+              rippleColor: Colors.green[400]!,
+              hoverColor: Colors.green[100]!,
               gap: 8,
               activeColor: Colors.black,
               iconSize: 24,
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               duration: Duration(milliseconds: 400),
-              tabBackgroundColor: Colors.grey[100]!,
+              tabBackgroundColor: Colors.green[100]!,
               color: Colors.black,
               tabs: [
-                GButton(
-                  icon: LineIcons.users,
-                  text: 'Community',
-                ),
-                GButton(
-                  icon: LineIcons.retroCamera,
-                  text: 'Camera',
-                ),
+                // GButton(
+                //   icon: LineIcons.users,
+                //   text: 'Community',
+                // ),
                 GButton(
                   icon: LineIcons.map,
                   text: 'Map',
+                ),
+                GButton(
+                  icon: LineIcons.retroCamera,
+                  iconSize: 34,
+                  text: 'Camera',
                 ),
                 GButton(
                   icon: LineIcons.userCircle,

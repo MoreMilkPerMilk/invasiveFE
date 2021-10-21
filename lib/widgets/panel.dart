@@ -13,6 +13,7 @@ import 'package:image/image.dart' as img;
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
+import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
@@ -193,7 +194,6 @@ class _PanelState extends State<Panel> {
                                 print("PRESSED DONE");
                                 report(widget.foundSpecies, widget.photo);
                                 widget._pc.close();
-
                               },
                               icon: Icon(Icons.done, size: 18),
                               label: Text("DONE"),
@@ -251,8 +251,8 @@ Future<void> sendReportToBackend(PhotoLocationData data) async {
 
   //in order, need the photoLocation after add to get the filename on server.
   photoLocation = await addPhotoLocation(photoLocation);
-  await addReport(report);
-  await addPhotoLocationToReport(report, photoLocation);
+  report = await addReport(report);
+  report = await addPhotoLocationToReport(report, photoLocation);
   Fluttertoast.showToast(
       msg: "Report Successfully Submitted",
       toastLength: Toast.LENGTH_SHORT,
@@ -263,4 +263,6 @@ Future<void> sendReportToBackend(PhotoLocationData data) async {
       fontSize: 16.0
   );
   // need to add report to user here too!
+  User user = await getCurrentUser();
+  await addReportToUser(report, user);
 }
