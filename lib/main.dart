@@ -24,7 +24,7 @@ class Main extends StatefulWidget {
 }
 
 class _MainState extends State<Main> {
-  int _selectedIndex = 1;
+  int _selectedIndex = 0;
   static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.w600);
   static List<Widget> _widgetOptions = <Widget>[
     // Text(
@@ -33,8 +33,8 @@ class _MainState extends State<Main> {
     // ),
     // HttpTestPage(),
     MapsPage(),
-    CameraHomePage(),
-    UserPage()
+    // CameraHomePage(),
+    // UserPage()
   ];
 
   @override
@@ -83,15 +83,15 @@ class _MainState extends State<Main> {
                   icon: LineIcons.map,
                   text: 'Map',
                 ),
-                GButton(
-                  icon: LineIcons.retroCamera,
-                  iconSize: 34,
-                  text: 'Camera',
-                ),
-                GButton(
-                  icon: LineIcons.userCircle,
-                  text: 'Profile',
-                ),
+                // GButton(
+                //   icon: LineIcons.retroCamera,
+                //   iconSize: 34,
+                //   text: 'Camera',
+                // ),
+                // GButton(
+                //   icon: LineIcons.userCircle,
+                //   text: 'Profile',
+                // ),
               ],
               selectedIndex: _selectedIndex,
               onTabChange: (index) {
