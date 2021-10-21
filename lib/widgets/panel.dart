@@ -38,14 +38,18 @@ class Panel extends StatefulWidget {
 class _PanelState extends State<Panel> {
 
   bool _reportButtonDisabled = false;
+  // bool isAndroid = false
+
+  @override
+  void initState() {
+    // photoWidth = Image.file(widget.photo).width!;
+    // photoLength = Image.file(widget.photo).width!;
+
+  }
 
   @override
   Widget build(BuildContext context) {
-    // XFile testPhoto = XFile(widget.photoPath);
-    // photo.readAsBytes().then((value){
-    //   imgBytes = value;
-    // });
-    // Image img = Image.memory(imgBytes);
+
     if (widget.negative) {
       return Center(
           child: Padding(
@@ -127,12 +131,19 @@ class _PanelState extends State<Panel> {
                   width: 200,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10.0),
-                    child: FittedBox(
-                      fit: BoxFit.fitWidth,
-                      child: Image.file(
+                    child: Platform.isIOS ? Image.file(
                         widget.photo,
+                      ) : RotatedBox(
+                        quarterTurns: 5,
+                        child: ClipPath(
+                          child: Image(
+                            image: FileImage(widget.photo),
+                            fit: BoxFit.contain,
+                            // height: 200,
+                          )
+                        )
                       ),
-                    ),
+                    // )
                   ),
                 ),
               ),
@@ -195,8 +206,8 @@ class _PanelState extends State<Panel> {
                                 report(widget.foundSpecies, widget.photo);
                                 widget._pc.close();
                               },
-                              icon: Icon(Icons.done, size: 18),
-                              label: Text("DONE"),
+                              icon: Icon(Icons.send, size: 18),
+                              label: Text("REPORT"),
                             )),
                       ),
                     ],

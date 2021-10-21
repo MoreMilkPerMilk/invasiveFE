@@ -165,26 +165,12 @@ class _CameraState extends State<Camera> {
           // if android we directly convert yuv420 to png (workaround for takePicture())
           if (Platform.isAndroid) {
             // convert yuv420 to png
-
             convertYUV420toImageColor(cameraImg).then((png_img) async {
-
-              //img.Image rotatedPNG = img.bakeOrientation(png_img!);
-              //Directory tempDir = await getTemporaryDirectory();
-              //String img_path = '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}';
-              String img_path = "/storage/emulated/0/Download/image.png";
-              // TEMP DIRECTORY CAUSES ISSUE WITH API CALL FOR SOME REASON
-
-              // Uint8List bytes = img.planes.map((plane) {
-              //   return plane.bytes;
-              // }) as Uint8List;
-              // photo = XFile.fromData(bytes);
+              String img_path = "/storage/emulated/0/Download/image${DateTime.now().millisecondsSinceEpoch}.png";
               XFile xfile = XFile.fromData(png_img!.getBytes(), path: img_path);
               print(xfile);
               xfile.saveTo(img_path);
               photo = File(img_path);
-              //photoPath = img_path;
-              print("BIG DOGGY FILE PATH");
-              print(photo.path);
               _pc.open();
               HapticFeedback.heavyImpact();
               stopTfliteDetection();
@@ -193,7 +179,6 @@ class _CameraState extends State<Camera> {
           } else {
             // show the slide over widget
             controller!.takePicture().then((value) {
-              print(value.path);
               photo = File(value.path);
               // photo = value.;
               _pc.open();
@@ -204,7 +189,6 @@ class _CameraState extends State<Camera> {
           }
 
           // show the slide over widget
-          print(photo.path);
           break;
       }
     }
