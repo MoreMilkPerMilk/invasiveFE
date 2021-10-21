@@ -82,7 +82,7 @@ flutter_launcher_name:
 
 flutter_icons:
   image_path: "images/icon.png"
-  android: true
+  android: false
   ios: true
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -162,5 +162,5 @@ flutter_native_splash:
   fullscreen:
   ios_content_mode: scaleAspectFit
   web: false
-  android_gravity: clip_horizontal
+  android_gravity: fill_vertical
 
