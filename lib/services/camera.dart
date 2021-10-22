@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -21,7 +22,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:tflite/tflite.dart';
 import 'package:tuple/tuple.dart';
+import 'package:tflite_flutter/tflite_flutter.dart';
 
+import 'classifier.dart';
+import 'classifier_float.dart';
 import 'models.dart';
 
 const int MAX_LOOK_BACK_SIZE = 5;
@@ -53,6 +57,7 @@ class Camera extends StatefulWidget {
   final List<CameraDescription>? cameras;
   final Callback setRecognitions;
   final String model;
+  final Classifier deepWeedsClassifier = ClassifierFloat();
 
   Camera(this.cameras, this.model, this.setRecognitions);
 
@@ -123,14 +128,23 @@ class _CameraState extends State<Camera> {
       int startTime,
       ListQueue<Tuple2<String, double>> seenBuffer,
       StartTime timeInterval) async {
-    var recognitions = await Tflite.runModelOnFrame(
-      bytesList: cameraImg.planes.map((plane) {
-        return plane.bytes;
-      }).toList(),
-      imageHeight: cameraImg.height,
-      imageWidth: cameraImg.width,
-      numResults: _numResults,
-    );
+    // var recognitions = await Tflite.runModelOnFrame(
+    //   bytesList: cameraImg.planes.map((plane) {
+    //     return plane.bytes;
+    //   }).toList(),
+    //   imageHeight: cameraImg.height,
+    //   imageWidth: cameraImg.width,
+    //   numResults: _numResults,
+    // );
+    var recognitions = [];
+
+    convertYUV420toImageColor(cameraImg).then((png_img) async {
+      img.Image imageInput = png_img!;
+      var pred = widget.deepWeedsClassifier.predict(imageInput);
+      print("PREDICTION-----S");
+      print(pred);
+      print("PREDICTION-----E");
+    });
 
     int endTime = new DateTime.now().millisecondsSinceEpoch;
     // print("Detection took ${endTime - startTime}");

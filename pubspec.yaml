@@ -27,6 +27,8 @@ dependencies:
   path: ^1.6.0
   path_provider: ^2.0.0
   tflite: ^1.1.2
+  tflite_flutter:
+  tflite_flutter_helper:
   http: 0.13.3  # allows for REST api queries
   json_annotation: ^4.0.0  # easy conversion between JSON <--> Class
   geojson: ^1.0.0
@@ -52,6 +54,7 @@ dependencies:
   badges: ^2.0.1
   tuple: ^2.0.0
   get_mac:
+  logger:
 
   plugin_platform_interface: ^2.0.0
   indent: ^2.0.0
