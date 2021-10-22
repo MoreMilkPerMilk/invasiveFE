@@ -394,6 +394,7 @@ class _MapsPageState extends State<MapsPage> {
                                       posTapped, pts)) {
                                     setState(() {
                                       selectedCouncil = council;
+                                      found = true;
                                       _pc.open();
                                     });
                                   }
@@ -426,14 +427,14 @@ class _MapsPageState extends State<MapsPage> {
                   child: CircularProgressIndicator());
             }
           }),
-      Padding(
-          // space from the top of the screen
-          padding: EdgeInsets.only(top: 50),
-          child: Align(
-            alignment: Alignment.topCenter,
-            // ToggleButtons is the container for all of the buttons
-            child: _toggleButtons(),
-          )),
+      // Padding(
+      //     // space from the top of the screen
+      //     padding: EdgeInsets.only(top: 50),
+      //     child: Align(
+      //       alignment: Alignment.topCenter,
+      //       // ToggleButtons is the container for all of the buttons
+      //       child: _toggleButtons(),
+      //     )),
       Padding(
           // space from the top of the screen
           padding: EdgeInsets.only(bottom: 30, left: 10),
@@ -890,9 +891,18 @@ class ReportMarkerPopup extends StatelessWidget {
                             fit: BoxFit.cover,
                             clipBehavior: Clip.hardEdge,
                             // to clip the image into a square
-                            child: Image.network(
-                                getImageURL(report.photoLocations.first)
-                                    .toString()))))),
+                            child: Image.network(getImageURL(
+                                    report.photoLocations.length > 0
+                                        ? report.photoLocations.last
+                                        : PhotoLocation(
+                                            id: ObjectId(),
+                                            photo: new File(""),
+                                            image_filename: "",
+                                            location: new GeoJsonPoint(
+                                                geoPoint: new GeoPoint(
+                                                    latitude: 0,
+                                                    longitude: 0))))
+                                .toString()))))),
             Padding(padding: EdgeInsets.only(left: 10)),
             Container(
               width: 200,

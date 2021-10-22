@@ -49,7 +49,7 @@ class _PanelState extends State<MapPanel> {
     if (widget.council != null) {
       title = widget.council!.name + " Council";
       description =
-      "The region clicked on belongs to ${widget.council!.name} Council.";
+          "The region clicked on belongs to ${widget.council!.name} Council.";
       buttonText = "MORE INFO";
       widget.buttonColor = Colors.blue;
     } else if (widget.community != null) {
@@ -59,8 +59,7 @@ class _PanelState extends State<MapPanel> {
           .length} suburbs and ${widget.community!.councils
           .length} council areas.";
       description +=
-      "There are ${widget.community!.members
-          .length} members in this community.";
+          "There are ${widget.community!.members.length} members in this community.";
       buttonText = "JOIN";
       widget.buttonColor = Colors.green;
       // description += "Suburbs:";
@@ -107,29 +106,27 @@ class _PanelState extends State<MapPanel> {
                   text: description,
                   style: TextStyle(fontSize: 15),
                 )),
-                Container(child:
-                Column(children: [
-                        Container(
-                          child: Padding(
-                            padding: EdgeInsets.all(10),
-                            child: OutlinedButton.icon(
-                              style: TextButton.styleFrom(
-                                primary: widget.buttonColor,
-                                // shape:
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  widget.buttonColor = Colors.grey;
-                                });
-                              },
-                              icon: Icon(Icons.done, size: 18),
-                              label: Text(buttonText),
-                            ),
-                          ),
-                        )
-                ]
-                )
-                )
+                Container(
+                    child: Column(children: [
+                  Container(
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: OutlinedButton.icon(
+                        style: TextButton.styleFrom(
+                          primary: widget.buttonColor,
+                          // shape:
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            widget.buttonColor = Colors.grey;
+                          });
+                        },
+                        icon: Icon(Icons.done, size: 18),
+                        label: Text(buttonText),
+                      ),
+                    ),
+                  )
+                ]))
               ],
             )));
   }
