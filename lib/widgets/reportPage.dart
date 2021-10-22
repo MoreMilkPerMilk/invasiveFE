@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/services/httpService.dart';
 import 'package:html_unescape/html_unescape.dart';
+import 'package:latlong2/latlong.dart';
 
 final TextStyle headingStyle = GoogleFonts.openSans(
   fontSize: 12,
@@ -48,9 +50,9 @@ class ReportPage extends StatelessWidget {
                 return Column(children: [
                   CardWithHeader(
                       header: "Species Info",
-                      body: PlantInfoBox(species: species!, report: report)),
-                  CardWithHeader(
-                      header: "Reporting", body: WeedsReportingBox()),
+                      body: PlantInfoBox(species: species!, report: report)
+                  ),
+                  MapCard(LatLng(-27.4975, 153.0137))
                   //CardWithHeader(header: "RESOURCES", body: ResourcesBox())
                 ]);
               } else {
@@ -59,6 +61,63 @@ class ReportPage extends StatelessWidget {
                     child: CircularProgressIndicator());
               }
             })
+    );
+  }
+}
+
+class MapCard extends StatelessWidget {
+
+  LatLng location;
+
+  MapCard(this.location);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      // space around the card
+      padding: EdgeInsets.only(
+      top: externalPadding,
+      left: externalPadding,
+      right: externalPadding),
+      child: Container(
+        // expand cards to fill screen width
+        width: double.infinity,
+        child: Card(
+          clipBehavior: Clip.hardEdge,
+          elevation: 3,
+          color: Color.fromRGBO(240, 240, 240, 1),
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+          // card contents
+          child:
+            Container(
+              height: 256,
+              child: FlutterMap(
+                  options: MapOptions(
+                    center: location,
+                    zoom: 13.0,
+                    interactiveFlags: InteractiveFlag.none,
+                  ),
+                  layers: [
+                    TileLayerOptions(
+                      urlTemplate: 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+                      subdomains: <String>['a', 'b'],
+                    ),
+                    MarkerLayerOptions(markers: [
+                      Marker(
+                        height: 40,
+                        width: 40,
+                        point: location,
+                        builder: (ctx) => Icon(
+                          Icons.location_pin
+                        ),
+                      )
+                    ])
+                  ]
+              )
+            )
+        )
+      )
     );
   }
 }
@@ -82,29 +141,29 @@ class CardWithHeader extends StatelessWidget {
           // expand cards to fill screen width
           width: double.infinity,
           child: Card(
-                elevation: 3,
-                color: Color.fromRGBO(240, 240, 240, 1),
-                margin: EdgeInsets.zero,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(8))
+            elevation: 3,
+            color: Color.fromRGBO(240, 240, 240, 1),
+            margin: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8))
+            ),
+            // card contents
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  // space around the header text
+                  padding: EdgeInsets.all(internalPadding),
+                  child: Text(header,
+                      style: GoogleFonts.openSans(
+                          fontWeight: FontWeight.bold, fontSize: 18)),
                 ),
-                // card contents
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      // space around the header text
-                      padding: EdgeInsets.all(internalPadding),
-                      child: Text(header,
-                          style: GoogleFonts.openSans(
-                              fontWeight: FontWeight.bold, fontSize: 18)),
-                    ),
-                    Padding(
-                        padding: EdgeInsets.only(left: internalPadding, right: internalPadding, bottom: internalPadding),
-                        child: body
-                    )
-                  ],
+                Padding(
+                    padding: EdgeInsets.only(left: internalPadding, right: internalPadding, bottom: internalPadding),
+                    child: body
                 )
+              ],
+            )
             )
           ),
         );
@@ -280,29 +339,6 @@ class HeadingColonBody extends StatelessWidget {
   }
 }
 
-class WeedsReportingBox extends StatelessWidget {
-
-  //final WeedsAroundSlider weedsAroundSlider = WeedsAroundSlider();
-
-  WeedsReportingBox() : super();
-  final TextStyle bodyStyle = GoogleFonts.openSans(
-      fontSize: 11,
-      color: Colors.black
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("You have reported the location of this invasive species to the authorities, please add any additional information as required.", style: bodyStyle),
-        //weedsAroundSlider
-        ReportUpdateForm()
-      ],
-    );
-  }
-}
-
 class WeedsAroundSlider extends StatefulWidget {
 
   @override
@@ -326,89 +362,6 @@ class _WeedsAroundSliderState extends State {
           });
         },
     );
-  }
-}
-
-class ReportUpdateForm extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => _ReportUpdateFormState();
-}
-
-class _ReportUpdateFormState extends State {
-  bool wrongAutomatedInformation = false;
-  bool contactedByWeedsOfficer = false;
-  String additionalComments = "";
-  TextStyle bodyStyle = GoogleFonts.openSans(
-      fontSize: 11,
-      color: Colors.black
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-        alignment: Alignment.topLeft,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          // this wrapper removes the default margin of the checkbox
-          Row(
-            children: [
-              SizedBox(
-                height: 24,
-                width: 24,
-                child: Checkbox(
-                    value: wrongAutomatedInformation,
-                    onChanged: (value) {
-                      setState(() {
-                        wrongAutomatedInformation = value!;
-                      });
-                    }),
-              ),
-              Text("I think the automated identification is wrong.",
-                  style: bodyStyle)
-            ],
-          ),
-          Row(
-            children: [
-              SizedBox(
-                height: 24,
-                width: 24,
-                child: Checkbox(
-                    value: contactedByWeedsOfficer,
-                    onChanged: (value) {
-                      setState(() {
-                        contactedByWeedsOfficer = value!;
-                      });
-                    }),
-              ),
-              Text("I would like to be contacted by the weeds officer.",
-                  style: bodyStyle)
-            ],
-          ),
-          Text("Additional comments:", style: bodyStyle),
-          Row(
-            children: [
-              Expanded(
-                  child: Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(),
-                          color: Colors.white
-                      ),
-                      child: TextField(
-                        decoration: InputDecoration(
-                            isDense: true, contentPadding: EdgeInsets.all(6)),
-                        maxLines: null, // grow forever
-                        onChanged: (value) {
-                          additionalComments = value;
-                        },
-                      ))),
-              Padding(
-                  padding: EdgeInsets.only(left: internalPadding),
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    child: Text("Submit"),
-                  ))
-            ],
-          )
-        ]));
   }
 }
 
