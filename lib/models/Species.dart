@@ -107,6 +107,20 @@ enum SpeciesSeverity {
   HIGH
 }
 
+String speciesSeverityToString(SpeciesSeverity speciesSeverity) {
+  if (speciesSeverity == SpeciesSeverity.LOW) {
+    return "Very Low";
+  } else if (speciesSeverity == SpeciesSeverity.MED_LOW) {
+    return "Low";
+  } else if (speciesSeverity == SpeciesSeverity.MED) {
+    return "Moderate";
+  } else if (speciesSeverity == SpeciesSeverity.MED_HIGH) {
+    return "High";
+  } else {
+    return "Extreme";
+  }
+}
+
 /// see @SpeciesSeverity
 SpeciesSeverity getSeverity(String stateDecl, String councilDecl) {
   if (stateDecl.contains('5')) {

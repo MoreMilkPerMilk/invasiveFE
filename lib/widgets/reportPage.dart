@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/services/httpService.dart';
-import 'package:html_unescape/html_unescape.dart';
 import 'package:latlong2/latlong.dart';
 
 final TextStyle headingStyle = GoogleFonts.openSans(
@@ -198,12 +197,13 @@ class PlantInfoBox extends StatelessWidget {
                 HeadingColonBody("Common Name: ", species.name),
                 HeadingColonBody("Scientific Name: ", species.species),
                 HeadingColonBody("Family: ", species.family),
-                HeadingColonBody("Council Declaration: ", HtmlUnescape().convert(species.council_declaration)), // fixme: doesn't fix the garble. i tried ~james
+                HeadingColonBody("State Declaration: ", species.state_declaration),
+                HeadingColonBody("Council Declaration: ", species.council_declaration),
                 // this doesn't work for some reason
                 //HeadingColonBody("State Declaration: ", species.state_declaration.first),
                 // HeadingColonBody("Control Methods: ", species.control_methods[0]),
                 HeadingColonBody("Environmental Impact: ", ""),
-                SeverityBar(species.severity) // hard-code this for now
+                SeverityBar(SpeciesSeverity.MED)
               ]
             )
         ),
@@ -232,8 +232,15 @@ class SeverityBar extends StatelessWidget {
   final double height = 20;
 
   final TextStyle bodyStyle = GoogleFonts.openSans(
-      fontSize: 11,
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
       color: Colors.black
+  );
+
+  final TextStyle bodyStyleWhite = GoogleFonts.openSans(
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+      color: Colors.white
   );
 
   SeverityBar(this.severity);
@@ -254,24 +261,40 @@ class SeverityBar extends StatelessWidget {
                 children: [
                   // filled portion of the bar
                   Expanded(
-                    flex: severity == SpeciesSeverity.LOW ? 1
-                        : severity == SpeciesSeverity.MED_LOW ? 3
-                        : severity == SpeciesSeverity.MED ? 5
-                        : severity == SpeciesSeverity.MED_HIGH ? 7
-                        : 9,
-                    child: Container(
-                      decoration: BoxDecoration(
+                      flex: severity == SpeciesSeverity.LOW ? 1
+                          : severity == SpeciesSeverity.MED_LOW ? 3
+                          : severity == SpeciesSeverity.MED ? 5
+                          : severity == SpeciesSeverity.MED_HIGH ? 7
+                          : 9,
+                      child: Container(
+                        decoration: severity == SpeciesSeverity.HIGH ? BoxDecoration(
                           borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(height / 2),
                               bottomLeft: Radius.circular(height / 2)
                           ),
-                          color: severity == SpeciesSeverity.LOW ? Colors.green
-                              : severity == SpeciesSeverity.MED_LOW ? Colors.yellow
-                              : severity == SpeciesSeverity.MED ? Colors.orange
-                              : severity == SpeciesSeverity.MED_HIGH ? Colors.red
-                              : Colors.black,
-                      ),
-                    )
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment(-0.6, 1.6),
+                            stops: [0.0, 0.5, 0.5, 1],
+                            colors: [
+                              Colors.red,
+                              Colors.red,
+                              Colors.black,
+                              Colors.black,
+                            ],
+                            tileMode: TileMode.repeated,
+                          ),
+                        ) : BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(height / 2),
+                                bottomLeft: Radius.circular(height / 2)
+                            ),
+                            color: severity == SpeciesSeverity.LOW ? Colors.green
+                                : severity == SpeciesSeverity.MED_LOW ? Colors.yellow
+                                : severity == SpeciesSeverity.MED ? Colors.orange
+                                : Colors.red
+                        ),
+                      )
                   ),
                   // empty portion of the bar
                   Expanded(
@@ -298,9 +321,9 @@ class SeverityBar extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text("low", style: bodyStyle),
-                    Text("med", style: bodyStyle),
-                    Text("high", style: bodyStyle)
+                    Text(""),
+                    Text(speciesSeverityToString(severity), style: severity == SpeciesSeverity.HIGH || severity == SpeciesSeverity.MED_HIGH ? bodyStyleWhite : bodyStyle),
+                    Text("")
                   ],
                 ),
               )
