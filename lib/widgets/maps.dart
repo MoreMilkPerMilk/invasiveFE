@@ -905,7 +905,7 @@ class ReportMarkerPopup extends StatelessWidget {
                     Text(thisSpecies.council_declaration,
                         style: GoogleFonts.openSans(fontSize: 12)),
                     Padding(padding: EdgeInsets.only(top: 5)),
-                    SeverityBar(1)
+                    SeverityBar(thisSpecies.severity)
                   ]),
             ),
             Padding(padding: EdgeInsets.only(left: 10)),
