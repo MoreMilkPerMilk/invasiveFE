@@ -60,7 +60,7 @@ class ReportPage extends StatelessWidget {
                   cards.add(PhotoCard(Image.network(getImageURL(photoLocation).toString())));
                 }
                 cards.add(Padding(padding: EdgeInsets.only(top: externalPadding)));
-                return SingleChildScrollView(child: Column(children: cards));
+                return ListView(children: cards);
               } else {
                 return Align(
                     alignment: Alignment.center,
