@@ -7,12 +7,6 @@ import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/services/httpService.dart';
 import 'package:latlong2/latlong.dart';
 
-final TextStyle headingStyle = GoogleFonts.openSans(
-  fontSize: 12,
-  fontWeight: FontWeight.bold,
-  color: Colors.black
-);
-
 final double internalPadding = 10;
 final double externalPadding = 10;
 
@@ -51,7 +45,8 @@ class ReportPage extends StatelessWidget {
                       header: "Species Info",
                       body: PlantInfoBox(species: species!, report: report)
                   ),
-                  MapCard(LatLng(-27.4975, 153.0137))
+                  MapCard(LatLng(-27.4975, 153.0137)),
+                  PhotoCard(Image.network(getImageURL(report.photoLocations.first).toString()))
                   //CardWithHeader(header: "RESOURCES", body: ResourcesBox())
                 ]);
               } else {
@@ -64,9 +59,40 @@ class ReportPage extends StatelessWidget {
   }
 }
 
+class PhotoCard extends StatelessWidget {
+  
+  final Image image;
+  
+  PhotoCard(this.image);
+  
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      // space around the card
+        padding: EdgeInsets.only(
+            top: externalPadding,
+            left: externalPadding,
+            right: externalPadding),
+        child: Container(
+          // expand cards to fill screen width
+            width: double.infinity,
+            child: Card(
+                clipBehavior: Clip.hardEdge,
+                elevation: 3,
+                color: Color.fromRGBO(240, 240, 240, 1),
+                margin: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+                // card contents
+                child: image
+            )
+        )
+    );
+  }
+}
+
 class MapCard extends StatelessWidget {
 
-  LatLng location;
+  final LatLng location;
 
   MapCard(this.location);
 
@@ -172,56 +198,26 @@ class CardWithHeader extends StatelessWidget {
 class PlantInfoBox extends StatelessWidget {
   final Species species;
   final Report report;
-  final TextStyle headingStyle = GoogleFonts.openSans(
-      fontSize: 11,
-      fontWeight: FontWeight.bold,
-      color: Colors.black
-  );
-  final TextStyle bodyStyle = GoogleFonts.openSans(
-      fontSize: 11,
-      color: Colors.black
-  );
 
   PlantInfoBox({required this.species, required this.report}) : super();
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        // info
-        Expanded(
-            flex: 6,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                HeadingColonBody("Common Name: ", species.name),
-                HeadingColonBody("Scientific Name: ", species.species),
-                HeadingColonBody("Family: ", species.family),
-                HeadingColonBody("State Declaration: ", species.state_declaration),
-                HeadingColonBody("Council Declaration: ", species.council_declaration),
-                // this doesn't work for some reason
-                //HeadingColonBody("State Declaration: ", species.state_declaration.first),
-                // HeadingColonBody("Control Methods: ", species.control_methods[0]),
-                HeadingColonBody("Environmental Impact: ", ""),
-                SeverityBar(SpeciesSeverity.MED)
-              ]
-            )
-        ),
-        Padding(padding: EdgeInsets.only(left: internalPadding)),
-        // image
-        Expanded(
-            // make a square that fills 40% of the available width, and crop the image into that square
-            flex: 4,
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: FittedBox(
-                fit: BoxFit.cover,
-                clipBehavior: Clip.hardEdge,
-                child: Image.network(getImageURL(report.photoLocations.first).toString())
-              )
-            )
-        )
-      ],
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          HeadingColonBody("Common Name: ", species.name),
+          HeadingColonBody("Scientific Name: ", species.species),
+          HeadingColonBody("Family: ", species.family),
+          HeadingColonBody("State Declaration: ", species.state_declaration),
+          HeadingColonBody("Council Declaration: ", species.council_declaration),
+          Row(
+            children: [
+              HeadingColonBody("Environmental Impact: ", ""),
+              Expanded(child: SeverityBar(species.severity))
+            ],
+          )
+        ]
     );
   }
 }
@@ -347,14 +343,14 @@ class HeadingColonBody extends StatelessWidget {
       child: RichText(
           text: TextSpan(
               style: GoogleFonts.openSans(
-                  fontSize: 11,
+                  fontSize: 12,
                   color: Colors.black
               ),
               children: [
                 TextSpan(
                     text: heading,
                     style: GoogleFonts.openSans(
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: Colors.black
                     )
@@ -391,34 +387,6 @@ class _WeedsAroundSliderState extends State {
             this.value = value;
           });
         },
-    );
-  }
-}
-
-class ResourcesBox extends StatelessWidget {
-  ResourcesBox() : super();
-  final TextStyle bodyStyle = GoogleFonts.openSans(
-      fontSize: 11,
-      color: Colors.black
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-        alignment: Alignment.topLeft,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Information on this species", style: headingStyle),
-            Text("<some info>", style: bodyStyle),
-            Padding(padding: EdgeInsets.only(top: internalPadding)),
-            Text("Information on managing this weed", style: headingStyle),
-            Text("<some info>", style: bodyStyle),
-            Padding(padding: EdgeInsets.only(top: internalPadding)),
-            Text("Contact your local weeds officer or landcare group", style: headingStyle),
-            Text("<some info>", style: bodyStyle),
-          ],
-        )
     );
   }
 }
