@@ -34,7 +34,16 @@ class ReportPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          title: Text("Report", style: TextStyle(color: Colors.black)),
+          backgroundColor: Colors.white,
+          shadowColor: Colors.white,
+          iconTheme: IconThemeData(
+              color: Colors.black,
+              opacity: 1,
+              size: 40
+          )
+        ),
         body: FutureBuilder(
             future:
                 speciesFuture, // only build once we have retrieved species data
@@ -167,7 +176,7 @@ class CardWithHeader extends StatelessWidget {
           width: double.infinity,
           child: Card(
             elevation: 3,
-            color: Color.fromRGBO(240, 240, 240, 1),
+            color: Colors.grey[200],
             margin: EdgeInsets.zero,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8))
