@@ -187,7 +187,6 @@ class PlantInfoBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(species.council_declaration);
     return Row(
       children: [
         // info
@@ -204,7 +203,7 @@ class PlantInfoBox extends StatelessWidget {
                 //HeadingColonBody("State Declaration: ", species.state_declaration.first),
                 // HeadingColonBody("Control Methods: ", species.control_methods[0]),
                 HeadingColonBody("Environmental Impact: ", ""),
-                SeverityBar(SeverityBar.MED) // hard-code this for now
+                SeverityBar(species.severity) // hard-code this for now
               ]
             )
         ),
@@ -229,11 +228,7 @@ class PlantInfoBox extends StatelessWidget {
 
 class SeverityBar extends StatelessWidget {
 
-  static const int LOW = 0;
-  static const int MED = 1;
-  static const int HIGH = 2;
-
-  final int severity;
+  final SpeciesSeverity severity;
   final double height = 20;
 
   final TextStyle bodyStyle = GoogleFonts.openSans(
@@ -259,20 +254,32 @@ class SeverityBar extends StatelessWidget {
                 children: [
                   // filled portion of the bar
                   Expanded(
-                    flex: severity == LOW ? 1 : severity == MED ? 5 : 9,
+                    flex: severity == SpeciesSeverity.LOW ? 1
+                        : severity == SpeciesSeverity.MED_LOW ? 3
+                        : severity == SpeciesSeverity.MED ? 5
+                        : severity == SpeciesSeverity.MED_HIGH ? 7
+                        : 9,
                     child: Container(
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(height / 2),
                               bottomLeft: Radius.circular(height / 2)
                           ),
-                          color: severity == LOW ? Colors.yellow : severity == MED ? Colors.orange : Colors.red
+                          color: severity == SpeciesSeverity.LOW ? Colors.green
+                              : severity == SpeciesSeverity.MED_LOW ? Colors.yellow
+                              : severity == SpeciesSeverity.MED ? Colors.orange
+                              : severity == SpeciesSeverity.MED_HIGH ? Colors.red
+                              : Colors.black,
                       ),
                     )
                   ),
                   // empty portion of the bar
                   Expanded(
-                      flex: severity == LOW ? 9 : severity == MED ? 5 : 1,
+                      flex: severity == SpeciesSeverity.LOW ? 9
+                          : severity == SpeciesSeverity.MED_LOW ? 7
+                          : severity == SpeciesSeverity.MED ? 5
+                          : severity == SpeciesSeverity.MED_HIGH ? 3
+                          : 1,
                       child: Container(
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.only(
