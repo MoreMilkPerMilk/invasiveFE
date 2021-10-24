@@ -95,7 +95,9 @@ class PhotoCard extends StatelessWidget {
                 margin: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
                 // card contents
-                child: image
+                child: FittedBox(
+                  child: image
+                )
             )
         )
     );
@@ -373,32 +375,6 @@ class HeadingColonBody extends StatelessWidget {
               ]
           )
       ),
-    );
-  }
-}
-
-class WeedsAroundSlider extends StatefulWidget {
-
-  @override
-  State<StatefulWidget> createState() => _WeedsAroundSliderState();
-}
-
-class _WeedsAroundSliderState extends State {
-
-  double value = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Slider(
-        min: 0,
-        max: 1,
-        divisions: 4,
-        value: value,
-        onChanged: (double value) {
-          setState(() {
-            this.value = value;
-          });
-        },
     );
   }
 }
