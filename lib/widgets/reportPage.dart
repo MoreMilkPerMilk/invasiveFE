@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/services/httpService.dart';
@@ -49,15 +50,17 @@ class ReportPage extends StatelessWidget {
                 speciesFuture, // only build once we have retrieved species data
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
-                return Column(children: [
-                  CardWithHeader(
-                      header: "Species Info",
-                      body: PlantInfoBox(species: species!, report: report)
-                  ),
-                  MapCard(LatLng(-27.4975, 153.0137)),
-                  PhotoCard(Image.network(getImageURL(report.photoLocations.first).toString()))
-                  //CardWithHeader(header: "RESOURCES", body: ResourcesBox())
-                ]);
+                List<Widget> cards = [];
+                cards.add(CardWithHeader(
+                    header: "Species Info",
+                    body: PlantInfoBox(species: species!, report: report)
+                ));
+                cards.add(MapCard(LatLng(-27.4975, 153.0137)));
+                for (PhotoLocation photoLocation in report.photoLocations) {
+                  cards.add(PhotoCard(Image.network(getImageURL(photoLocation).toString())));
+                }
+                cards.add(Padding(padding: EdgeInsets.only(top: externalPadding)));
+                return SingleChildScrollView(child: Column(children: cards));
               } else {
                 return Align(
                     alignment: Alignment.center,
