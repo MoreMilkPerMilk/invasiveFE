@@ -103,7 +103,7 @@ class _PanelState extends State<Panel> {
     }
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(30.0),
+        padding: const EdgeInsets.only(top: 30, bottom: 30, left: 15, right: 15),
         child: Column(
           children: [
             Text.rich(
