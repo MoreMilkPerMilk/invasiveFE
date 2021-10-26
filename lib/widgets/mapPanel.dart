@@ -1,33 +1,14 @@
-import 'dart:developer';
-import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:camera/camera.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:geojson/geojson.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:geopoint/geopoint.dart';
-import 'package:image/image.dart' as img;
 import 'package:invasive_fe/models/Community.dart';
 import 'package:invasive_fe/models/Council.dart';
 import 'package:invasive_fe/models/Landcare.dart';
-import 'package:invasive_fe/models/PhotoLocation.dart';
-import 'package:invasive_fe/models/Report.dart';
-import 'package:invasive_fe/models/Species.dart';
-import 'package:invasive_fe/models/User.dart';
-import 'package:invasive_fe/models/WeedInstance.dart';
-import 'package:invasive_fe/services/gpsService.dart';
-import 'package:invasive_fe/services/httpService.dart';
-import 'package:invasive_fe/widgets/maps.dart';
-import 'package:objectid/objectid.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class MapPanel extends StatefulWidget {
-  PanelController _pc;
-  Council? council;
-  Community? community;
-  Landcare? landcare;
+  final PanelController _pc;
+  final Council? council;
+  final Community? community;
+  final Landcare? landcare;
 
   MapPanel(this._pc, this.council, this.community, this.landcare);
 

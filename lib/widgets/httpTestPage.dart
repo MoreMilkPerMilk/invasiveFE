@@ -4,19 +4,13 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/User.dart';
-import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:invasive_fe/widgets/reportAdjustmentPage.dart';
-import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:objectid/objectid.dart';
-import 'package:uuid/uuid.dart';
 import 'package:geojson/geojson.dart';
 import 'package:geopoint/geopoint.dart';
-import 'package:file_picker/file_picker.dart';
-
 import '../services/httpService.dart';
 
 // broken due to modified WeedInstance json structure
@@ -65,9 +59,7 @@ class HttpTestPage extends StatelessWidget {
             Spacer(),
             ElevatedButton(
               onPressed: () async {
-                File file = new File("");
                 log("/Add PhotoLocation");
-                String path = 'assets/placeholder.png';
                 ByteData imgBytes = await rootBundle.load('assets/placeholder.png');
                 print(imgBytes);
                 Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
@@ -86,10 +78,6 @@ class HttpTestPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 log("/Delete Location");
-                String path = 'assets/placeholder.png';
-                ByteData imgBytes = await rootBundle.load('assets/placeholder.png');
-                Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
-                XFile xFile = XFile.fromData(imgUint8List);
                 var loc = PhotoLocation(
                     id: ObjectId(),
                     photo: new File(""),
@@ -104,10 +92,7 @@ class HttpTestPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 log("/Add Report");
-
                 // create photolocation for report
-                File file = new File("");
-                String path = 'assets/placeholder.png';
                 ByteData imgBytes = await rootBundle.load('assets/placeholder.png');
                 print(imgBytes);
                 Uint8List imgUint8List = imgBytes.buffer.asUint8List(imgBytes.offsetInBytes, imgBytes.lengthInBytes);
