@@ -57,7 +57,14 @@ class ReportPage extends StatelessWidget {
                 ));
                 cards.add(MapCard(LatLng(-27.4975, 153.0137)));
                 for (PhotoLocation photoLocation in report.photoLocations) {
-                  cards.add(PhotoCard(Image.network(getImageURL(photoLocation).toString())));
+                  cards.add(
+                      PhotoCard(
+                          Image.network(
+                            getImageURL(photoLocation).toString(),
+                            fit: BoxFit.fill
+                          )
+                      )
+                  );
                 }
                 cards.add(Padding(padding: EdgeInsets.only(top: externalPadding)));
                 return ListView(children: cards);
@@ -89,15 +96,14 @@ class PhotoCard extends StatelessWidget {
           // expand cards to fill screen width
             width: double.infinity,
             child: Card(
-                clipBehavior: Clip.hardEdge,
+                semanticContainer: true,
+                clipBehavior: Clip.antiAliasWithSaveLayer,
                 elevation: 3,
                 color: Color.fromRGBO(240, 240, 240, 1),
                 margin: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
                 // card contents
-                child: FittedBox(
-                  child: image
-                )
+                child: image
             )
         )
     );
