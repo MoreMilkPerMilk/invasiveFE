@@ -229,6 +229,7 @@ class PlantInfoBox extends StatelessWidget {
           HeadingColonBody("Common Name: ", species.name),
           HeadingColonBody("Scientific Name: ", species.species),
           HeadingColonBody("Family: ", species.family),
+          HeadingColonBody("Native: ", species.native.toString()),
           HeadingColonBody("State Declaration: ", species.state_declaration),
           HeadingColonBody("Council Declaration: ", species.council_declaration),
           Row(
