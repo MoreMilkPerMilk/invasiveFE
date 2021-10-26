@@ -11,6 +11,7 @@ import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
 import 'package:invasive_fe/widgets/reportAdjustmentPage.dart';
+import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:objectid/objectid.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -184,6 +185,28 @@ class _PanelState extends State<Panel> {
                             child: OutlinedButton.icon(
                               onPressed: () {
                                 // Respond to button press
+                                PhotoLocation photoLocation = new PhotoLocation(
+                                  id: ObjectId(),
+                                  photo: widget.photo,
+                                  location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
+                                  image_filename: 'placeholder.png',
+                                );
+                                Report report = new Report(
+                                    id: ObjectId(),
+                                    species_id: 41,
+                                    name: "",
+                                    status: 'open',
+                                    photoLocations: [photoLocation],
+                                    notes: '',
+                                    polygon: new GeoJsonMultiPolygon()
+                                );
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => ReportPage(
+                                      report: report,
+                                      showPhotos: false,
+                                    ))
+                                );
                               },
                               icon: Icon(Icons.info_outline, size: 18),
                               label: Text("MORE INFO"),
