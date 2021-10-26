@@ -1,8 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
@@ -11,7 +8,6 @@ import 'package:geopoint/geopoint.dart';
 import 'package:invasive_fe/models/Community.dart';
 import 'package:invasive_fe/models/Council.dart';
 import 'package:invasive_fe/models/Landcare.dart';
-import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/services/gpsService.dart';
@@ -20,10 +16,8 @@ import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
-import 'package:objectid/objectid.dart';
 import 'package:random_color/random_color.dart';
 import 'package:geodesy/geodesy.dart';
-import 'dart:io';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -252,7 +246,6 @@ class _MapsPageState extends State<MapsPage> {
         communityPolygonFuture.then((landcares) => setState(() {
               this.landcarePolygons = [];
               landcares.forEach((landcare) {
-                print("landcare = " + landcare.toString());
                 var polygon;
                 if (landcare.boundary.toGeoJsonMultiPolygon().polygons.length >
                     0) {
@@ -339,9 +332,7 @@ class _MapsPageState extends State<MapsPage> {
                             onTap: (LatLng posTapped) {
                               widget._popupLayerController.hidePopup();
                               bool found = false;
-                              print("tap");
                               if (communityMode) {
-                                print("community tap");
                                 this.communities.forEach((Community community) {
                                   List<LatLng> pts = [];
                                   if (community.boundary.polygons.length > 0) {
@@ -352,7 +343,6 @@ class _MapsPageState extends State<MapsPage> {
                                           geoPoint.longitude));
                                     });
                                   }
-                                  // print(pts);
 
                                   Geodesy geodesy = Geodesy();
                                   if (geodesy.isGeoPointInPolygon(
@@ -368,7 +358,6 @@ class _MapsPageState extends State<MapsPage> {
                                 });
                               }
                               if (councilMode && !found) {
-                                print("councils");
                                 this.councils.forEach((Council council) {
                                   List<LatLng> pts = [];
                                   if (council.boundary.polygons.length > 0) {

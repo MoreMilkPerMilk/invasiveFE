@@ -1,15 +1,10 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/services/httpService.dart';
 import 'package:invasive_fe/widgets/reportPage.dart';
-import 'package:line_icons/line_icon.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:objectid/objectid.dart';
 
 Map<int, Species> species = {};
 RefreshController _refreshController = RefreshController(initialRefresh: false);
