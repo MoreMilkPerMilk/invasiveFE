@@ -43,7 +43,16 @@ class ReportAdjustmentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+            title: Text("Edit Report Details", style: TextStyle(color: Colors.black)),
+            backgroundColor: Colors.white,
+            shadowColor: Colors.white,
+            iconTheme: IconThemeData(
+                color: Colors.black,
+                opacity: 1,
+                size: 40
+            )
+        ),
         body: FutureBuilder(
             future:
             speciesFuture, // only build once we have retrieved species data
@@ -89,10 +98,6 @@ class _ReportUpdateFormState extends State<ReportUpdateForm> {
         authoritiesContactCheckbox(),
         Text("Additional comments:", style: bodyStyle),
         additionalCommentsField(),
-        Text("Current photos:"),
-        photosTakenSlider(),
-        takeMorePhotosButton(),
-        Spacer(),
         submitButton()
       ],
     );
@@ -180,36 +185,11 @@ class _ReportUpdateFormState extends State<ReportUpdateForm> {
     return Align(
         alignment: Alignment.center,
         child: ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context);
+          },
           child: Text("Submit"),
         )
-    );
-  }
-}
-
-
-class WeedsAroundSlider extends StatefulWidget {
-
-  @override
-  State<StatefulWidget> createState() => _WeedsAroundSliderState();
-}
-
-class _WeedsAroundSliderState extends State {
-
-  double value = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Slider(
-      min: 0,
-      max: 1,
-      divisions: 4,
-      value: value,
-      onChanged: (double value) {
-        setState(() {
-          this.value = value;
-        });
-      },
     );
   }
 }

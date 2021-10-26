@@ -10,6 +10,7 @@ import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
+import 'package:invasive_fe/widgets/reportAdjustmentPage.dart';
 import 'package:objectid/objectid.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -151,6 +152,27 @@ class _PanelState extends State<Panel> {
                             child: OutlinedButton.icon(
                               onPressed: () {
                                 // Respond to button press
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => ReportAdjustmentPage(
+                                    report: Report(
+                                      id: ObjectId(),
+                                      status: "status",
+                                      notes: "notes",
+                                      polygon: GeoJsonMultiPolygon(),
+                                      photoLocations: [
+                                        PhotoLocation(
+                                          id: ObjectId(),
+                                          photo: new File("assets/placeholder.png"),
+                                          location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
+                                          image_filename: 'placeholder.png'
+                                        )
+                                      ],
+                                      name: "test",
+                                      species_id: 41
+                                    )
+                                  ))
+                                );
                               },
                               icon: Icon(Icons.my_library_add_rounded, size: 18),
                               label: Text("ADD DETAILS"),
