@@ -1,14 +1,34 @@
+import 'dart:developer';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:geojson/geojson.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geopoint/geopoint.dart';
+import 'package:image/image.dart' as img;
 import 'package:invasive_fe/models/Community.dart';
 import 'package:invasive_fe/models/Council.dart';
 import 'package:invasive_fe/models/Landcare.dart';
+import 'package:invasive_fe/models/PhotoLocation.dart';
+import 'package:invasive_fe/models/Report.dart';
+import 'package:invasive_fe/models/Species.dart';
+import 'package:invasive_fe/models/User.dart';
+import 'package:invasive_fe/models/WeedInstance.dart';
+import 'package:invasive_fe/services/gpsService.dart';
+import 'package:invasive_fe/services/httpService.dart';
+import 'package:invasive_fe/widgets/maps.dart';
+import 'package:objectid/objectid.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class MapPanel extends StatefulWidget {
-  final PanelController _pc;
-  final Council? council;
-  final Community? community;
-  final Landcare? landcare;
+  PanelController _pc;
+  Council? council;
+  Community? community;
+  Landcare? landcare;
+  Color buttonColor = Colors.green;
 
   MapPanel(this._pc, this.council, this.community, this.landcare);
 
@@ -25,15 +45,23 @@ class _PanelState extends State<MapPanel> {
   Widget build(BuildContext context) {
     String title = "";
     String description = "";
+    String buttonText = "";
     if (widget.council != null) {
       title = widget.council!.name + " Council";
-      description = "The region clicked on belongs to ${widget.council!.name} Council.";
+      description =
+          "The region clicked on belongs to ${widget.council!.name} Council.";
+      buttonText = "MORE INFO";
+      widget.buttonColor = Colors.blue;
     } else if (widget.community != null) {
       title = widget.community!.name;
       description =
-          "A community containing ${widget.community!.suburbs.length} suburbs and ${widget.community!.councils.length} council areas.";
+      "A community containing ${widget.community!.suburbs
+          .length} suburbs and ${widget.community!.councils
+          .length} council areas.";
       description +=
           "There are ${widget.community!.members.length} members in this community.";
+      buttonText = "JOIN";
+      widget.buttonColor = Colors.green;
       // description += "Suburbs:";
       // int i = 0;
       // widget.community!.suburbs.forEach((String suburb) {
@@ -77,7 +105,28 @@ class _PanelState extends State<MapPanel> {
                 Text.rich(TextSpan(
                   text: description,
                   style: TextStyle(fontSize: 15),
-                ))
+                )),
+                Container(
+                    child: Column(children: [
+                  Container(
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: OutlinedButton.icon(
+                        style: TextButton.styleFrom(
+                          primary: widget.buttonColor,
+                          // shape:
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            widget.buttonColor = Colors.grey;
+                          });
+                        },
+                        icon: Icon(Icons.done, size: 18),
+                        label: Text(buttonText),
+                      ),
+                    ),
+                  )
+                ]))
               ],
             )));
   }

@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
@@ -8,6 +11,7 @@ import 'package:geopoint/geopoint.dart';
 import 'package:invasive_fe/models/Community.dart';
 import 'package:invasive_fe/models/Council.dart';
 import 'package:invasive_fe/models/Landcare.dart';
+import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/services/gpsService.dart';
@@ -16,8 +20,10 @@ import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
+import 'package:objectid/objectid.dart';
 import 'package:random_color/random_color.dart';
 import 'package:geodesy/geodesy.dart';
+import 'dart:io';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -30,6 +36,8 @@ const String MAPBOX_ACCESS_TOKEN =
     'pk.eyJ1IjoianNsdm4iLCJhIjoiY2tzZTFoYmltMHc5ajJucXRiczY3eno3bSJ9.We8R6YRT_fcmuC6bOzzqbw';
 // map of species id to Species objects; the entire species database
 Map<int, Species> species = {};
+// whether the map view mode is heat mode
+bool heatmapMode = false;
 bool councilMode = false;
 bool communityView = false;
 bool communityMode = false;
@@ -296,6 +304,15 @@ class _MapsPageState extends State<MapsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // List<ReportMarker> reportMarkers = _debugReportMarkers();
+    List<CommunityMarker> communityMarkers = _debugCommunityMarkers();
+
+    BorderRadiusGeometry radius = BorderRadius.only(
+      topLeft: Radius.circular(24.0),
+      topRight: Radius.circular(24.0),
+    );
+
+    // List<ReportMarker> markers = reports.map((rep) => ReportMarker(report: rep)).toList();
     return Scaffold(
         body: Stack(children: [
       // this future builder returns a loading page until its given futures have
@@ -314,6 +331,7 @@ class _MapsPageState extends State<MapsPage> {
                       controller: _pc,
                       minHeight: 0,
                       maxHeight: 300,
+                      borderRadius: radius,
                       panel: MapPanel(_pc, selectedCouncil, selectedCommunity,
                           selectedLandcare),
                       body: FlutterMap(
@@ -374,6 +392,7 @@ class _MapsPageState extends State<MapsPage> {
                                       posTapped, pts)) {
                                     setState(() {
                                       selectedCouncil = council;
+                                      found = true;
                                       _pc.open();
                                     });
                                   }
@@ -394,7 +413,10 @@ class _MapsPageState extends State<MapsPage> {
                             _communityPolygonLayer(),
                             _reportPolygonLayer(),
                             _userLocationMarker(),
-                            _reportMarkers(reportMarkers)
+                            if (communityView)
+                              _communityMarkers(communityMarkers)
+                            else
+                              _reportMarkers(reportMarkers)
                           ])));
             } else {
               // the futures have not yet completed; display a loading page
@@ -403,6 +425,14 @@ class _MapsPageState extends State<MapsPage> {
                   child: CircularProgressIndicator());
             }
           }),
+      // Padding(
+      //     // space from the top of the screen
+      //     padding: EdgeInsets.only(top: 50),
+      //     child: Align(
+      //       alignment: Alignment.topCenter,
+      //       // ToggleButtons is the container for all of the buttons
+      //       child: _toggleButtons(),
+      //     )),
       Padding(
           // space from the top of the screen
           padding: EdgeInsets.only(bottom: 30, left: 10),
@@ -744,9 +774,18 @@ class ReportMarkerPopup extends StatelessWidget {
                             fit: BoxFit.cover,
                             clipBehavior: Clip.hardEdge,
                             // to clip the image into a square
-                            child: Image.network(
-                                getImageURL(report.photoLocations.first)
-                                    .toString()))))),
+                            child: Image.network(getImageURL(
+                                    report.photoLocations.length > 0
+                                        ? report.photoLocations.last
+                                        : PhotoLocation(
+                                            id: ObjectId(),
+                                            photo: new File(""),
+                                            image_filename: "",
+                                            location: new GeoJsonPoint(
+                                                geoPoint: new GeoPoint(
+                                                    latitude: 0,
+                                                    longitude: 0))))
+                                .toString()))))),
             Padding(padding: EdgeInsets.only(left: 10)),
             Container(
               width: 200,
