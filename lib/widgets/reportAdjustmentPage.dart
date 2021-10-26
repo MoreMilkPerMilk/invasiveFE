@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/services/httpService.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 
 final TextStyle headingStyle = GoogleFonts.openSans(
     fontSize: 13,
@@ -23,7 +22,6 @@ class ReportAdjustmentPage extends StatelessWidget {
   Report report;
   Species? species;
   late Future<List<Species>> speciesFuture;
-
 
   ReportAdjustmentPage({required this.report}) : super() {
     speciesFuture = getAllSpecies();
@@ -156,27 +154,6 @@ class _ReportUpdateFormState extends State<ReportUpdateForm> {
           onChanged: (value) {
             additionalComments = value;
           },
-        )
-    );
-  }
-
-  CarouselSlider photosTakenSlider() {
-    return CarouselSlider(
-      options: CarouselOptions(
-          height: 400.0,
-          enableInfiniteScroll: false,
-          viewportFraction: 0.85
-      ),
-      items: List.from((widget.report.photoLocations.map((i) => i.image_filename).toList())..addAll(additionalPhotos)).map((i) => Image.asset(i)).toList(),
-    );
-  }
-
-  Align takeMorePhotosButton() {
-    return Align(
-        alignment: Alignment.center,
-        child: ElevatedButton(
-          onPressed: () {},
-          child: Text("Add More Photos"),
         )
     );
   }
