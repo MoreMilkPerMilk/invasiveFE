@@ -304,8 +304,6 @@ class _MapsPageState extends State<MapsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // List<ReportMarker> reportMarkers = _debugReportMarkers();
-    List<CommunityMarker> communityMarkers = _debugCommunityMarkers();
 
     BorderRadiusGeometry radius = BorderRadius.only(
       topLeft: Radius.circular(24.0),
@@ -413,10 +411,7 @@ class _MapsPageState extends State<MapsPage> {
                             _communityPolygonLayer(),
                             _reportPolygonLayer(),
                             _userLocationMarker(),
-                            if (communityView)
-                              _communityMarkers(communityMarkers)
-                            else
-                              _reportMarkers(reportMarkers)
+                            _reportMarkers(reportMarkers)
                           ])));
             } else {
               // the futures have not yet completed; display a loading page
