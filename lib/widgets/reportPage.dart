@@ -16,8 +16,9 @@ class ReportPage extends StatelessWidget {
   Report report;
   Species? species;
   late Future<List<Species>> speciesFuture;
+  bool showPhotos;
 
-  ReportPage({required this.report}) : super() {
+  ReportPage({required this.report, this.showPhotos=true}) : super() {
     speciesFuture = getAllSpecies();
     speciesFuture.then((List<Species> speciesList) {
       for (Species species in speciesList) {
@@ -56,15 +57,17 @@ class ReportPage extends StatelessWidget {
                     body: PlantInfoBox(species: species!, report: report)
                 ));
                 cards.add(MapCard(LatLng(-27.4975, 153.0137)));
-                for (PhotoLocation photoLocation in report.photoLocations) {
-                  cards.add(
-                      PhotoCard(
-                          Image.network(
-                            getImageURL(photoLocation).toString(),
-                            fit: BoxFit.fill
-                          )
-                      )
-                  );
+                if (showPhotos) {
+                  for (PhotoLocation photoLocation in report.photoLocations) {
+                    cards.add(
+                        PhotoCard(
+                            Image.network(
+                                getImageURL(photoLocation).toString(),
+                                fit: BoxFit.fill
+                            )
+                        )
+                    );
+                  }
                 }
                 cards.add(Padding(padding: EdgeInsets.only(top: externalPadding)));
                 return ListView(children: cards);
