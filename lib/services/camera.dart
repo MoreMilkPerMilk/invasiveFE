@@ -24,8 +24,9 @@ import 'package:tuple/tuple.dart';
 
 import 'models.dart';
 
-const int MAX_LOOK_BACK_SIZE = 5;
-const double MIN_CONFIDENCE_VAL = 0.90;
+int MAX_LOOK_BACK_SIZE = Platform.isAndroid ? 3 : 5;
+double MIN_CONFIDENCE_VAL = Platform.isAndroid ? 0.8 : 0.9;
+
 File photo = new File (new XFile.fromData(new Uint8List(1)).path);
 //String photoPath = "";
 
