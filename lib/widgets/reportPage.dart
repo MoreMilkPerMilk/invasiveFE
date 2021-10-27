@@ -56,7 +56,15 @@ class ReportPage extends StatelessWidget {
                     header: "Species Info",
                     body: PlantInfoBox(species: species!, report: report)
                 ));
-                cards.add(MapCard(LatLng(-27.4975, 153.0137)));
+
+                if (report.photoLocations.length > 0) {
+                  cards.add(MapCard(LatLng(
+                      report.photoLocations.first.location.geoPoint.latitude, report.photoLocations.first.location.geoPoint.longitude)
+                  ));
+                } else {
+                  cards.add(MapCard(LatLng(-27.4975, 153.0137)));
+                }
+
                 if (showPhotos) {
                   for (PhotoLocation photoLocation in report.photoLocations) {
                     cards.add(
