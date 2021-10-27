@@ -311,6 +311,6 @@ Future<void> sendReportToBackend(PhotoLocationData data) async {
       fontSize: 16.0
   );
   // need to add report to user here too!
-  User user = await getCurrentUser();
-  await addReportToUser(report, user);
+  // User user = await getCurrentUser();
+  // await addReportToUser(report, user);
 }
