@@ -10,6 +10,12 @@ class ClassifierFloat extends Classifier {
   String get modelName => 'resnet.tflite';
 
   @override
+  String get labelsFileName => 'assets/labels.txt';
+
+  @override
+  int get labelsLength => 9;
+
+  @override
   NormalizeOp get preProcessNormalizeOp => NormalizeOp(127.5, 127.5);
 
   @override

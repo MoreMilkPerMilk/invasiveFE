@@ -9,6 +9,7 @@ import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 abstract class Classifier {
   late Interpreter interpreter;
   late InterpreterOptions _interpreterOptions;
+  Image image = new Image(10, 10);
 
   var logger = Logger();
 
@@ -21,9 +22,11 @@ abstract class Classifier {
   late TfLiteType _inputType;
   late TfLiteType _outputType;
 
-  final String _labelsFileName = 'assets/labels.txt';
+  // final String _labelsFileName = 'assets/labels.txt';
+  String get labelsFileName;
 
-  final int _labelsLength = 9;
+  // final int _labelsLength = 9;
+  int get labelsLength;
 
   late var _probabilityProcessor;
 
@@ -65,10 +68,11 @@ abstract class Classifier {
   }
 
   Future<void> loadLabels() async {
-    labels = await FileUtil.loadLabels(_labelsFileName);
-    if (labels.length == _labelsLength) {
+    labels = await FileUtil.loadLabels(labelsFileName);
+    if (labels.length == labelsLength) {
       print('Labels loaded successfully');
     } else {
+      print("labels.length = " + labels.length.toString() + " labelsLength = " + labelsLength.toString());
       print('Unable to load labels');
     }
   }
@@ -79,13 +83,17 @@ abstract class Classifier {
     print(_inputShape);
     print('crop size');
     print(cropSize);
-    return ImageProcessorBuilder()
+    TensorImage img = ImageProcessorBuilder()
         .add(ResizeWithCropOrPadOp(cropSize, cropSize))
         .add(ResizeOp(
         _inputShape[1], _inputShape[2], ResizeMethod.NEAREST_NEIGHBOUR))
         .add(preProcessNormalizeOp)
         .build()
         .process(_inputImage);
+
+    image = img.image;
+
+    return img;
   }
 
   Category predict(Image image) {

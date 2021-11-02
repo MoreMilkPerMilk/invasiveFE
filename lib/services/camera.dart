@@ -86,7 +86,7 @@ class _CameraState extends State<Camera> {
     ListQueue<Tuple2<String, double>> seenBuffer = new ListQueue();
     // ListQueue<int> timeBuffer = new ListQueue();
     StartTime intervalTime =
-        new StartTime(new DateTime.now().millisecondsSinceEpoch);
+    new StartTime(new DateTime.now().millisecondsSinceEpoch);
     // int intervalTime = new DateTime.now().millisecondsSinceEpoch;
     print(widget.cameras);
     if (widget.cameras == null || widget.cameras!.length < 1) {
@@ -156,8 +156,8 @@ class _CameraState extends State<Camera> {
     if (recognitions!.isNotEmpty && _cameraOn) {
       switch (thresholdDetection(recognitions, seenBuffer, timeInterval)) {
         case Status.negativeNormal:
-          // do nothing :)
-          // Fluttertoast.cancel(); // hide all toasts
+        // do nothing :)
+        // Fluttertoast.cancel(); // hide all toasts
           break;
         case Status.negativeThreshold:
           if (repeatedNegativeCount == 2) {
@@ -176,7 +176,7 @@ class _CameraState extends State<Camera> {
           }
           break;
         case Status.detected:
-          // if android we directly convert yuv420 to png (workaround for takePicture())
+        // if android we directly convert yuv420 to png (workaround for takePicture())
           if (Platform.isAndroid) {
             // convert yuv420 to png
 
@@ -267,7 +267,7 @@ class _CameraState extends State<Camera> {
   Status thresholdDetection(List<dynamic> recognitions,
       ListQueue<Tuple2<String, double>> seenBuffer, StartTime startTime) {
     String label = recognitions[0]
-        ["label"]; // assume greatest confidence is first presented
+    ["label"]; // assume greatest confidence is first presented
     double conf = recognitions[0]["confidence"];
 
     seenBuffer.add(Tuple2<String, double>(label, conf));
@@ -284,7 +284,7 @@ class _CameraState extends State<Camera> {
     // }
 
     bool aboveThreshold =
-        seenBuffer.every((element) => element.item2 >= MIN_CONFIDENCE_VAL);
+    seenBuffer.every((element) => element.item2 >= MIN_CONFIDENCE_VAL);
     Set<String> setBuffer = seenBuffer
         .map((element) => element.item1)
         .toSet(); // get all recognitions

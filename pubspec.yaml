@@ -55,6 +55,7 @@ dependencies:
   tuple: ^2.0.0
   get_mac:
   logger:
+  image_picker:
 
   plugin_platform_interface: ^2.0.0
   indent: ^2.0.0
@@ -107,7 +108,9 @@ flutter:
 
   assets:
     - assets/resnet.tflite
+    - assets/model.tflite
     - assets/labels.txt
+    - assets/tflitelabels.txt
     - assets/frame.png
     - assets/placeholder.png
     - assets/badges/lowsev_1.jpg
