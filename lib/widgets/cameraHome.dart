@@ -90,68 +90,6 @@ class _CameraHomePageState extends State<CameraHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // getImagefromCamera();
-    if (label == "") {
-      getImagefromCamera();
-    }
-    // return Scaffold(
-    //   // HAMISH: this works with a ternary statement to decide whether to show the buttons or not
-    //   body: FutureBuilder(
-    //     future: loaded,
-    //     builder: (context, snapshot) {
-    //       if (snapshot.connectionState == ConnectionState.done) {
-    //         return Stack(
-    //           children: [
-    //             Camera(
-    //               cameras,
-    //               _model,
-    //               setRecognitions,
-    //             ),
-    //             BndBox(
-    //                 _recognitions == null ? [] : _recognitions,
-    //                 math.max(_imageHeight, _imageWidth),
-    //                 math.min(_imageHeight, _imageWidth),
-    //                 screen.height,
-    //                 screen.width,
-    //                 _model),
-    //           ],
-    //         );
-    //       } else {
-    //         return Align(child: Text("Loading ..."), alignment: Alignment.center);
-    //       }
-    //     },
-    //   ),
-    // );
-    // return Scaffold(
-    //     body: GestureDetector(
-    //   onTap: getImagefromCamera,
-    //   child: path == ""
-    //       ? Container(
-    //           decoration: BoxDecoration(
-    //               color: Colors.red,
-    //               border: Border.all(color: Colors.red, width: 1.0),
-    //               borderRadius: BorderRadius.circular(10.0)),
-    //           child: Column(
-    //             children: <Widget>[
-    //               SizedBox(height: 30.0),
-    //               Icon(Icons.camera_alt, color: Colors.red),
-    //               SizedBox(height: 10.0),
-    //               Text('Take Image of the Item',
-    //                   style: TextStyle(color: Colors.red)),
-    //               SizedBox(height: 30.0)
-    //             ],
-    //           ))
-    //       // : Image.file(File(path)),
-    //       : Container(
-    //       child: Column(
-    //         children: [
-    //           SizedBox(height:100),
-    //           Text("You found " + label),
-    //         ],
-    //       )
-    //   )
-    // ));
-
     BorderRadiusGeometry radius = BorderRadius.only(
       topLeft: Radius.circular(24.0),
       topRight: Radius.circular(24.0),
@@ -159,8 +97,9 @@ class _CameraHomePageState extends State<CameraHomePage> {
 
     return Scaffold(
         body: GestureDetector(
-            onTap: getImagefromCamera,
+            // onTap: getImagefromCamera,,
             child: Container(
+              // color: ,
               child: SlidingUpPanel(
                 backdropEnabled: true,
                 controller: _pc,
@@ -170,24 +109,64 @@ class _CameraHomePageState extends State<CameraHomePage> {
                 // panel: Panel(foundSpecies, photo, _pc, foundSpecies
                 // == "Negatives"),
                 panel: Panel(foundSpecies, photo, _pc, false),
-                body: Center(
-                    child: Stack(children: [
-                      Text(label)
-                      // CameraPreview(controller!),
-                      // Container(
-                      //     width: double.infinity,
-                      //     height: double.infinity,
-                          // child: Align(
-                          //     child: ColorFiltered(
-                          //         colorFilter: ColorFilter.mode(
-                          //             Colors.black.withOpacity(0.2),
-                          //             BlendMode.dstATop),
-                          //         child: Image(
-                          //             image: AssetImage('),
-                          //             width: 250,
-                          //             height: 250)))),
-                    ]),
-                  ),
+                body: SafeArea(
+                  minimum: const EdgeInsets.only(top: 30),
+                  child: Column(
+                    children: [
+                      //title
+                      Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Text(
+                              'Classify',
+                              style: TextStyle(fontSize: 25, color: Colors.black, fontWeight: FontWeight.bold)
+                          )
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Text('Open the camera to classify an invasive species.')
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Align(
+                            alignment: Alignment.topRight,
+                            child: OutlinedButton.icon(
+                              style: TextButton.styleFrom(
+                                primary: Colors.green,
+                                // shape:
+                              ),
+                              onPressed: () {
+                                _pc.close();
+                                getImagefromCamera();
+                              },
+                              icon: Icon(Icons.camera_alt_outlined, size: 18),
+                              label: Text("Open Camera"),
+                            )
+                        )
+                      ),
+                      if (path != "")
+                        Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: Column(
+                              children: [
+                                Image.file(
+                                  File(path),
+                                  width: 300,
+                                ),
+                                Text(label)
+                              ],
+                            )
+                        )
+                      else
+                        Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: Image(
+                            image: AssetImage('assets/capture_example.gif'),
+                            width: 300,
+                            height: 300)
+                        )
+                    ],
+                  )
+                ),
                 borderRadius: radius,
                 // onPanelClosed: () {
                 //   Fluttertoast.cancel(); // hide all toasts

@@ -113,6 +113,7 @@ flutter:
     - assets/tflitelabels.txt
     - assets/frame.png
     - assets/placeholder.png
+    - assets/capture_example.gif
     - assets/badges/lowsev_1.jpg
     - assets/badges/lowsev_2.jpg
     - assets/badges/lowsev_3.jpg
