@@ -1,13 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/services/httpService.dart';
 import 'package:invasive_fe/widgets/reportPage.dart';
-import 'package:line_icons/line_icon.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 Map<int, Species> species = {};
@@ -172,57 +168,57 @@ class _UserPageState extends State<UserPage> {
                   if (snapshot.connectionState == ConnectionState.done) {
                     return Container(
                         child: SmartRefresher(
-                          enablePullDown: true,
-                          controller: _refreshController,
-                          onRefresh: _onRefresh,
-                          onLoading: _onLoading,
-                          child: new ListView.builder(
-                              itemCount: organisedReports.keys.length,
-                              itemBuilder: (BuildContext ctxt, int index) {
-                                return Card(
-                                    elevation: 0,
-                                    shape: new RoundedRectangleBorder(
-                                        side: new BorderSide(color: Colors.black, width: 2.0),
-                                        borderRadius: BorderRadius.circular(4.0)),
-                                    child: Column(
-                                      children: [
-                                        Row(children: [
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Image.asset(
-                                              "assets/weeds/lantana.jpg",
-                                              height: 75,
-                                            ),
-                                          ),
-                                          Text(
-                                            organisedReports.keys.elementAt(index),
-                                            style:
-                                                TextStyle(fontSize: 18, color: Colors.black, fontStyle: FontStyle.italic),
-                                            textAlign: TextAlign.start,
-                                          ),
-                                          Spacer(),
-                                          Padding(
-                                            padding: const EdgeInsets.all(20.0),
-                                            child: Text(
-                                              organisedReports[organisedReports.keys.elementAt(index)]!.length.toString(),
-                                              style: TextStyle(fontSize: 20, color: Colors.black, fontFamily: "mono"),
-                                              textAlign: TextAlign.start,
-                                            ),
-                                          )
-                                        ]),
-                                        Column(
-                                          children: organisedReports[organisedReports.keys.elementAt(index)]!
-                                              .map<Widget>((item) {
-                                            return Padding(
-                                              padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
-                                              child: ReportCard(item),
-                                            );
-                                          }).toList(),
+                      enablePullDown: true,
+                      controller: _refreshController,
+                      onRefresh: _onRefresh,
+                      onLoading: _onLoading,
+                      child: new ListView.builder(
+                          itemCount: organisedReports.keys.length,
+                          itemBuilder: (BuildContext ctxt, int index) {
+                            return Card(
+                                elevation: 0,
+                                shape: new RoundedRectangleBorder(
+                                    // side: new BorderSide(color: Colors.black, width: 2.0),
+                                    borderRadius: BorderRadius.circular(4.0)),
+                                child: Column(
+                                  children: [
+                                    Row(children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Image.asset(
+                                          "assets/weeds/lantana.jpg",
+                                          height: 75,
                                         ),
-                                      ],
-                                    ));
-                              }),
-                        ));
+                                      ),
+                                      Text(
+                                        organisedReports.keys.elementAt(index),
+                                        style:
+                                            TextStyle(fontSize: 18, color: Colors.black, fontStyle: FontStyle.italic),
+                                        textAlign: TextAlign.start,
+                                      ),
+                                      Spacer(),
+                                      Padding(
+                                        padding: const EdgeInsets.all(20.0),
+                                        child: Text(
+                                          organisedReports[organisedReports.keys.elementAt(index)]!.length.toString(),
+                                          style: TextStyle(fontSize: 20, color: Colors.black, fontFamily: "mono"),
+                                          textAlign: TextAlign.start,
+                                        ),
+                                      )
+                                    ]),
+                                    Column(
+                                      children:
+                                          organisedReports[organisedReports.keys.elementAt(index)]!.map<Widget>((item) {
+                                        return Padding(
+                                          padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
+                                          child: ReportCard(item),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ],
+                                ));
+                          }),
+                    ));
                   } else {
                     return Align(alignment: Alignment.center, child: CircularProgressIndicator());
                   }
@@ -259,7 +255,7 @@ class _ReportCardState extends State<ReportCard> {
         );
       },
       child: new Container(
-          height: 150,
+          height: 120,
           child: Card(
             elevation: 5,
             child: Padding(
@@ -269,13 +265,20 @@ class _ReportCardState extends State<ReportCard> {
                   Expanded(
                     child: Container(
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(widget.report.name),
-                          Text(widget.report.status),
-                          Text(widget.report.notes),
-                          // Text(report.id.toString()),
-                          // Text(report.notes),
-                          // Text(report.photoLocations.toString()),
+                          Text(
+                            "${widget.report.id.timestamp.day}/${widget.report.id.timestamp.month}/${widget.report.id.timestamp.year}",
+                            style: TextStyle(fontSize: 20),
+                            textAlign: TextAlign.center,
+                          ),
+                          Text(
+                            "${widget.report.id.timestamp.hour}:${widget.report.id.timestamp.minute.toString().padLeft(2, '0')}",
+                            style: TextStyle(fontSize: 18),
+                            textAlign: TextAlign.center,
+                          ),
+                          Status(status: widget.report.status)
                         ],
                       ),
                     ),
@@ -283,7 +286,7 @@ class _ReportCardState extends State<ReportCard> {
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: ConstrainedBox(
-                        constraints: BoxConstraints(minWidth: 50, maxWidth: 100),
+                        constraints: BoxConstraints(minWidth: 100, maxWidth: 100),
                         child: ClipRRect(child: renderImage(), borderRadius: BorderRadius.all(Radius.circular(10.0)))),
                   ),
                   Icon(Icons.arrow_forward_ios_rounded),
@@ -300,6 +303,57 @@ class _ReportCardState extends State<ReportCard> {
     } else {
       return Image.asset("assets/badges/none.jpg");
     }
+  }
+}
+
+class Status extends StatelessWidget {
+  const Status({
+    Key? key,
+    required this.status,
+  }) : super(key: key);
+
+  final String status;
+
+  @override
+  Widget build(BuildContext context) {
+    Color color;
+    switch (status) {
+      case "closed":
+        color = Colors.redAccent;
+        break;
+      case "open":
+        color = Colors.green;
+        break;
+      default:
+        color = Colors.green;
+    }
+    return Center(
+      child: Container(
+        child: Card(
+          elevation: 0,
+          shape: new RoundedRectangleBorder(
+              side: new BorderSide(color: color, width: 2.0), borderRadius: BorderRadius.circular(4.0)),
+          child: Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon(
+                //   Icons.circle,
+                //   color: color,
+                //   size: 15,
+                // ),
+                Text(
+                  status.toUpperCase(),
+                  style: TextStyle(fontSize: 15, color: color),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

@@ -254,7 +254,6 @@ class _MapsPageState extends State<MapsPage> {
         communityPolygonFuture.then((landcares) => setState(() {
               this.landcarePolygons = [];
               landcares.forEach((landcare) {
-                print("landcare = " + landcare.toString());
                 var polygon;
                 if (landcare.boundary.toGeoJsonMultiPolygon().polygons.length >
                     0) {
@@ -305,8 +304,6 @@ class _MapsPageState extends State<MapsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // List<ReportMarker> reportMarkers = _debugReportMarkers();
-    List<CommunityMarker> communityMarkers = _debugCommunityMarkers();
 
     BorderRadiusGeometry radius = BorderRadius.only(
       topLeft: Radius.circular(24.0),
@@ -362,7 +359,6 @@ class _MapsPageState extends State<MapsPage> {
                                           geoPoint.longitude));
                                     });
                                   }
-                                  // print(pts);
 
                                   Geodesy geodesy = Geodesy();
                                   if (geodesy.isGeoPointInPolygon(
@@ -415,10 +411,7 @@ class _MapsPageState extends State<MapsPage> {
                             _communityPolygonLayer(),
                             _reportPolygonLayer(),
                             _userLocationMarker(),
-                            if (communityView)
-                              _communityMarkers(communityMarkers)
-                            else
-                              _reportMarkers(reportMarkers)
+                            _reportMarkers(reportMarkers)
                           ])));
             } else {
               // the futures have not yet completed; display a loading page
@@ -492,10 +485,9 @@ class _MapsPageState extends State<MapsPage> {
           popupAnimation:
               PopupAnimation.fade(duration: Duration(milliseconds: 100)),
           popupBuilder: (_, Marker marker) {
-            if (marker is CommunityMarker)
-              return CommunityMarkerPopup(location: marker.location);
-            else
-              return ReportMarkerPopup(report: (marker as ReportMarker).report);
+            if (marker is ReportMarker)
+              return ReportMarkerPopup(report: marker.report);
+            else return Text("Error: Not a weed");
           }),
       // widget to represent marker clusters
       builder: (context, markers) {
@@ -534,81 +526,6 @@ class _MapsPageState extends State<MapsPage> {
     if (reportsMode) return PolygonLayerOptions(polygons: reportPolygons);
 
     return PolygonLayerOptions(polygons: []);
-  }
-
-  MarkerClusterLayerOptions _communityMarkers(
-      List<CommunityMarker> communityMarkers) {
-    return MarkerClusterLayerOptions(
-      // max distance between two markers without clustering
-      maxClusterRadius: 50,
-      // cluster icon size
-      size: Size(40, 40),
-      // cluster icons are centred on the location
-      anchor: AnchorPos.align(AnchorAlign.center),
-      fitBoundsOptions: FitBoundsOptions(
-        padding: EdgeInsets.all(50),
-      ),
-      markers: communityMarkers,
-      // pop-up options are pretty self-explanatory
-      popupOptions: PopupOptions(
-          popupSnap: PopupSnap.markerTop,
-          popupController: widget._popupLayerController,
-          popupAnimation:
-              PopupAnimation.fade(duration: Duration(milliseconds: 100)),
-          popupBuilder: (_, Marker marker) {
-            if (marker is CommunityMarker)
-              return CommunityMarkerPopup(location: marker.location);
-            else
-              return ReportMarkerPopup(report: (marker as ReportMarker).report);
-          }),
-      // widget to represent marker clusters
-      builder: (context, markers) {
-        return FloatingActionButton(
-          onPressed: null,
-          // handled by the MarkerClusterLayer
-          // display the number of markers clustered in the icon
-          child: Text(markers.length.toString()),
-        );
-      },
-    );
-  }
-
-  ToggleButtons _toggleButtons() {
-    return ToggleButtons(
-      borderWidth: 2,
-      borderRadius: BorderRadius.all(Radius.circular(10)),
-      // each child represents a separate button
-      children: <Widget>[
-        Container(
-            color: Colors.white,
-            child: Padding(
-                // add some space between the edge of the button and the inner text
-                padding: EdgeInsets.all(16),
-                child: Text("Weed Reports"))),
-        Container(
-            color: Colors.white,
-            child:
-                Padding(padding: EdgeInsets.all(16), child: Text("Community")))
-      ],
-      // on click, ToggleButtons calls this function with the index of the clicked button
-      onPressed: (int index) {
-        // setState() rebuilds the map with the updated view mode
-        setState(() {
-          // if changing tabs, hide all popups
-          if (communityView != (index == 1))
-            widget._popupLayerController.hidePopup();
-          // the community view button is the second button. this variable determines the map UI
-          communityView = index == 1;
-          // change the UI of the buttons to highlight which button was clicked
-          for (int i = 0; i < isSelected.length; i++) {
-            isSelected[i] = false;
-          }
-          isSelected[index] = true;
-        });
-      },
-      // [true, false] or [false, true] depending on the selected button
-      isSelected: isSelected,
-    );
   }
 
   StatefulBuilder _layerDropDownPadding() {
@@ -741,31 +658,6 @@ class _MapsPageState extends State<MapsPage> {
                       )))));
     });
   }
-
-  List<ReportMarker> _debugReportMarkers() {
-    return [
-      ReportMarker(Report(
-          id: ObjectId(),
-          status: "status",
-          notes: "notes",
-          polygon: GeoJsonMultiPolygon(),
-          photoLocations: [
-            PhotoLocation(
-                id: ObjectId(),
-                photo: new File("assets/placeholder.png"),
-                location: GeoJsonPoint(
-                    geoPoint:
-                        new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
-                image_filename: 'assets/placeholder.png')
-          ],
-          name: "test",
-          species_id: 41))
-    ];
-  }
-
-  List<CommunityMarker> _debugCommunityMarkers() {
-    return [CommunityMarker(LatLng(-27.4475, 153.0137))];
-  }
 }
 
 /// a type of Marker which additionally stores information about a report
@@ -812,20 +704,6 @@ class ReportMarker extends Marker {
 
     return LatLng(latSum / n, longSum / n);
   }
-}
-
-class CommunityMarker extends Marker {
-  final LatLng location;
-  static final double markerSize = 30;
-
-  CommunityMarker(this.location)
-      : super(
-            anchorPos: AnchorPos.align(AnchorAlign.center),
-            point: location,
-            height: markerSize,
-            width: markerSize,
-            builder: (BuildContext ctx) =>
-                Icon(Icons.people, size: markerSize));
 }
 
 class UserLocationMarker extends Marker {
@@ -918,7 +796,7 @@ class ReportMarkerPopup extends StatelessWidget {
                     Text(thisSpecies.council_declaration,
                         style: GoogleFonts.openSans(fontSize: 12)),
                     Padding(padding: EdgeInsets.only(top: 5)),
-                    SeverityBar(1)
+                    SeverityBar(thisSpecies.severity)
                   ]),
             ),
             Padding(padding: EdgeInsets.only(left: 10)),
@@ -926,26 +804,6 @@ class ReportMarkerPopup extends StatelessWidget {
             Padding(padding: EdgeInsets.only(left: 10)),
           ])),
     );
-  }
-}
-
-class CommunityMarkerPopup extends StatelessWidget {
-  const CommunityMarkerPopup({Key? key, required this.location})
-      : super(key: key);
-  final LatLng location;
-
-  // final Community community;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        width: 200,
-        child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15), // sexy curves
-            ),
-            child: Text(
-                "Community thing at ${location.latitude}, ${location.longitude}")));
   }
 }
 

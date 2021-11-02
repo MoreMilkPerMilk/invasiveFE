@@ -1,31 +1,25 @@
-import 'dart:developer';
 import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:camera/camera.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geojson/geojson.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geopoint/geopoint.dart';
-import 'package:image/image.dart' as img;
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/models/User.dart';
-import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
-import 'package:invasive_fe/widgets/maps.dart';
+import 'package:invasive_fe/widgets/reportAdjustmentPage.dart';
+import 'package:invasive_fe/widgets/reportPage.dart';
 import 'package:objectid/objectid.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class Panel extends StatefulWidget {
-  String foundSpecies;
-  PanelController _pc;
-  File photo;
-  bool negative;
+  final String foundSpecies;
+  final PanelController _pc;
+  final File photo;
+  final bool negative;
 
   Panel(this.foundSpecies, this.photo, this._pc, this.negative);
 
@@ -38,14 +32,18 @@ class Panel extends StatefulWidget {
 class _PanelState extends State<Panel> {
 
   bool _reportButtonDisabled = false;
+  // bool isAndroid = false
+
+  @override
+  void initState() {
+    // photoWidth = Image.file(widget.photo).width!;
+    // photoLength = Image.file(widget.photo).width!;
+
+  }
 
   @override
   Widget build(BuildContext context) {
-    // XFile testPhoto = XFile(widget.photoPath);
-    // photo.readAsBytes().then((value){
-    //   imgBytes = value;
-    // });
-    // Image img = Image.memory(imgBytes);
+
     if (widget.negative) {
       return Center(
           child: Padding(
@@ -93,7 +91,7 @@ class _PanelState extends State<Panel> {
                               ),
                               onPressed: () {
                                 // Respond to button press
-                                // widget._pc.close();
+                                widget._pc.close();
                               },
                               icon: Icon(Icons.arrow_forward_rounded, size: 18),
                               label: Text("CONTINUE"),
@@ -106,7 +104,7 @@ class _PanelState extends State<Panel> {
     }
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(30.0),
+        padding: const EdgeInsets.only(top: 30, bottom: 30, left: 15, right: 15),
         child: Column(
           children: [
             Text.rich(
@@ -127,12 +125,19 @@ class _PanelState extends State<Panel> {
                   width: 200,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10.0),
-                    child: FittedBox(
-                      fit: BoxFit.fitWidth,
-                      child: Image.file(
+                    child: Platform.isIOS ? Image.file(
                         widget.photo,
+                      ) : RotatedBox(
+                        quarterTurns: 5,
+                        child: ClipPath(
+                          child: Image(
+                            image: FileImage(widget.photo),
+                            fit: BoxFit.contain,
+                            // height: 200,
+                          )
+                        )
                       ),
-                    ),
+                    // )
                   ),
                 ),
               ),
@@ -148,6 +153,27 @@ class _PanelState extends State<Panel> {
                             child: OutlinedButton.icon(
                               onPressed: () {
                                 // Respond to button press
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => ReportAdjustmentPage(
+                                    report: Report(
+                                      id: ObjectId(),
+                                      status: "status",
+                                      notes: "notes",
+                                      polygon: GeoJsonMultiPolygon(),
+                                      photoLocations: [
+                                        PhotoLocation(
+                                          id: ObjectId(),
+                                          photo: new File("assets/placeholder.png"),
+                                          location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
+                                          image_filename: 'placeholder.png'
+                                        )
+                                      ],
+                                      name: "test",
+                                      species_id: 41
+                                    )
+                                  ))
+                                );
                               },
                               icon: Icon(Icons.my_library_add_rounded, size: 18),
                               label: Text("ADD DETAILS"),
@@ -159,6 +185,28 @@ class _PanelState extends State<Panel> {
                             child: OutlinedButton.icon(
                               onPressed: () {
                                 // Respond to button press
+                                PhotoLocation photoLocation = new PhotoLocation(
+                                  id: ObjectId(),
+                                  photo: widget.photo,
+                                  location: GeoJsonPoint(geoPoint: new GeoPoint(latitude: -27.4975, longitude: 153.0137)),
+                                  image_filename: 'placeholder.png',
+                                );
+                                Report report = new Report(
+                                    id: ObjectId(),
+                                    species_id: 41,
+                                    name: "",
+                                    status: 'open',
+                                    photoLocations: [photoLocation],
+                                    notes: '',
+                                    polygon: new GeoJsonMultiPolygon()
+                                );
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => ReportPage(
+                                      report: report,
+                                      showPhotos: false,
+                                    ))
+                                );
                               },
                               icon: Icon(Icons.info_outline, size: 18),
                               label: Text("MORE INFO"),
@@ -195,8 +243,8 @@ class _PanelState extends State<Panel> {
                                 report(widget.foundSpecies, widget.photo);
                                 widget._pc.close();
                               },
-                              icon: Icon(Icons.done, size: 18),
-                              label: Text("DONE"),
+                              icon: Icon(Icons.send, size: 18),
+                              label: Text("REPORT"),
                             )),
                       ),
                     ],

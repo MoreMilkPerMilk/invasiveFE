@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:invasive_fe/widgets/cameraHome.dart';
-import 'package:invasive_fe/widgets/httpTestPage.dart';
 import 'package:invasive_fe/widgets/maps.dart';
 import 'package:invasive_fe/widgets/userPage.dart';
 import 'package:line_icons/line_icons.dart';

@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
 import 'package:invasive_fe/services/httpService.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 
 final TextStyle headingStyle = GoogleFonts.openSans(
     fontSize: 13,
@@ -24,7 +23,6 @@ class ReportAdjustmentPage extends StatelessWidget {
   Species? species;
   late Future<List<Species>> speciesFuture;
 
-
   ReportAdjustmentPage({required this.report}) : super() {
     speciesFuture = getAllSpecies();
     speciesFuture.then((List<Species> speciesList) {
@@ -43,7 +41,16 @@ class ReportAdjustmentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+            title: Text("Edit Report Details", style: TextStyle(color: Colors.black)),
+            backgroundColor: Colors.white,
+            shadowColor: Colors.white,
+            iconTheme: IconThemeData(
+                color: Colors.black,
+                opacity: 1,
+                size: 40
+            )
+        ),
         body: FutureBuilder(
             future:
             speciesFuture, // only build once we have retrieved species data
@@ -89,10 +96,6 @@ class _ReportUpdateFormState extends State<ReportUpdateForm> {
         authoritiesContactCheckbox(),
         Text("Additional comments:", style: bodyStyle),
         additionalCommentsField(),
-        Text("Current photos:"),
-        photosTakenSlider(),
-        takeMorePhotosButton(),
-        Spacer(),
         submitButton()
       ],
     );
@@ -155,61 +158,15 @@ class _ReportUpdateFormState extends State<ReportUpdateForm> {
     );
   }
 
-  CarouselSlider photosTakenSlider() {
-    return CarouselSlider(
-      options: CarouselOptions(
-          height: 400.0,
-          enableInfiniteScroll: false,
-          viewportFraction: 0.85
-      ),
-      items: List.from((widget.report.photoLocations.map((i) => i.image_filename).toList())..addAll(additionalPhotos)).map((i) => Image.asset(i)).toList(),
-    );
-  }
-
-  Align takeMorePhotosButton() {
-    return Align(
-        alignment: Alignment.center,
-        child: ElevatedButton(
-          onPressed: () {},
-          child: Text("Add More Photos"),
-        )
-    );
-  }
-
   Align submitButton() {
     return Align(
         alignment: Alignment.center,
         child: ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context);
+          },
           child: Text("Submit"),
         )
-    );
-  }
-}
-
-
-class WeedsAroundSlider extends StatefulWidget {
-
-  @override
-  State<StatefulWidget> createState() => _WeedsAroundSliderState();
-}
-
-class _WeedsAroundSliderState extends State {
-
-  double value = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Slider(
-      min: 0,
-      max: 1,
-      divisions: 4,
-      value: value,
-      onChanged: (double value) {
-        setState(() {
-          this.value = value;
-        });
-      },
     );
   }
 }
