@@ -125,18 +125,9 @@ class _PanelState extends State<Panel> {
                   width: 200,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10.0),
-                    child: Platform.isIOS ? Image.file(
-                        widget.photo,
-                      ) : RotatedBox(
-                        quarterTurns: 5,
-                        child: ClipPath(
-                          child: Image(
-                            image: FileImage(widget.photo),
-                            fit: BoxFit.contain,
-                            // height: 200,
-                          )
-                        )
-                      ),
+                    child: Image.file(
+                      widget.photo,
+                    ),
                     // )
                   ),
                 ),
