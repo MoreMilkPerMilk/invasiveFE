@@ -105,17 +105,13 @@ class _CameraHomePageState extends State<CameraHomePage> {
         body: FutureBuilder(
             future: loaded,
             builder: (context, snapshot) {
-              // if (snapshot.connectionState == ConnectionState.done) {
               return Container(
                 color: Color.fromRGBO(76, 174, 80, 1),
                 child: SlidingUpPanel(
                   backdropEnabled: true,
                   controller: _pc,
                   minHeight: 0,
-                  // maxHeight: foundSpecies != "Negatives" ? 500 : 300,
                   maxHeight: !goodDetection ? 300 : 500,
-                  // panel: Panel(foundSpecies, photo, _pc, foundSpecies
-                  // == "Negatives"),
                   panel: Panel(foundSpecies, photo, _pc, !goodDetection),
                   body: (snapshot.connectionState == ConnectionState.done)
                       ? SafeArea(

@@ -10,7 +10,7 @@ south african pigeon grass
 lantana
 chinee apple
 urena burr
-mother-in-law&#039;s tongue
+mother-in-law's tongue
 whisky grass
 eve’s pin cactus
 ground asparagus fern
@@ -33,7 +33,7 @@ white oak
 small leaved privet
 khaki weed
 broad-leaved privet
- indian blue grass
+indian blue grass
 tobacco weed
 chinese foldwing
 ruellia
@@ -80,7 +80,7 @@ burr medic
 cape spinach
 golden rain tree
 cape water lily
-cobbler&#039;s pegs
+cobbler's pegs
 cudweed
 bougainvillea
 african fountain grass
@@ -159,7 +159,7 @@ century plant
 common vetch
 shoebutton ardisia
 purpletop rhodes grass
-monkey&#039;s comb
+monkey's comb
 jerusalem thorn
 pampas grass
 ming asparagus
@@ -325,7 +325,7 @@ noogoora burr
 golden chain tree
 pennywort
 canna lily
-giant devil&#039;s fig
+giant devil's fig
 resurrection plant
 mile-a-minute
 red cestrum
