@@ -31,11 +31,12 @@ class _UserPageState extends State<UserPage> {
     newReports.forEach((report) {
       var speciesName = species[report.species_id]!.name;
       if (organisedReports.containsKey(speciesName)) {
-        organisedReports[speciesName]!.add(report);
+        organisedReports[speciesName]!.insert(0, report);
       } else {
         organisedReports[speciesName] = [report];
       }
     });
+
     // if failed,use refreshFailed()
     _refreshController.refreshCompleted();
   }
@@ -74,11 +75,18 @@ class _UserPageState extends State<UserPage> {
       reports.forEach((report) {
         var speciesName = species[report.species_id]!.name;
         if (organisedReports.containsKey(speciesName)) {
-          organisedReports[speciesName]!.add(report);
+          organisedReports[speciesName]!.insert(0, report);
         } else {
           organisedReports[speciesName] = [report];
         }
       });
+
+      // sort reports in descending order
+      // for (var speciesName in organisedReports.keys) {
+      //   List<Report>? speciesList = organisedReports[speciesName];
+      //   speciesList == null ? [] : speciesList;
+      //   speciesList!.sort((a, b) => b.id.timestamp.compareTo(a.id.timestamp));
+      // }
       return value;
     });
     // loaded = Future.wait([reportsFuture, speciesFuture]);
