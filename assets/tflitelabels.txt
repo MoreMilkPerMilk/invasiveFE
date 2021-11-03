@@ -151,9 +151,9 @@ parramatta grass
 glory lily
 corky passion vine
 white morning glory
- night jessamine
+night jessamine
 japanese knotweed
-parrot&#039;s feather
+parrot's feather
 tall fleabane
 century plant
 common vetch
@@ -171,8 +171,8 @@ mikania
 glush weed
 blue thunbergia
 east indian hygrophila
- wild aster
-giant rat&#039;s tail grass
+wild aster
+giant rat's tail grass
 kochia
 coffee
 praxelis
@@ -212,7 +212,7 @@ creeping burrhead
 mock orange
 scotch broom
 annual ragweed
-dutchman&#039;s pipe
+dutchman's pipe
 silver-leaf nightshade
 hybrid mother-of-millions
 flax-leaf broom
@@ -228,7 +228,7 @@ northern olive
 deadly nightshade
 boneseed
 stinking roger
-cat&#039;s claw creeper
+cat's claw creeper
 green cestrum
 oleander
 harungana
@@ -260,7 +260,7 @@ duranta
 pink periwinkle
 arsenic bush
 dark blue snakeweed
-american rat&#039;s tail grass
+american rat's tail grass
 siam weed
 taro
 tiger pear
@@ -292,7 +292,7 @@ red caustic weed
 coral creeper
 broadleaved pepper
 striped inch plant
-devil&#039;s fig
+devil's fig
 lagarosiphon
 hudson pear
 yellow ginger
@@ -318,7 +318,7 @@ billygoat weed
 cotoneaster
 para grass
 blackberry
-crab&#039;s eye creeper
+crab's eye creeper
 sicklebush
 amazon frogbit
 noogoora burr
