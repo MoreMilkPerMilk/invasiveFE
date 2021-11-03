@@ -16,6 +16,8 @@ import '../services/camera.dart';
 import 'bndbox.dart';
 import '../services/models.dart';
 
+double THRESHOLD = 0.4;
+
 enum Status {
   negativeNormal, // negative recognition
   negativeThreshold, // negative recognition X seconds in a row
@@ -49,6 +51,7 @@ class _CameraHomePageState extends State<CameraHomePage> {
   PanelController _pc = new PanelController();
   Status status = Status.negativeNormal;
   File photo = File("");
+  bool goodDetection = false;
 
   List<CameraDescription>? cameras;
   late Future loaded;
@@ -79,7 +82,12 @@ class _CameraHomePageState extends State<CameraHomePage> {
       img.Image imageInput = img.decodeImage(File(path).readAsBytesSync())!;
       var pred = deepWeedsClassifier.predict(imageInput);
       label = pred.label + " " + pred.score.toString();
-      foundSpecies = pred.label;
+
+      goodDetection = false;
+      if (pred.score > THRESHOLD) {
+        foundSpecies = pred.label;
+        goodDetection = true;
+      }
       print("PREDICTION-----S");
       print(pred);
       print("PREDICTION-----E");
@@ -105,10 +113,10 @@ class _CameraHomePageState extends State<CameraHomePage> {
                 controller: _pc,
                 minHeight: 0,
                 // maxHeight: foundSpecies != "Negatives" ? 500 : 300,
-                maxHeight: 500,
+                maxHeight: !goodDetection ? 300 : 500,
                 // panel: Panel(foundSpecies, photo, _pc, foundSpecies
                 // == "Negatives"),
-                panel: Panel(foundSpecies, photo, _pc, false),
+                panel: Panel(foundSpecies, photo, _pc, !goodDetection),
                 body: SafeArea(
                   minimum: const EdgeInsets.only(top: 30),
                   child: Column(
