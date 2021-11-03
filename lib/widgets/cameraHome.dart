@@ -7,7 +7,6 @@ import 'package:invasive_fe/services/classifier_float.dart';
 import 'package:invasive_fe/services/classifier_scraped.dart';
 import 'package:invasive_fe/widgets/panel.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:tflite/tflite.dart';
 import 'dart:math' as math;
 import 'dart:io';
 import 'package:image/image.dart' as img;

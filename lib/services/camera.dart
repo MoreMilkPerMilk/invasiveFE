@@ -20,7 +20,7 @@ import 'package:invasive_fe/widgets/panel.dart';
 import 'package:objectid/objectid.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:tflite/tflite.dart';
+// import 'package:tflite/tflite.dart';
 import 'package:tuple/tuple.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
@@ -228,25 +228,25 @@ class _CameraState extends State<Camera> {
   }
 
   void runYoloOnFrame(CameraImage img, int startTime) {
-    Tflite.detectObjectOnFrame(
-      bytesList: img.planes.map((plane) {
-        return plane.bytes;
-      }).toList(),
-      model: widget.model == yolo ? "YOLO" : "SSDMobileNet",
-      imageHeight: img.height,
-      imageWidth: img.width,
-      imageMean: widget.model == yolo ? 0 : 127.5,
-      imageStd: widget.model == yolo ? 255.0 : 127.5,
-      numResultsPerClass: 1,
-      threshold: widget.model == yolo ? 0.2 : 0.4,
-    ).then((recognitions) {
-      int endTime = new DateTime.now().millisecondsSinceEpoch;
-      print("Detection took ${endTime - startTime}");
-
-      widget.setRecognitions(recognitions, img.height, img.width);
-
-      isDetecting = false;
-    });
+    // Tflite.detectObjectOnFrame(
+    //   bytesList: img.planes.map((plane) {
+    //     return plane.bytes;
+    //   }).toList(),
+    //   model: widget.model == yolo ? "YOLO" : "SSDMobileNet",
+    //   imageHeight: img.height,
+    //   imageWidth: img.width,
+    //   imageMean: widget.model == yolo ? 0 : 127.5,
+    //   imageStd: widget.model == yolo ? 255.0 : 127.5,
+    //   numResultsPerClass: 1,
+    //   threshold: widget.model == yolo ? 0.2 : 0.4,
+    // ).then((recognitions) {
+    //   int endTime = new DateTime.now().millisecondsSinceEpoch;
+    //   print("Detection took ${endTime - startTime}");
+    //
+    //   widget.setRecognitions(recognitions, img.height, img.width);
+    //
+    //   isDetecting = false;
+    // });
   }
 
   Status thresholdDetection(List<dynamic> recognitions,
