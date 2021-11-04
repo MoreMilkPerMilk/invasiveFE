@@ -7,7 +7,6 @@ import 'package:geopoint/geopoint.dart';
 import 'package:invasive_fe/models/PhotoLocation.dart';
 import 'package:invasive_fe/models/Report.dart';
 import 'package:invasive_fe/models/Species.dart';
-import 'package:invasive_fe/models/User.dart';
 import 'package:invasive_fe/services/gpsService.dart';
 import 'package:invasive_fe/services/httpService.dart';
 import 'package:invasive_fe/widgets/reportAdjustmentPage.dart';
@@ -31,7 +30,7 @@ class Panel extends StatefulWidget {
 
 class _PanelState extends State<Panel> {
 
-  bool _reportButtonDisabled = false;
+  // bool _reportButtonDisabled = false;
   // bool isAndroid = false
 
   @override
@@ -302,6 +301,6 @@ Future<void> sendReportToBackend(PhotoLocationData data) async {
       fontSize: 16.0
   );
   // need to add report to user here too!
-  User user = await getCurrentUser();
-  await addReportToUser(report, user);
+  // User user = await getCurrentUser();
+  // await addReportToUser(report, user);
 }
