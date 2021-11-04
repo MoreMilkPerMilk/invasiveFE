@@ -265,7 +265,7 @@ class _CameraHomePageState extends State<CameraHomePage> {
                           ))
                       : Align(
                           alignment: Alignment.center,
-                          child: CircularProgressIndicator()),
+                          child: CircularProgressIndicator(color: Colors.white,)),
                   borderRadius: radius,
                 ),
               );
