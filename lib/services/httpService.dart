@@ -27,6 +27,7 @@ import 'package:invasive_fe/models/WeedInstance.dart';
 import 'package:objectid/objectid.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:get_mac/get_mac.dart';
+import 'package:string_similarity/string_similarity.dart';
 
 const API_URL = 'http://35.244.125.224';
 
@@ -312,8 +313,23 @@ Future<Species> getSpeciesByName(String speciesName) async {
       Uri.parse(API_URL + "/species/search/species_name=$speciesName"));
 
   if (response.statusCode == 200) {
-    var decodedJson = jsonDecode(response.body);
-    return Species.fromJson(decodedJson[0]);
+    // Map<String, dynamic> decodedJson = jsonDecode(response.body);
+
+    List<Species> speciesList = Species.parseSpeciesList(response.body);
+
+    int i = 0;
+    double best = 0;
+    int j = 0;
+    speciesList.forEach((element) {
+      double sim = element.name.similarityTo(speciesName);
+      if (sim > best) {
+        best = sim;
+        i = j;
+      }
+      j++;
+    });
+
+    return speciesList[i];
   }
 
   throw "HTTP Error Code: ${response.statusCode} http response = ${response.body}";
