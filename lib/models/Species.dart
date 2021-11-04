@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:html_unescape/html_unescape.dart';
 import 'package:string_extensions/string_extensions.dart';
 
 class Species {
@@ -50,6 +51,12 @@ class Species {
 
   factory Species.fromJson(Map<String, dynamic> json) {
     String name = json['name']!;
+
+    if (json['info'] == null)
+      json['info'] = "";
+
+    var unescape = HtmlUnescape();
+    name = unescape.convert(name);
     try {
       // sometimes this conversion throws an error, but most of the time it works
       name = name.toTitleCase()!;
@@ -57,10 +64,10 @@ class Species {
     return Species(
         species_id: json['species_id'],
         name: name,
-        species: json['species'],
-        growth_form: json['growth_form'],
-        info: json['info'],
-        family: json['family'],
+        species: unescape.convert(json['species']),
+        growth_form: unescape.convert(json['growth_form']),
+        info: unescape.convert(json['info']),
+        family: unescape.convert(json['family']),
         native: json['native'],
         flower_colour: [...json['flower_colour']],
         flowering_time: (json['flowering_time'].runtimeType.toString() == "List<String>") ? ([...json['flowering_time']]) : ([json['flowering_time']].cast<String>()),
@@ -70,7 +77,7 @@ class Species {
         replacement_species: (json['replacement_species'].runtimeType.toString() == "List<String>") ? ([...json['replacement_species']]) : ([json['replacement_species']].cast<String>()),
         state_declaration: (json['state_declaration'].runtimeType.toString() == "List<String>") ? ([...json['state_declaration']]) : ([json['state_declaration']].cast<String>()),
         notifiable: json['notifiable'],
-        council_declaration: json['council_declaration'],
+        council_declaration: unescape.convert(json['council_declaration']),
     );
   }
 
