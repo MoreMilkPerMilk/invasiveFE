@@ -26,7 +26,9 @@ dependencies:
   camera: ^0.8.1+7
   path: ^1.6.0
   path_provider: ^2.0.0
-  tflite: ^1.1.2
+#  tflite: ^1.1.2
+  tflite_flutter:
+  tflite_flutter_helper:
   http: 0.13.3  # allows for REST api queries
   json_annotation: ^4.0.0  # easy conversion between JSON <--> Class
   geojson: ^1.0.0
@@ -52,6 +54,9 @@ dependencies:
   badges: ^2.0.1
   tuple: ^2.0.0
   get_mac:
+  logger:
+  image_picker:
+  string_similarity:
 
   plugin_platform_interface: ^2.0.0
   indent: ^2.0.0
@@ -104,9 +109,12 @@ flutter:
 
   assets:
     - assets/resnet.tflite
+    - assets/model.tflite
     - assets/labels.txt
+    - assets/tflitelabels.txt
     - assets/frame.png
     - assets/placeholder.png
+    - assets/capture_example.gif
     - assets/badges/lowsev_1.jpg
     - assets/badges/lowsev_2.jpg
     - assets/badges/lowsev_3.jpg
@@ -119,14 +127,7 @@ flutter:
     - assets/badges/none.jpg
     - assets/badges/medal.jpg
     - assets/badges/location_1.jpg
-    - assets/weeds/lantana.jpg
-    - assets/weeds/snakeweed.jpg
-    - assets/weeds/rubbervine.jpg
-    - assets/weeds/parthenium.jpg
-    - assets/weeds/parkinsonia.jpg
-    - assets/weeds/chineeapple.jpg
-    - assets/weeds/siamweed.jpg
-    - assets/weeds/pricklyacacia.jpg
+    - assets/weeds/
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

@@ -43,16 +43,18 @@ PODS:
     - Flutter
   - get_mac (0.0.1):
     - Flutter
+  - image_picker (0.0.1):
+    - Flutter
   - path_provider (0.0.1):
     - Flutter
   - SDWebImage (5.12.0):
     - SDWebImage/Core (= 5.12.0)
   - SDWebImage/Core (5.12.0)
   - SwiftyGif (5.4.0)
-  - TensorFlowLiteC (2.2.0)
-  - tflite (1.1.2):
+  - tflite_flutter (0.1.0):
     - Flutter
-    - TensorFlowLiteC
+  - tflite_flutter_helper (0.0.1):
+    - Flutter
   - Toast (4.0.0)
 
 DEPENDENCIES:
@@ -62,8 +64,10 @@ DEPENDENCIES:
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
   - get_mac (from `.symlinks/plugins/get_mac/ios`)
+  - image_picker (from `.symlinks/plugins/image_picker/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
-  - tflite (from `.symlinks/plugins/tflite/ios`)
+  - tflite_flutter (from `.symlinks/plugins/tflite_flutter/ios`)
+  - tflite_flutter_helper (from `.symlinks/plugins/tflite_flutter_helper/ios`)
 
 SPEC REPOS:
   trunk:
@@ -71,7 +75,6 @@ SPEC REPOS:
     - DKPhotoGallery
     - SDWebImage
     - SwiftyGif
-    - TensorFlowLiteC
     - Toast
 
 EXTERNAL SOURCES:
@@ -87,10 +90,14 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/geolocator_apple/ios"
   get_mac:
     :path: ".symlinks/plugins/get_mac/ios"
+  image_picker:
+    :path: ".symlinks/plugins/image_picker/ios"
   path_provider:
     :path: ".symlinks/plugins/path_provider/ios"
-  tflite:
-    :path: ".symlinks/plugins/tflite/ios"
+  tflite_flutter:
+    :path: ".symlinks/plugins/tflite_flutter/ios"
+  tflite_flutter_helper:
+    :path: ".symlinks/plugins/tflite_flutter_helper/ios"
 
 SPEC CHECKSUMS:
   camera: 3164201dc344383e62282964016528c4f5a9ad50
@@ -101,11 +108,12 @@ SPEC CHECKSUMS:
   fluttertoast: 6122fa75143e992b1d3470f61000f591a798cc58
   geolocator_apple: b741765c55dc21950e3e106e8b3584e55cf81ce5
   get_mac: b90f006186f20adf5b9d1f65b530599d39470b16
+  image_picker: e06f7a68f000bd36f552c1847e33cda96ed31f1f
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   SDWebImage: 4ea20cca2986adc5aacde07aa686742fd4c67a37
   SwiftyGif: 5d4af95df24caf1c570dbbcb32a3b8a0763bc6d7
-  TensorFlowLiteC: b3ab9e867b0b71052ca102a32a786555b330b02e
-  tflite: 7acd11db0915e2d90ab90474413068568eb605f0
+  tflite_flutter: 9157a660578930a99728974f247369af1c3595d5
+  tflite_flutter_helper: 543b46b6bd064b21c92ea6e54bc0b29f1ce74cb5
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
 
 PODFILE CHECKSUM: 348dad678b7cce6be8a224f25af1488a984f0e6a
