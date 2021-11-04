@@ -30,7 +30,7 @@ class Panel extends StatefulWidget {
 
 class _PanelState extends State<Panel> {
 
-  // bool _reportButtonDisabled = false;
+  bool _reportButtonDisabled = false;
   // bool isAndroid = false
 
   @override
