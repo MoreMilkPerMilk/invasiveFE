@@ -26,7 +26,7 @@ dependencies:
   camera: ^0.8.1+7
   path: ^1.6.0
   path_provider: ^2.0.0
-  tflite: ^1.1.2
+#  tflite: ^1.1.2
   tflite_flutter:
   tflite_flutter_helper:
   http: 0.13.3  # allows for REST api queries
