@@ -108,9 +108,7 @@ flutter:
           style: italic
 
   assets:
-    - assets/resnet.tflite
     - assets/model.tflite
-    - assets/labels.txt
     - assets/tflitelabels.txt
     - assets/frame.png
     - assets/placeholder.png
