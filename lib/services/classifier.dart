@@ -98,6 +98,8 @@ abstract class Classifier {
 
   Category predict(Image image) {
     final pres = DateTime.now().millisecondsSinceEpoch;
+    //trained on BGR idiot
+    image = Image.fromBytes(image.width, image.height, image.getBytes(format: Format.bgr), format: Format.rgb);
     _inputImage = TensorImage(_inputType);
     _inputImage.loadImage(image);
     _inputImage = _preProcess();
